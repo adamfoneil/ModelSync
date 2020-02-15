@@ -21,5 +21,10 @@ namespace ModelSync.Library.Abstract
         public abstract string CreateStatement();
         public abstract string DropStatement();
         public abstract IEnumerable<DbObject> GetDropDependencies(DataModel dataModel);
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

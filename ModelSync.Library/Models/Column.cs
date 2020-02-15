@@ -15,24 +15,23 @@ namespace ModelSync.Library.Models
 
         public override ObjectType ObjectType => ObjectType.Column;
 
-        public string GetDefinition(bool isIdentity)
+        public string GetDefinition()
         {
-            string result = $"<{Name}> ";
+            string result = $"<{Name}>";
             if (IsCalculated)
             {
                 return $"{result} {Expression}";
             }
             else
-            {
-                string identitySyntax = (isIdentity) ? "identity(1,1) " : string.Empty;
+            {                
                 string nullable = (IsNullable) ? "NULL" : "NOT NULL";
-                return $"{result} {DataType} {identitySyntax}{nullable}";
+                return $"{result} {DataType} {nullable}";
             }            
         }        
 
         public override string CreateStatement()
         {
-            return $"ALTER TABLE <{Parent}> ADD <{Name}> {GetDefinition(false)}";
+            return $"ALTER TABLE <{Parent}> ADD <{Name}> {GetDefinition()}";
         }
 
         public override string DropStatement()

@@ -1,10 +1,16 @@
 ﻿using ModelSync.Library.Abstract;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace ModelSync.Library.Models
 {
+    public enum SortDirection
+    {
+        Ascending,
+        Descending
+    }
+
     public enum IndexType
     {
         PrimaryKey,
@@ -16,19 +22,49 @@ namespace ModelSync.Library.Models
     {
         public override bool HasSchema => false;
         public override ObjectType ObjectType => ObjectType.Index;
-
-        public IndexType IndexType { get; set; }
+        public bool IsClustered { get; set; }
+        public IndexType Type { get; set; }
 
         public IEnumerable<Column> Columns { get; set; }
 
-        public string GetDefinition()
-        {
-            throw new NotImplementedException();
-        }
-
         public override string CreateStatement()
         {
-            throw new NotImplementedException();
+            string definition = GetDefinition();
+
+            switch (Type)
+            {
+                case IndexType.UniqueIndex:
+                    return $"CREATE {definition}";
+
+                case IndexType.UniqueConstraint:                    
+                case IndexType.PrimaryKey:
+                    return $"ALTER TABLE <{Parent}> ADD {definition}";
+
+                default:
+                    throw new Exception($"Unrecognized index type {Type} on {Name}");
+            }
+        }
+
+        public string GetDefinition()
+        {
+            string columnList = string.Join(", ", Columns.OrderBy(col => col.Order).Select(col => $"<{col.Name}> {((col.SortDirection == SortDirection.Ascending) ? "ASC" : "DESC")}"));
+            string clustered = (IsClustered) ? "CLUSTERED" : "NONCLUSTERED";
+
+            switch (Type)
+            {
+                case IndexType.UniqueIndex:
+                    return $"{clustered} INDEX <{Name}> ON <{Parent}> ({columnList})";
+
+                case IndexType.UniqueConstraint:
+                    return $"CONSTRAINT <{Name}> UNIQUE {clustered} ({columnList})";
+
+                case IndexType.PrimaryKey:
+                    return $"CONSTRAINT <{Name}> PRIMARY KEY {clustered} ({columnList})";
+
+                default:
+                    throw new Exception($"Unrecognized index type {Type} on {Name}");
+
+            }
         }
 
         public override string DropStatement()
@@ -38,6 +74,7 @@ namespace ModelSync.Library.Models
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
+            // return
             throw new NotImplementedException();
         }
 
@@ -45,6 +82,7 @@ namespace ModelSync.Library.Models
         {
             public string Name { get; set; }
             public int Order { get; set; }
+            public SortDirection SortDirection { get; set; }
         }
     }
 }

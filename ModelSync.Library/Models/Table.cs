@@ -8,18 +8,15 @@ namespace ModelSync.Library.Models
     public class Table : DbObject
     {
         public override ObjectType ObjectType => ObjectType.Table;
-        public override bool HasSchema => true;
-        public string IdentityColumn { get; set; }
+        public override bool HasSchema => true;        
 
         public IEnumerable<Column> Columns { get; set; }
         public IEnumerable<Index> Indexes { get; set; }
 
         public override string CreateStatement()
-        {
-            bool isIdentity(string columnName) { return columnName.Equals(IdentityColumn); }
-
+        {            
             List<string> members = new List<string>();
-            members.AddRange(Columns.Select(col => col.GetDefinition(isIdentity(col.Name))));
+            members.AddRange(Columns.Select(col => col.GetDefinition()));
             members.AddRange(Indexes.Select(ndx => ndx.GetDefinition()));
 
             string createMembers = string.Join(",\r\n", members.Select(member => "\t" + member));
