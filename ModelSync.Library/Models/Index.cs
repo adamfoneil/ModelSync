@@ -25,7 +25,7 @@ namespace ModelSync.Library.Models
             throw new NotImplementedException();
         }
 
-        public override IEnumerable<string> CreateStatements(DbObject parentObject)
+        public override IEnumerable<string> CreateStatement(DbObject parentObject)
         {
             throw new NotImplementedException();
         }
@@ -35,7 +35,7 @@ namespace ModelSync.Library.Models
             return $"ALTER TABLE <{parentObject}> DROP INDEX "
         }
 
-        public override IEnumerable<DbObject> GetDependencies(DataModel dataModel)
+        public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
             throw new NotImplementedException();
         }

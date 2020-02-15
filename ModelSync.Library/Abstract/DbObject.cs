@@ -17,8 +17,8 @@ namespace ModelSync.Library.Abstract
         public string Name { get; set; }
         
         public abstract ObjectType ObjectType { get; }
-        public abstract IEnumerable<string> CreateStatements(DbObject parentObject);
+        public abstract string CreateStatement(DbObject parentObject);
         public abstract string DropStatement(DbObject parentObject);
-        public abstract IEnumerable<DbObject> GetDependencies(DataModel dataModel);
+        public abstract IEnumerable<DbObject> GetDropDependencies(DataModel dataModel);
     }
 }

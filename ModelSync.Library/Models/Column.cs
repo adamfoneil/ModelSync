@@ -12,14 +12,14 @@ namespace ModelSync.Library.Models
 
         public override ObjectType ObjectType => ObjectType.Column;
 
-        public string GetDefinition()
+        public string GetDefinition(bool isIdentity)
         {
             throw new NotImplementedException();
-        }
+        }        
 
-        public override IEnumerable<string> CreateStatements(DbObject parentObject)
+        public override string CreateStatement(DbObject parentObject)
         {
-            yield return $"ALTER TABLE <{parentObject}> ADD <{Name}> {GetDefinition()}";
+            return $"ALTER TABLE <{parentObject}> ADD <{Name}> {GetDefinition(false)}";
         }
 
         public override string DropStatement(DbObject parentObject)
@@ -27,8 +27,9 @@ namespace ModelSync.Library.Models
             return $"ALTER TABLE <{parentObject}> DROP COLUMN <{Name}>";
         }
 
-        public override IEnumerable<DbObject> GetDependencies(DataModel dataModel)
+        public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
+            // return this table's indexes that contain this column
             throw new NotImplementedException();
         }
     }

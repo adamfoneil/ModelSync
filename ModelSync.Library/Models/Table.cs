@@ -14,25 +14,33 @@ namespace ModelSync.Library.Models
         public IEnumerable<Column> Columns { get; set; }
         public IEnumerable<Index> Indexes { get; set; }
 
-        public override IEnumerable<string> CreateStatements(DbObject parentObject)
+        public override string CreateStatement(DbObject parentObject)
         {
+            bool isIdentity(string columnName) { return columnName.Equals(IdentityColumn); }
+
             List<string> members = new List<string>();
-            members.AddRange(Columns.Select(col => col.GetDefinition()));
+            members.AddRange(Columns.Select(col => col.GetDefinition(isIdentity(col.Name))));
             members.AddRange(Indexes.Select(ndx => ndx.GetDefinition()));
 
             string createMembers = string.Join(",\r\n", members.Select(member => "\t" + member));
 
-            yield return $"CREATE TABLE <{Name}> (\r\n{createMembers}\r\n)";
+            return $"CREATE TABLE <{this}> (\r\n{createMembers}\r\n)";
         }
 
         public override string DropStatement(DbObject parentObject)
         {
+            return $"DROP TABLE <{this}>";
+        }
+
+        public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
+        {
+            // return foreign keys referencing this table
             throw new NotImplementedException();
         }
 
-        public override IEnumerable<DbObject> GetDependencies(DataModel dataModel)
+        public override string ToString()
         {
-            throw new NotImplementedException();
+            return (!string.IsNullOrEmpty(Schema)) ? $"{Schema}.{Name}" : Name;
         }
     }
 }
