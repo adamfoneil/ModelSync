@@ -1,6 +1,9 @@
-﻿using System;
+﻿using ModelSync.Library.Extensions;
+using ModelSync.Library.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace ModelSync.Library.Abstract
@@ -17,14 +20,35 @@ namespace ModelSync.Library.Abstract
         public abstract char StartDelimiter { get; }
         public abstract char EndDelimiter { get; }
         public abstract string BatchSeparator { get; }
-        public abstract Dictionary<string, string> DataTypes { get; }
+        public abstract Dictionary<Type, string> DataTypes { get; }
         public abstract Dictionary<IdentityType, string> IdentityTypes { get; }
 
         /// <summary>
-        /// default sizes of variable-length columns when no length is specified.
-        /// Use the same key from DataTypes
+        /// override this to look for certain attributes or execute other logic to build out a Column 
+        /// object in ways that aren't determined by Type alone        
         /// </summary>
-        public abstract Dictionary<string, string> DefaultSizes { get; }
+        protected virtual void SetColumnProperties(PropertyInfo propertyInfo, Column column)
+        {
+            // do nothing by default
+        }
+
+        public Column GetColumnFromProperty(PropertyInfo propertyInfo)
+        {
+            var result = new Column()
+            {
+                Name = propertyInfo.Name,
+                IsNullable = propertyInfo.PropertyType.IsNullable()
+            };
+
+            if (DataTypes.ContainsKey(propertyInfo.PropertyType))
+            {
+                result.DataType = DataTypes[propertyInfo.PropertyType];
+            }
+
+            SetColumnProperties(propertyInfo, result);
+
+            return result;
+        }
 
         public string FormatStatement(string statement)
         {
