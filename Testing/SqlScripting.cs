@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ModelSync.Library.Dialects;
 using ModelSync.Library.Models;
 
 namespace Testing
@@ -31,6 +32,7 @@ namespace Testing
             };
 
             var sql = table.CreateStatement();
+            var output = new SqlServer().FormatStatement(sql);
         }
     }
 }
