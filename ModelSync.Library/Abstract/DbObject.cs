@@ -1,5 +1,4 @@
 ﻿using ModelSync.Library.Models;
-using System;
 using System.Collections.Generic;
 
 namespace ModelSync.Library.Abstract
@@ -15,10 +14,12 @@ namespace ModelSync.Library.Abstract
     public abstract class DbObject
     {        
         public string Name { get; set; }
-        
+        public DbObject Parent { get; set; }
+
+        public abstract bool HasSchema { get; }
         public abstract ObjectType ObjectType { get; }
-        public abstract string CreateStatement(DbObject parentObject);
-        public abstract string DropStatement(DbObject parentObject);
+        public abstract string CreateStatement();
+        public abstract string DropStatement();
         public abstract IEnumerable<DbObject> GetDropDependencies(DataModel dataModel);
     }
 }

@@ -6,6 +6,7 @@ namespace ModelSync.Library.Models
 {
     public class DataModel
     {
-        public IEnumerable<>
+        public IEnumerable<Table> Tables { get; set; }
+        public IEnumerable<ForeignKey> ForeignKeys { get; set; }
     }
 }

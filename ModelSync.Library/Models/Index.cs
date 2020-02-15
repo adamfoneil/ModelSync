@@ -14,30 +14,37 @@ namespace ModelSync.Library.Models
 
     public class Index : DbObject
     {
+        public override bool HasSchema => false;
         public override ObjectType ObjectType => ObjectType.Index;
 
         public IndexType IndexType { get; set; }
 
-        public IEnumerable<IndexColumn> Columns { get; set; }
+        public IEnumerable<Column> Columns { get; set; }
 
         public string GetDefinition()
         {
             throw new NotImplementedException();
         }
 
-        public override IEnumerable<string> CreateStatement(DbObject parentObject)
+        public override string CreateStatement()
         {
             throw new NotImplementedException();
         }
 
-        public override string DropStatement(DbObject parentObject)
+        public override string DropStatement()
         {
-            return $"ALTER TABLE <{parentObject}> DROP INDEX "
+            return $"ALTER TABLE <{Parent}> DROP INDEX <{Name}>";
         }
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
             throw new NotImplementedException();
+        }
+
+        public class Column
+        {
+            public string Name { get; set; }
+            public int Order { get; set; }
         }
     }
 }

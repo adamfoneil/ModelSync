@@ -8,13 +8,13 @@ namespace ModelSync.Library.Models
     public class Table : DbObject
     {
         public override ObjectType ObjectType => ObjectType.Table;
-        public string Schema { get; set; }
+        public override bool HasSchema => true;
         public string IdentityColumn { get; set; }
 
         public IEnumerable<Column> Columns { get; set; }
         public IEnumerable<Index> Indexes { get; set; }
 
-        public override string CreateStatement(DbObject parentObject)
+        public override string CreateStatement()
         {
             bool isIdentity(string columnName) { return columnName.Equals(IdentityColumn); }
 
@@ -27,7 +27,7 @@ namespace ModelSync.Library.Models
             return $"CREATE TABLE <{this}> (\r\n{createMembers}\r\n)";
         }
 
-        public override string DropStatement(DbObject parentObject)
+        public override string DropStatement()
         {
             return $"DROP TABLE <{this}>";
         }
@@ -36,11 +36,6 @@ namespace ModelSync.Library.Models
         {
             // return foreign keys referencing this table
             throw new NotImplementedException();
-        }
-
-        public override string ToString()
-        {
-            return (!string.IsNullOrEmpty(Schema)) ? $"{Schema}.{Name}" : Name;
         }
     }
 }

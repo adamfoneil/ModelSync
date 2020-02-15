@@ -5,26 +5,39 @@ using System.Collections.Generic;
 namespace ModelSync.Library.Models
 {
     public class Column : DbObject
-    {        
+    {
+        public override bool HasSchema => false;
+
         public string DataType { get; set; }        
         public bool IsNullable { get; set; }
+        public bool IsCalculated { get; set; }
         public string Expression { get; set; }
 
         public override ObjectType ObjectType => ObjectType.Column;
 
         public string GetDefinition(bool isIdentity)
         {
-            throw new NotImplementedException();
+            string result = $"<{Name}> ";
+            if (IsCalculated)
+            {
+                return $"{result} {Expression}";
+            }
+            else
+            {
+                string identitySyntax = (isIdentity) ? "identity(1,1) " : string.Empty;
+                string nullable = (IsNullable) ? "NULL" : "NOT NULL";
+                return $"{result} {DataType} {identitySyntax}{nullable}";
+            }            
         }        
 
-        public override string CreateStatement(DbObject parentObject)
+        public override string CreateStatement()
         {
-            return $"ALTER TABLE <{parentObject}> ADD <{Name}> {GetDefinition(false)}";
+            return $"ALTER TABLE <{Parent}> ADD <{Name}> {GetDefinition(false)}";
         }
 
-        public override string DropStatement(DbObject parentObject)
+        public override string DropStatement()
         {
-            return $"ALTER TABLE <{parentObject}> DROP COLUMN <{Name}>";
+            return $"ALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
         }
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
