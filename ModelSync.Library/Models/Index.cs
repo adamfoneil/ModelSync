@@ -19,8 +19,7 @@ namespace ModelSync.Library.Models
     }
 
     public class Index : DbObject
-    {
-        public override bool HasSchema => false;
+    {        
         public override ObjectType ObjectType => ObjectType.Index;
         public bool IsClustered { get; set; }
         public IndexType Type { get; set; }

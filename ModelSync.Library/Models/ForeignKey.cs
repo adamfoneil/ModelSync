@@ -5,8 +5,7 @@ using System.Linq;
 namespace ModelSync.Library.Models
 {
     public class ForeignKey : DbObject
-    {
-        public override bool HasSchema => false;
+    {        
         public override ObjectType ObjectType => ObjectType.ForeignKey;
 
         public DbObject ReferencedTable { get; set; }

@@ -6,8 +6,6 @@ namespace ModelSync.Library.Models
 {
     public class Column : DbObject
     {
-        public override bool HasSchema => false;
-
         public string DataType { get; set; }        
         public bool IsNullable { get; set; }
         public bool IsCalculated { get; set; }

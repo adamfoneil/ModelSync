@@ -15,8 +15,7 @@ namespace ModelSync.Library.Abstract
     {        
         public string Name { get; set; }
         public DbObject Parent { get; set; }
-
-        public abstract bool HasSchema { get; }
+        
         public abstract ObjectType ObjectType { get; }
         public abstract string CreateStatement();
         public abstract string DropStatement();
