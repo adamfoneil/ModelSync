@@ -7,8 +7,8 @@ namespace ModelSync.Library.Models
     public class ForeignKey : DbObject
     {        
         public override ObjectType ObjectType => ObjectType.ForeignKey;
-
-        public DbObject ReferencedTable { get; set; }
+        
+        public Table ReferencedTable { get; set; }        
         public IEnumerable<Column> Columns { get; set; }
 
         public override string CreateStatement()
@@ -26,6 +26,11 @@ namespace ModelSync.Library.Models
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
             return Enumerable.Empty<DbObject>();
+        }
+
+        public override bool IsAltered(DbObject @object)
+        {
+            throw new System.NotImplementedException();
         }
 
         public class Column

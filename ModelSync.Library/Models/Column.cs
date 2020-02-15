@@ -42,5 +42,10 @@ namespace ModelSync.Library.Models
             // return this table's indexes that contain this column
             throw new NotImplementedException();
         }
+
+        public override bool IsAltered(DbObject @object)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -20,10 +20,22 @@ namespace ModelSync.Library.Abstract
         public abstract string CreateStatement();
         public abstract string DropStatement();
         public abstract IEnumerable<DbObject> GetDropDependencies(DataModel dataModel);
+        public abstract bool IsAltered(DbObject @object);
 
         public override string ToString()
         {
             return Name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var dbObj = obj as DbObject;
+            return (dbObj != null) ? dbObj.Name?.ToLower().Equals(Name?.ToLower()) ?? false : false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
         }
     }
 }
