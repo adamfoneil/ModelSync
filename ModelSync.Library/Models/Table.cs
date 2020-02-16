@@ -19,17 +19,22 @@ namespace ModelSync.Library.Models
 
             string createMembers = string.Join(",\r\n", members.Select(member => "\t" + member));
 
-            return $"CREATE TABLE <{this}> (\r\n{createMembers}\r\n)";
+            return $"CREATE TABLE <{Name}> (\r\n{createMembers}\r\n)";
         }
 
         public override string DropStatement()
         {
-            return $"DROP TABLE <{this}>";
+            return $"DROP TABLE <{Name}>";
         }
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
             // return foreign keys referencing this table
+            throw new NotImplementedException();
+        }
+
+        public override bool IsAltered(DbObject @object)
+        {
             throw new NotImplementedException();
         }
     }

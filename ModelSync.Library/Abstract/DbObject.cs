@@ -1,10 +1,12 @@
 ﻿using ModelSync.Library.Models;
+using System;
 using System.Collections.Generic;
 
 namespace ModelSync.Library.Abstract
 {
     public enum ObjectType
     {
+        Schema,
         Table,
         Column,
         Index,
@@ -22,6 +24,8 @@ namespace ModelSync.Library.Abstract
         public abstract IEnumerable<DbObject> GetDropDependencies(DataModel dataModel);
         public abstract bool IsAltered(DbObject @object);
 
+        public const string DefaultSchema = "dbo";
+
         public override string ToString()
         {
             return Name;
@@ -36,6 +40,22 @@ namespace ModelSync.Library.Abstract
         public override int GetHashCode()
         {
             return Name.GetHashCode();
+        }
+
+        public string Schema
+        {
+            get
+            {
+                try
+                {
+                    var parts = Name.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                    return (parts.Length > 1) ? parts[0] : DefaultSchema;
+                }
+                catch 
+                {
+                    return null;
+                }                
+            }
         }
     }
 }

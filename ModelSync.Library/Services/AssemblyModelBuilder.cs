@@ -36,9 +36,15 @@ namespace ModelSync.Library.Services
         public async Task<DataModel> GetDataModelAsync()
         {
             var result = new DataModel();
+            result.Schemas = BuildSchemas(_assembly);
             result.Tables = BuildTables(_assembly);
             result.ForeignKeys = BuildForeignKeys(_assembly);
             return await Task.FromResult(result);            
+        }
+
+        private static IEnumerable<Schema> BuildSchemas(Assembly assembly)
+        {
+            throw new NotImplementedException();
         }
 
         private static IEnumerable<ForeignKey> BuildForeignKeys(Assembly assembly)
