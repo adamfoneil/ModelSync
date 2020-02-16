@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ModelSync.Library.Dialects;
+using ModelSync.Library.Services;
 using ModelSync.Library.Models;
 
 namespace Testing
