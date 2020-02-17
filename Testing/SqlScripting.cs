@@ -35,7 +35,7 @@ namespace Testing
             };
 
             var sql = table.CreateStatement();
-            var output = new SqlServer().FormatStatement(sql);
+            var output = new SqlServerDialect().FormatStatement(sql);
         }
 
         [TestMethod]
@@ -43,7 +43,7 @@ namespace Testing
         {
             var table = AssemblyModelBuilder.GetTableFromType<Employee>("dbo", "Id");
             var sql = table.CreateStatement();
-            var output = new SqlServer().FormatStatement(sql);
+            var output = new SqlServerDialect().FormatStatement(sql);
         }
 
         [TestMethod]

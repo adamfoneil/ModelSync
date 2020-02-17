@@ -29,6 +29,14 @@ namespace ModelSync.Library.Services
             _defaultIdentityColumn = defaultIdentityColumn;
         }
 
+        public async Task<DataModel> GetDataModelAsync()
+        {
+            var types = _assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
+            var typeTableMap = GetTypeTableMap(types, _defaultSchema, _defaultIdentityColumn);
+            DataModel result = GetDataModelInner(typeTableMap, _defaultSchema, _defaultIdentityColumn);
+            return await Task.FromResult(result);
+        }
+
         public static Table GetTableFromType<T>(string defaultSchema, string defaultIdentityColumn)
         {
             return GetTableFromType(typeof(T), defaultSchema, defaultIdentityColumn);
@@ -79,14 +87,6 @@ namespace ModelSync.Library.Services
             result.Add(typeof(string), "nvarchar");
 
             return result;
-        }
-
-        public async Task<DataModel> GetDataModelAsync()
-        {
-            var types = _assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
-            var typeTableMap = GetTypeTableMap(types, _defaultSchema, _defaultIdentityColumn);
-            DataModel result = GetDataModelInner(typeTableMap, _defaultSchema, _defaultIdentityColumn);
-            return await Task.FromResult(result);
         }
 
         private static DataModel GetDataModelInner(Dictionary<Type, Table> typeTableMap, string defaultSchema, string defaultIdentityColumn)

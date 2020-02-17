@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ModelSync.Library.Services
 {
-    public class SqlServer : SqlDialect
+    public class SqlServerDialect : SqlDialect
     {
         public override char StartDelimiter => '[';
 
