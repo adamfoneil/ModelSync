@@ -27,24 +27,78 @@ namespace ModelSync.Library.Services
             _defaultSchema = defaultSchema;
         }
 
-        private Dictionary<Type, string> DataTypes => new Dictionary<Type, string>()
+        private Dictionary<Type, string> DataTypes => GetSupportedTypes();
+
+        private Dictionary<Type, string> GetSupportedTypes()
         {
-            { typeof(int), "int" },
-            { typeof(long), "bigint" },
-            { typeof(string), "nvarchar" },
-            { typeof(DateTime), "datetime" },
-            { typeof(bool), "bit" }
-        };
+            var nullableBaseTypes = new Dictionary<Type, string>()
+            {
+                { typeof(int), "int" },
+                { typeof(long), "bigint" },
+                { typeof(short), "smallint" },
+                { typeof(byte), "tinyint" },
+                { typeof(DateTime), "datetime" },
+                { typeof(bool), "bit" },
+                { typeof(TimeSpan), "time" }
+            };
+
+            // help from https://stackoverflow.com/a/23402195/2023653
+            IEnumerable<Type> getBothTypes(Type type)
+            {
+                yield return type;
+                yield return typeof(Nullable<>).MakeGenericType(type);
+            }
+
+            var results = nullableBaseTypes.Select(kp => new
+            {
+                Types = getBothTypes(kp.Key),
+                DataType = kp.Value
+            }).SelectMany(item => item.Types.Select(t => new
+            {
+                Type = t,
+                SqlType = item.DataType
+            }));
+
+            var result = results.ToDictionary(item => item.Type, item => item.SqlType);
+
+            // string is special in that it's already nullable
+            result.Add(typeof(string), "nvarchar");
+
+            return result;
+        }
 
         public async Task<DataModel> GetDataModelAsync()
         {
+            var types = new Type[]
+            {
+                typeof(int), typeof(long), typeof(bool)
+            };
+
+            var allTypes = types.SelectMany(t =>
+            {
+                var bothTypes = new List<Type>();
+                bothTypes.Add(t);
+                bothTypes.Add(typeof(Nullable<>).MakeGenericType(t));
+                return bothTypes;
+            });
+
             var typeTableMap = GetTypeTableMap(_assembly);
 
             var result = new DataModel();
             result.Tables = typeTableMap.Select(kp => kp.Value);
             result.Schemas = result.Tables.GroupBy(item => item.GetSchema(_defaultSchema)).Select(grp => new Schema() { Name = grp.Key });
-            result.ForeignKeys = BuildForeignKeys(_assembly);
+            result.ForeignKeys = typeTableMap.SelectMany(kp => ForeignKeyProperties(kp.Key)).Select(pi => ForeignKeyFromProperty(pi, typeTableMap));
             return await Task.FromResult(result);            
+        }
+
+        private static IEnumerable<PropertyInfo> ForeignKeyProperties(Type type)
+        {
+            return type.GetProperties().Where(pi => pi.HasAttribute<ReferencesAttribute>(out _));
+        }
+
+        private static ForeignKey ForeignKeyFromProperty(PropertyInfo pi, Dictionary<Type, Table> typeTableMap)
+        {
+            throw new NotImplementedException();
         }
 
         private Dictionary<Type, Table> GetTypeTableMap(Assembly assembly)
@@ -63,11 +117,6 @@ namespace ModelSync.Library.Services
                 return $"{schema}.{name}";
             };
 
-            IEnumerable<Column> getColumns(Type type)
-            {
-                throw new NotImplementedException();
-            }
-
             IEnumerable<Index> getIndexes(Type type)
             {
                 throw new NotImplementedException();
@@ -79,7 +128,7 @@ namespace ModelSync.Library.Services
                 Table = new Table()
                 {
                     Name = getTableName(t),
-                    Columns = getColumns(t),
+                    Columns = t.GetProperties().Where(pi => DataTypes.ContainsKey(pi.PropertyType)).Select(pi => GetColumnFromProperty(pi)),
                     Indexes = getIndexes(t)
                 }
             });
@@ -91,11 +140,6 @@ namespace ModelSync.Library.Services
             }
 
             return source.ToDictionary(item => item.Type, item => item.Table);
-        }
-
-        private static IEnumerable<ForeignKey> BuildForeignKeys(Assembly assembly)
-        {
-            throw new NotImplementedException();
         }
 
         private Column GetColumnFromProperty(PropertyInfo propertyInfo)
