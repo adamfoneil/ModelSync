@@ -52,11 +52,11 @@ namespace ModelSync.Library.Services
             var results = nullableBaseTypes.Select(kp => new
             {
                 Types = getBothTypes(kp.Key),
-                DataType = kp.Value
+                SqlType = kp.Value
             }).SelectMany(item => item.Types.Select(t => new
             {
                 Type = t,
-                SqlType = item.DataType
+                item.SqlType
             }));
 
             var result = results.ToDictionary(item => item.Type, item => item.SqlType);

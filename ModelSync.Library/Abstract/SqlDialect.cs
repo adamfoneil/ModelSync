@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -17,7 +18,7 @@ namespace ModelSync.Library.Abstract
         public abstract char EndDelimiter { get; }
         public abstract string BatchSeparator { get; }
         
-        //public abstract Dictionary<IdentityType, string> IdentityTypes { get; }
+        public abstract Dictionary<IdentityType, string> IdentitySyntax { get; }
         
         public string FormatStatement(string statement)
         {

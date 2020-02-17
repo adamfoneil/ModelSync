@@ -1,12 +1,14 @@
 ﻿using ModelSync.Library.Abstract;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ModelSync.Library.Models
-{
+{    
     public class Column : DbObject
     {
         public string DataType { get; set; }        
+        public IdentityType? IdentityType { get; set; }
         public bool IsNullable { get; set; }
         public bool IsCalculated { get; set; }
         public string Expression { get; set; }
@@ -22,8 +24,9 @@ namespace ModelSync.Library.Models
             }
             else
             {                
-                string nullable = (IsNullable) ? "NULL" : "NOT NULL";
-                return $"{result} {DataType} {nullable}";
+                string nullable = (IsNullable) ? " NULL" : " NOT NULL";
+                string identity = (IdentityType.HasValue) ? $" %identity:{IdentityType}%" : string.Empty;
+                return $"{result} {DataType}{identity}{nullable}";
             }            
         }        
 
@@ -39,8 +42,13 @@ namespace ModelSync.Library.Models
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
-            // return this table's indexes that contain this column
-            throw new NotImplementedException();
+            var table = Parent as Table;
+            if (table != null)
+            {
+                return table.Indexes.Where(ndx => ndx.Columns.Any(col => col.Name.Equals(Name)));
+            }
+
+            return Enumerable.Empty<DbObject>();
         }
 
         public override bool IsAltered(DbObject @object)
