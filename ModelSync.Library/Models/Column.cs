@@ -7,8 +7,7 @@ namespace ModelSync.Library.Models
 {    
     public class Column : DbObject
     {
-        public string DataType { get; set; }        
-        public IdentityType? IdentityType { get; set; }
+        public string DataType { get; set; }                
         public bool IsNullable { get; set; }
         public bool IsCalculated { get; set; }
         public string Expression { get; set; }
@@ -25,9 +24,8 @@ namespace ModelSync.Library.Models
             }
             else
             {                
-                string nullable = (IsNullable) ? " NULL" : " NOT NULL";
-                string identity = (IdentityType.HasValue) ? $" %id%" : string.Empty;
-                return $"{result} {DataType}{identity}{nullable}";
+                string nullable = (IsNullable) ? "NULL" : "NOT NULL";                
+                return $"{result} {DataType} {nullable}";
             }            
         }        
 

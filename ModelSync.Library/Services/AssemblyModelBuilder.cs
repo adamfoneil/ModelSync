@@ -1,5 +1,4 @@
 ﻿using AO.DbSchema.Attributes;
-using ModelSync.Library.Abstract;
 using ModelSync.Library.Extensions;
 using ModelSync.Library.Interfaces;
 using ModelSync.Library.Models;
@@ -21,11 +20,13 @@ namespace ModelSync.Library.Services
     {
         private readonly Assembly _assembly;
         private readonly string _defaultSchema;
+        private readonly string _defaultIdentityColumn;
 
-        public AssemblyModelBuilder(Assembly assembly, string defaultSchema) 
+        public AssemblyModelBuilder(Assembly assembly, string defaultSchema, string defaultIdentityColumn) 
         {
             _assembly = assembly;
             _defaultSchema = defaultSchema;
+            _defaultIdentityColumn = defaultIdentityColumn;
         }
 
         private Dictionary<Type, string> DataTypes => GetSupportedTypes();
@@ -40,7 +41,8 @@ namespace ModelSync.Library.Services
                 { typeof(byte), "tinyint" },
                 { typeof(DateTime), "datetime" },
                 { typeof(bool), "bit" },
-                { typeof(TimeSpan), "time" }
+                { typeof(TimeSpan), "time" },
+                { typeof(Guid), "uniqueidentifier" }
             };
 
             // help from https://stackoverflow.com/a/23402195/2023653
@@ -156,13 +158,13 @@ namespace ModelSync.Library.Services
                 result.DataType = DataTypes[propertyInfo.PropertyType];
             }
 
-            SetColumnProperties(propertyInfo, result);
+            SetColumnProperties(propertyInfo, result, _defaultIdentityColumn);
 
             return result;
         }
 
-        protected static void SetColumnProperties(PropertyInfo propertyInfo, Column column)
-        {            
+        protected static void SetColumnProperties(PropertyInfo propertyInfo, Column column, string defaultIdentityColumn)
+        {
             if (propertyInfo.PropertyType.Equals(typeof(string)))
             {
                 if (propertyInfo.HasAttribute(out MaxLengthAttribute maxLength))
@@ -183,19 +185,26 @@ namespace ModelSync.Library.Services
                 }
             }
 
-            if (propertyInfo.DeclaringType.HasAttribute(out IdentityAttribute idAttr) && idAttr.PropertyName.Equals(propertyInfo.Name))
+            if (IsIdentity(propertyInfo, defaultIdentityColumn))
             {
-                var idTypes = new Dictionary<Type, IdentityType>
+                var idTypes = new Dictionary<Type, string>
                 {
-                    { typeof(int), IdentityType.Int },
-                    { typeof(long), IdentityType.Long },
-                    { typeof(Guid), IdentityType.Guid }
+                    { typeof(int), "identity(1,1)" },
+                    { typeof(long), "identity(1,1)" },
+                    { typeof(Guid), "default NewId()" }
                 };
 
-                column.IdentityType = (idTypes.ContainsKey(propertyInfo.PropertyType)) ? 
-                    idTypes[propertyInfo.PropertyType] : 
-                    throw new ArgumentException($"Unsupported identity type {propertyInfo.PropertyType.Name} used with property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name}");
+                if (!idTypes.ContainsKey(propertyInfo.PropertyType)) throw new Exception($"Property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name} uses unsupported identity type {propertyInfo.PropertyType.Name}");
+
+                column.DataType += idTypes[propertyInfo.PropertyType];
             }
+        }
+
+        private static bool IsIdentity(PropertyInfo propertyInfo, string defaultIdentityColumn)
+        {
+            return 
+                (propertyInfo.DeclaringType.HasAttribute(out IdentityAttribute idAttr) && idAttr.PropertyName.Equals(propertyInfo.Name)) ||
+                (propertyInfo.Name.Equals(defaultIdentityColumn));
         }
     }
 }
