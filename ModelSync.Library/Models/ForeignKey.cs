@@ -7,7 +7,8 @@ namespace ModelSync.Library.Models
     public class ForeignKey : DbObject
     {        
         public override ObjectType ObjectType => ObjectType.ForeignKey;
-        
+        public override bool IsDialectSpecific => false;
+
         public Table ReferencedTable { get; set; }        
         public IEnumerable<Column> Columns { get; set; }
 

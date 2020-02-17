@@ -14,6 +14,7 @@ namespace ModelSync.Library.Models
         public string Expression { get; set; }
 
         public override ObjectType ObjectType => ObjectType.Column;
+        public override bool IsDialectSpecific => true;
 
         public string GetDefinition()
         {

@@ -23,6 +23,7 @@ namespace ModelSync.Library.Abstract
         public abstract string DropStatement();
         public abstract IEnumerable<DbObject> GetDropDependencies(DataModel dataModel);
         public abstract bool IsAltered(DbObject @object);
+        public abstract bool IsDialectSpecific { get; }
 
         public override string ToString()
         {

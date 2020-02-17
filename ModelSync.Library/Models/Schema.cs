@@ -8,6 +8,7 @@ namespace ModelSync.Library.Models
     public class Schema : DbObject
     {
         public override ObjectType ObjectType => ObjectType.Schema;
+        public override bool IsDialectSpecific => false;
 
         public const string DefaultSchema = "dbo";
 

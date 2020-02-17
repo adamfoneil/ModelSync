@@ -7,7 +7,8 @@ namespace ModelSync.Library.Models
 {
     public class Table : DbObject
     {
-        public override ObjectType ObjectType => ObjectType.Table;        
+        public override ObjectType ObjectType => ObjectType.Table;
+        public override bool IsDialectSpecific => false;
         public IEnumerable<Column> Columns { get; set; }
         public IEnumerable<Index> Indexes { get; set; }
 
