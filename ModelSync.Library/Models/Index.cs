@@ -24,6 +24,7 @@ namespace ModelSync.Library.Models
         
         public IndexType Type { get; set; }
         public IEnumerable<Column> Columns { get; set; }
+        public int InternalId { get; set; }
 
         public override string CreateStatement()
         {
