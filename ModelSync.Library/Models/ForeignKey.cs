@@ -6,10 +6,11 @@ namespace ModelSync.Library.Models
 {
     public class ForeignKey : DbObject
     {        
-        public override ObjectType ObjectType => ObjectType.ForeignKey;
-        public override bool IsDialectSpecific => false;
+        public override ObjectType ObjectType => ObjectType.ForeignKey;        
 
         public Table ReferencedTable { get; set; }        
+        public bool CascadeDelete { get; set; }
+        public bool CascadeUpdate { get; set; }
         public IEnumerable<Column> Columns { get; set; }
 
         public override string CreateStatement()

@@ -20,8 +20,7 @@ namespace ModelSync.Library.Models
 
     public class Index : DbObject
     {        
-        public override ObjectType ObjectType => ObjectType.Index;
-        public override bool IsDialectSpecific => false;
+        public override ObjectType ObjectType => ObjectType.Index;        
         
         public IndexType Type { get; set; }
         public IEnumerable<Column> Columns { get; set; }

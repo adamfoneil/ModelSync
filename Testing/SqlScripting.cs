@@ -1,7 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelSync.Library.Models;
 using ModelSync.Library.Services;
+using System;
 using Testing.Models;
+using Index = ModelSync.Library.Models.Index;
 
 namespace Testing
 {
@@ -42,6 +44,16 @@ namespace Testing
             var table = AssemblyModelBuilder.GetTableFromType<Employee>("dbo", "Id");
             var sql = table.CreateStatement();
             var output = new SqlServer().FormatStatement(sql);
+        }
+
+        [TestMethod]
+        public void CreateDataModelFromTypes()
+        {
+            var model = AssemblyModelBuilder.GetDataModelFromTypes(new Type[]
+            {
+                typeof(Employee),
+                typeof(ActionItem)
+            }, "dbo", "Id");
         }
     }
 }

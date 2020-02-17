@@ -12,8 +12,7 @@ namespace ModelSync.Library.Models
         public bool IsCalculated { get; set; }
         public string Expression { get; set; }
 
-        public override ObjectType ObjectType => ObjectType.Column;
-        public override bool IsDialectSpecific => true;
+        public override ObjectType ObjectType => ObjectType.Column;        
 
         public string GetDefinition()
         {

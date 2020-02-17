@@ -34,6 +34,12 @@ namespace ModelSync.Library.Services
             return GetTableFromType(typeof(T), defaultSchema, defaultIdentityColumn);
         }
 
+        public static DataModel GetDataModelFromTypes(IEnumerable<Type> modelTypes, string defaultSchema, string defaultIdentityColumn)
+        {
+            var typeTableMap = GetTypeTableMap(modelTypes, defaultSchema, defaultIdentityColumn);
+            return GetDataModelInner(typeTableMap, defaultSchema, defaultIdentityColumn);
+        }
+
         private static Dictionary<Type, string> DataTypes => GetSupportedTypes();
 
         private static Dictionary<Type, string> GetSupportedTypes()
@@ -77,13 +83,35 @@ namespace ModelSync.Library.Services
 
         public async Task<DataModel> GetDataModelAsync()
         {
-            var typeTableMap = GetTypeTableMap(_assembly, _defaultSchema, _defaultIdentityColumn);
+            var types = _assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
+            var typeTableMap = GetTypeTableMap(types, _defaultSchema, _defaultIdentityColumn);
+            DataModel result = GetDataModelInner(typeTableMap, _defaultSchema, _defaultIdentityColumn);
+            return await Task.FromResult(result);
+        }
 
+        private static DataModel GetDataModelInner(Dictionary<Type, Table> typeTableMap, string defaultSchema, string defaultIdentityColumn)
+        {
             var result = new DataModel();
-            result.Tables = typeTableMap.Select(kp => kp.Value);
-            result.Schemas = result.Tables.GroupBy(item => item.GetSchema(_defaultSchema)).Select(grp => new Schema() { Name = grp.Key });
-            result.ForeignKeys = typeTableMap.SelectMany(kp => ForeignKeyProperties(kp.Key)).Select(pi => ForeignKeyFromProperty(pi, typeTableMap));
-            return await Task.FromResult(result);            
+
+            bool referencedTypeIsMapped(PropertyInfo propertyInfo)
+            {
+                var referenced = propertyInfo.GetCustomAttribute<ReferencesAttribute>();
+                return typeTableMap.ContainsKey(referenced.PrimaryType);
+            };
+
+            result.Tables = typeTableMap.Select(kp => kp.Value).ToArray();
+
+            result.Schemas = result.Tables
+                .GroupBy(item => item.GetSchema(defaultSchema)).Select(grp => new Schema() { Name = grp.Key })
+                .ToArray();
+
+            result.ForeignKeys = typeTableMap
+                .SelectMany(kp => ForeignKeyProperties(kp.Key))
+                .Where(pi => referencedTypeIsMapped(pi))
+                .Select(pi => ForeignKeyFromProperty(pi, typeTableMap, defaultSchema, defaultIdentityColumn))
+                .ToArray();
+
+            return result;
         }
 
         private static IEnumerable<PropertyInfo> ForeignKeyProperties(Type type)
@@ -91,16 +119,31 @@ namespace ModelSync.Library.Services
             return type.GetProperties().Where(pi => pi.HasAttribute<ReferencesAttribute>(out _));
         }
 
-        private static ForeignKey ForeignKeyFromProperty(PropertyInfo pi, Dictionary<Type, Table> typeTableMap)
+        private static ForeignKey ForeignKeyFromProperty(PropertyInfo propertyInfo, Dictionary<Type, Table> typeTableMap, string defaultSchema, string defaultIdentityColumn)
         {
-            throw new NotImplementedException();
+            var fk = propertyInfo.GetCustomAttribute<ReferencesAttribute>();
+
+            return new ForeignKey()
+            {
+                Name = $"FK_{GetTableName(propertyInfo.DeclaringType, defaultSchema)}_{propertyInfo.Name}",
+                ReferencedTable = typeTableMap[fk.PrimaryType],
+                Parent = typeTableMap[propertyInfo.DeclaringType],
+                CascadeUpdate = false,
+                CascadeDelete = false,
+                Columns = new ForeignKey.Column[] 
+                { 
+                    new ForeignKey.Column()
+                    {
+                        ReferencedName = FindIdentityProperty(fk.PrimaryType, defaultIdentityColumn).Name,
+                        ReferencingName = propertyInfo.Name
+                    }
+                }
+            };
         }
 
-        private static Dictionary<Type, Table> GetTypeTableMap(Assembly assembly, string defaultSchema, string defaultIdentityColumn)
-        {
-            var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
-
-            var source = types.Select(t => new
+        private static Dictionary<Type, Table> GetTypeTableMap(IEnumerable<Type> modelTypes, string defaultSchema, string defaultIdentityColumn)
+        {            
+            var source = modelTypes.Select(t => new
             {
                 Type = t,
                 Table = GetTableFromType(t, defaultSchema, defaultIdentityColumn)
@@ -132,6 +175,7 @@ namespace ModelSync.Library.Services
             string constraintName = GetTableName(modelType, defaultSchema).Replace(".", string.Empty);
 
             var idProperty = FindIdentityProperty(modelType, defaultIdentityColumn);
+            if (idProperty == null) throw new Exception($"No 'Id` or [Identity] property found on class {modelType.Name}");
 
             IEnumerable<Index> getIndexes(Type type)
             {
@@ -169,7 +213,9 @@ namespace ModelSync.Library.Services
                     {
                         Name = $"U_{constraintName}_{columns}",
                         Type = IndexType.UniqueConstraint,
-                        Columns = unique.PropertyNames.Select((name, index) => new Index.Column() { Name = name, SortDirection = SortDirection.Ascending, Order = index })
+                        Columns = unique.PropertyNames
+                            .Select((name, index) => new Index.Column() { Name = name, SortDirection = SortDirection.Ascending, Order = index })
+                            .ToArray()
                     };
                 }
 
@@ -179,15 +225,21 @@ namespace ModelSync.Library.Services
                 {
                     Type = identityType,
                     Name = identityIndexName,
-                    Columns = new Index.Column[] { new Index.Column() {  Name = idProperty.Name, Order = 1, SortDirection = SortDirection.Ascending } }
+                    Columns = new Index.Column[] 
+                    { 
+                        new Index.Column() { Name = idProperty.Name, Order = 1, SortDirection = SortDirection.Ascending } 
+                    }
                 };
             }
 
             return new Table()
             {
                 Name = GetTableName(modelType, defaultSchema),
-                Columns = modelType.GetProperties().Where(pi => DataTypes.ContainsKey(pi.PropertyType)).Select(pi => GetColumnFromProperty(pi, defaultIdentityColumn)),
-                Indexes = getIndexes(modelType)
+                Columns = modelType
+                    .GetProperties().Where(pi => DataTypes.ContainsKey(pi.PropertyType))
+                    .Select(pi => GetColumnFromProperty(pi, defaultIdentityColumn))
+                    .ToArray(),
+                Indexes = getIndexes(modelType).ToArray()
             };
         }
 
