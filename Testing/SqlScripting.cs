@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelSync.Library.Services;
 using ModelSync.Library.Models;
+using ModelSync.Library.Abstract;
 
 namespace Testing
 {
@@ -15,7 +16,7 @@ namespace Testing
                 Name = "dbo.Employee",
                 Columns = new Column[]
                 {
-                    new Column() { Name = "Id", DataType = "int identity(1,1)" },
+                    new Column() { Name = "Id", DataType = "int", IdentityType = IdentityType.Int },
                     new Column() { Name = "FirstName", DataType = "nvarchar(50)", IsNullable = false },
                     new Column() { Name = "LastName", DataType = "nvarchar(50)", IsNullable = false },
                     new Column() { Name = "HireDate", DataType = "date", IsNullable = true },

@@ -1,4 +1,5 @@
 ﻿using AO.DbSchema.Attributes;
+using ModelSync.Library.Abstract;
 using ModelSync.Library.Extensions;
 using ModelSync.Library.Interfaces;
 using ModelSync.Library.Models;
@@ -160,7 +161,7 @@ namespace ModelSync.Library.Services
             return result;
         }
 
-        protected void SetColumnProperties(PropertyInfo propertyInfo, Column column)
+        protected static void SetColumnProperties(PropertyInfo propertyInfo, Column column)
         {            
             if (propertyInfo.PropertyType.Equals(typeof(string)))
             {
@@ -180,6 +181,20 @@ namespace ModelSync.Library.Services
                 {
                     column.DataType = columnAttr.TypeName;
                 }
+            }
+
+            if (propertyInfo.DeclaringType.HasAttribute(out IdentityAttribute idAttr) && idAttr.PropertyName.Equals(propertyInfo.Name))
+            {
+                var idTypes = new Dictionary<Type, IdentityType>
+                {
+                    { typeof(int), IdentityType.Int },
+                    { typeof(long), IdentityType.Long },
+                    { typeof(Guid), IdentityType.Guid }
+                };
+
+                column.IdentityType = (idTypes.ContainsKey(propertyInfo.PropertyType)) ? 
+                    idTypes[propertyInfo.PropertyType] : 
+                    throw new ArgumentException($"Unsupported identity type {propertyInfo.PropertyType.Name} used with property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name}");
             }
         }
     }

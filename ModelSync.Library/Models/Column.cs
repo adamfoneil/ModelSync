@@ -25,7 +25,7 @@ namespace ModelSync.Library.Models
             else
             {                
                 string nullable = (IsNullable) ? " NULL" : " NOT NULL";
-                string identity = (IdentityType.HasValue) ? $" %identity:{IdentityType}%" : string.Empty;
+                string identity = (IdentityType.HasValue) ? $" %id%" : string.Empty;
                 return $"{result} {DataType}{identity}{nullable}";
             }            
         }        
