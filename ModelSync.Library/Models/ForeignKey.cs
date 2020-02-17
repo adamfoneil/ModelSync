@@ -17,7 +17,10 @@ namespace ModelSync.Library.Models
         {
             string referencingColumns = string.Join(", ", Columns.Select(col => $"<{col.ReferencingName}>"));
             string referencedColumns = string.Join(", ", Columns.Select(col => $"<{col.ReferencedName}>"));
-            return $"ALTER TABLE <{Parent}> ADD CONSTRAINT <{Name}> FOREIGN KEY ({referencingColumns}) REFERENCES <{ReferencedTable}> ({referencedColumns})";
+            string result = $"ALTER TABLE <{Parent}> ADD CONSTRAINT <{Name}> FOREIGN KEY ({referencingColumns}) REFERENCES <{ReferencedTable}> ({referencedColumns})";
+            if (CascadeDelete) result += " ON DELETE CASCADE";
+            if (CascadeUpdate) result += " ON UPDATE CASCADE";
+            return result;
         }
 
         public override string DropStatement()

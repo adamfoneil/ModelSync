@@ -8,7 +8,7 @@ namespace Testing.Models
     {
         public int Id { get; set; }
 
-        [References(typeof(Employee))]
+        [References(typeof(Employee), CascadeDelete = true)]
         public int EmployeeId { get; set; }
 
         [MaxLength(255)]

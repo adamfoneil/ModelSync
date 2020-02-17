@@ -129,7 +129,7 @@ namespace ModelSync.Library.Services
                 ReferencedTable = typeTableMap[fk.PrimaryType],
                 Parent = typeTableMap[propertyInfo.DeclaringType],
                 CascadeUpdate = false,
-                CascadeDelete = false,
+                CascadeDelete = fk.CascadeDelete,
                 Columns = new ForeignKey.Column[] 
                 { 
                     new ForeignKey.Column()
