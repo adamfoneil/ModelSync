@@ -29,9 +29,14 @@ namespace ModelSync.Library.Services
             _defaultIdentityColumn = defaultIdentityColumn;
         }
 
-        private Dictionary<Type, string> DataTypes => GetSupportedTypes();
+        public static Table GetTableFromType<T>(string defaultSchema, string defaultIdentityColumn)
+        {
+            return GetTableFromType(typeof(T), defaultSchema, defaultIdentityColumn);
+        }
 
-        private Dictionary<Type, string> GetSupportedTypes()
+        private static Dictionary<Type, string> DataTypes => GetSupportedTypes();
+
+        private static Dictionary<Type, string> GetSupportedTypes()
         {
             var nullableBaseTypes = new Dictionary<Type, string>()
             {
@@ -72,20 +77,7 @@ namespace ModelSync.Library.Services
 
         public async Task<DataModel> GetDataModelAsync()
         {
-            var types = new Type[]
-            {
-                typeof(int), typeof(long), typeof(bool)
-            };
-
-            var allTypes = types.SelectMany(t =>
-            {
-                var bothTypes = new List<Type>();
-                bothTypes.Add(t);
-                bothTypes.Add(typeof(Nullable<>).MakeGenericType(t));
-                return bothTypes;
-            });
-
-            var typeTableMap = GetTypeTableMap(_assembly);
+            var typeTableMap = GetTypeTableMap(_assembly, _defaultSchema, _defaultIdentityColumn);
 
             var result = new DataModel();
             result.Tables = typeTableMap.Select(kp => kp.Value);
@@ -104,36 +96,14 @@ namespace ModelSync.Library.Services
             throw new NotImplementedException();
         }
 
-        private Dictionary<Type, Table> GetTypeTableMap(Assembly assembly)
+        private static Dictionary<Type, Table> GetTypeTableMap(Assembly assembly, string defaultSchema, string defaultIdentityColumn)
         {
             var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
-
-            string getTableName(Type type)
-            {
-                string name = (type.HasAttribute(out TableAttribute tableAttr)) ? tableAttr.Name : type.Name;
-
-                string schema =
-                    (type.HasAttribute(out SchemaAttribute schemaAttr)) ? schemaAttr.Name :
-                    (tableAttr != null && !string.IsNullOrEmpty(tableAttr.Schema)) ? tableAttr.Schema :
-                    _defaultSchema;
-
-                return $"{schema}.{name}";
-            };
-
-            IEnumerable<Index> getIndexes(Type type)
-            {
-                throw new NotImplementedException();
-            }
 
             var source = types.Select(t => new
             {
                 Type = t,
-                Table = new Table()
-                {
-                    Name = getTableName(t),
-                    Columns = t.GetProperties().Where(pi => DataTypes.ContainsKey(pi.PropertyType)).Select(pi => GetColumnFromProperty(pi)),
-                    Indexes = getIndexes(t)
-                }
+                Table = GetTableFromType(t, defaultSchema, defaultIdentityColumn)
             });
 
             foreach (var item in source)
@@ -145,12 +115,75 @@ namespace ModelSync.Library.Services
             return source.ToDictionary(item => item.Type, item => item.Table);
         }
 
-        private Column GetColumnFromProperty(PropertyInfo propertyInfo)
+        private static string GetTableName(Type type, string defaultSchema)
+        {
+            string name = (type.HasAttribute(out TableAttribute tableAttr)) ? tableAttr.Name : type.Name;
+
+            string schema =
+                (type.HasAttribute(out SchemaAttribute schemaAttr)) ? schemaAttr.Name :
+                (tableAttr != null && !string.IsNullOrEmpty(tableAttr.Schema)) ? tableAttr.Schema :
+                defaultSchema;
+
+            return $"{schema}.{name}";
+        }
+
+        private static Table GetTableFromType(Type modelType, string defaultSchema, string defaultIdentityColumn)
+        {
+            string constraintName = GetTableName(modelType, defaultSchema).Replace(".", string.Empty);
+
+            var idProperty = FindIdentityProperty(modelType, defaultIdentityColumn);
+
+            IEnumerable<Index> getIndexes(Type type)
+            {
+                IndexType identityType = IndexType.PrimaryKey;
+                
+                var keyColumns = type.GetProperties().Where(pi => pi.HasAttribute<KeyAttribute>(out _));
+                if (keyColumns.Any())
+                {                    
+                    if (idProperty != null && keyColumns.Contains(idProperty))
+                    {
+                        throw new Exception($"Model property {modelType.Name}.{idProperty.Name} can be either an [Identity] or [Key] property, but not both.");
+                    }
+
+                    identityType = IndexType.UniqueConstraint;
+
+                    yield return new Index()
+                    {
+                        Type = IndexType.PrimaryKey,
+                        Name = $"PK_{constraintName}",
+                        Columns = keyColumns.Select((pi, index) => new Index.Column()
+                        {
+                            Name = pi.Name,
+                            Order = index,
+                            SortDirection = SortDirection.Ascending
+                        })
+                    };
+                }
+
+                string identityIndexName = (!keyColumns.Any()) ? $"PK_{constraintName}" : $"U_{constraintName}_{idProperty.Name}";
+
+                yield return new Index()
+                {
+                    Type = identityType,
+                    Name = identityIndexName,
+                    Columns = new Index.Column[] { new Index.Column() {  Name = idProperty.Name, Order = 1, SortDirection = SortDirection.Ascending } }
+                };
+            }
+
+            return new Table()
+            {
+                Name = GetTableName(modelType, defaultSchema),
+                Columns = modelType.GetProperties().Where(pi => DataTypes.ContainsKey(pi.PropertyType)).Select(pi => GetColumnFromProperty(pi, defaultIdentityColumn)),
+                Indexes = getIndexes(modelType)
+            };
+        }
+
+        private static Column GetColumnFromProperty(PropertyInfo propertyInfo, string defaultIdentityColumn)
         {
             var result = new Column()
             {
                 Name = propertyInfo.Name,
-                IsNullable = propertyInfo.PropertyType.IsNullable()
+                IsNullable = propertyInfo.PropertyType.IsNullable() && !propertyInfo.HasAttribute<RequiredAttribute>(out _)
             };
 
             if (DataTypes.ContainsKey(propertyInfo.PropertyType))
@@ -158,7 +191,7 @@ namespace ModelSync.Library.Services
                 result.DataType = DataTypes[propertyInfo.PropertyType];
             }
 
-            SetColumnProperties(propertyInfo, result, _defaultIdentityColumn);
+            SetColumnProperties(propertyInfo, result, defaultIdentityColumn);
 
             return result;
         }
@@ -198,6 +231,11 @@ namespace ModelSync.Library.Services
 
                 column.DataType += idTypes[propertyInfo.PropertyType];
             }
+        }
+
+        private static PropertyInfo FindIdentityProperty(Type type, string defaultIdentityColumn)
+        {
+            return type.GetProperties().Where(pi => IsIdentity(pi, defaultIdentityColumn)).FirstOrDefault();
         }
 
         private static bool IsIdentity(PropertyInfo propertyInfo, string defaultIdentityColumn)

@@ -79,6 +79,11 @@ namespace ModelSync.Library.Models
             throw new NotImplementedException();
         }
 
+        public override bool IsAltered(DbObject @object)
+        {
+            throw new NotImplementedException();
+        }
+
         public class Column
         {
             public string Name { get; set; }

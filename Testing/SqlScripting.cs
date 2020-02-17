@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ModelSync.Library.Services;
 using ModelSync.Library.Models;
-using ModelSync.Library.Abstract;
+using ModelSync.Library.Services;
+using Testing.Models;
 
 namespace Testing
 {
@@ -16,7 +16,7 @@ namespace Testing
                 Name = "dbo.Employee",
                 Columns = new Column[]
                 {
-                    new Column() { Name = "Id", DataType = "int" },
+                    new Column() { Name = "Id", DataType = "int identity(1,1)" },
                     new Column() { Name = "FirstName", DataType = "nvarchar(50)", IsNullable = false },
                     new Column() { Name = "LastName", DataType = "nvarchar(50)", IsNullable = false },
                     new Column() { Name = "HireDate", DataType = "date", IsNullable = true },
@@ -34,6 +34,12 @@ namespace Testing
 
             var sql = table.CreateStatement();
             var output = new SqlServer().FormatStatement(sql);
+        }
+
+        [TestMethod]
+        public void CreateTableFromClass()
+        {
+            var table = AssemblyModelBuilder.GetTableFromType<Employee>("dbo", "Id");
         }
     }
 }
