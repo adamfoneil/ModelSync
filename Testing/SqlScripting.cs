@@ -40,6 +40,8 @@ namespace Testing
         public void CreateTableFromClass()
         {
             var table = AssemblyModelBuilder.GetTableFromType<Employee>("dbo", "Id");
+            var sql = table.CreateStatement();
+            var output = new SqlServer().FormatStatement(sql);
         }
     }
 }

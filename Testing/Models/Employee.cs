@@ -12,7 +12,7 @@ namespace Testing.Models
         [MaxLength(30)]
         [Required]
         [Key]
-        public string UniqueId { get; set; }
+        public Guid UniqueId { get; set; }
 
         [MaxLength(50)]
         [Required]

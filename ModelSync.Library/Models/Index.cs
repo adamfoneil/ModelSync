@@ -22,10 +22,8 @@ namespace ModelSync.Library.Models
     {        
         public override ObjectType ObjectType => ObjectType.Index;
         public override bool IsDialectSpecific => false;
-
-        public bool IsClustered { get; set; }
+        
         public IndexType Type { get; set; }
-
         public IEnumerable<Column> Columns { get; set; }
 
         public override string CreateStatement()
@@ -48,19 +46,18 @@ namespace ModelSync.Library.Models
 
         public string GetDefinition()
         {
-            string columnList = string.Join(", ", Columns.OrderBy(col => col.Order).Select(col => $"<{col.Name}> {((col.SortDirection == SortDirection.Ascending) ? "ASC" : "DESC")}"));
-            string clustered = (IsClustered) ? "CLUSTERED" : "NONCLUSTERED";
+            string columnList = string.Join(", ", Columns.OrderBy(col => col.Order).Select(col => $"<{col.Name}> {((col.SortDirection == SortDirection.Ascending) ? "ASC" : "DESC")}"));            
 
             switch (Type)
             {
                 case IndexType.UniqueIndex:
-                    return $"{clustered} INDEX <{Name}> ON <{Parent}> ({columnList})";
+                    return $"INDEX <{Name}> ON <{Parent}> ({columnList})";
 
                 case IndexType.UniqueConstraint:
-                    return $"CONSTRAINT <{Name}> UNIQUE {clustered} ({columnList})";
+                    return $"CONSTRAINT <{Name}> UNIQUE ({columnList})";
 
                 case IndexType.PrimaryKey:
-                    return $"CONSTRAINT <{Name}> PRIMARY KEY {clustered} ({columnList})";
+                    return $"CONSTRAINT <{Name}> PRIMARY KEY ({columnList})";
 
                 default:
                     throw new Exception($"Unrecognized index type {Type} on {Name}");

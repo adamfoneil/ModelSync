@@ -160,6 +160,19 @@ namespace ModelSync.Library.Services
                     };
                 }
 
+                var uniqueConstraints = modelType.GetCustomAttributes<UniqueConstraintAttribute>();
+                foreach (var unique in uniqueConstraints)
+                {
+                    string columns = string.Join("_", unique.PropertyNames);
+
+                    yield return new Index()
+                    {
+                        Name = $"U_{constraintName}_{columns}",
+                        Type = IndexType.UniqueConstraint,
+                        Columns = unique.PropertyNames.Select((name, index) => new Index.Column() { Name = name, SortDirection = SortDirection.Ascending, Order = index })
+                    };
+                }
+
                 string identityIndexName = (!keyColumns.Any()) ? $"PK_{constraintName}" : $"U_{constraintName}_{idProperty.Name}";
 
                 yield return new Index()
@@ -229,7 +242,7 @@ namespace ModelSync.Library.Services
 
                 if (!idTypes.ContainsKey(propertyInfo.PropertyType)) throw new Exception($"Property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name} uses unsupported identity type {propertyInfo.PropertyType.Name}");
 
-                column.DataType += idTypes[propertyInfo.PropertyType];
+                column.DataType += " " + idTypes[propertyInfo.PropertyType];
             }
         }
 
