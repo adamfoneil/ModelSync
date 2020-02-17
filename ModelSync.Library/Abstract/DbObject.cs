@@ -24,8 +24,6 @@ namespace ModelSync.Library.Abstract
         public abstract IEnumerable<DbObject> GetDropDependencies(DataModel dataModel);
         public abstract bool IsAltered(DbObject @object);
 
-        public const string DefaultSchema = "dbo";
-
         public override string ToString()
         {
             return Name;
@@ -42,20 +40,17 @@ namespace ModelSync.Library.Abstract
             return Name.GetHashCode();
         }
 
-        public string Schema
-        {
-            get
+        public string GetSchema(string defaultSchema)
+        {            
+            try
             {
-                try
-                {
-                    var parts = Name.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-                    return (parts.Length > 1) ? parts[0] : DefaultSchema;
-                }
-                catch 
-                {
-                    return null;
-                }                
+                var parts = Name.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                return (parts.Length > 1) ? parts[0] : defaultSchema;
             }
+            catch 
+            {
+                return defaultSchema;
+            }            
         }
     }
 }

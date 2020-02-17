@@ -9,6 +9,8 @@ namespace ModelSync.Library.Models
     {
         public override ObjectType ObjectType => ObjectType.Schema;
 
+        public const string DefaultSchema = "dbo";
+
         public override string CreateStatement()
         {
             return $"CREATE SCHEMA <{Name}>";
@@ -21,7 +23,7 @@ namespace ModelSync.Library.Models
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
-            return dataModel.Tables.Where(t => t.Schema.Equals(this.Name));
+            return dataModel.Tables.Where(t => t.GetSchema(DefaultSchema).Equals(this.Name));
         }
 
         public override bool IsAltered(DbObject @object)

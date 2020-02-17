@@ -1,4 +1,5 @@
-﻿using ModelSync.Library.Extensions;
+﻿using AO.DbSchema.Attributes;
+using ModelSync.Library.Extensions;
 using ModelSync.Library.Interfaces;
 using ModelSync.Library.Models;
 using System;
@@ -18,10 +19,12 @@ namespace ModelSync.Library.Services
     public class AssemblyModelBuilder : IModelBuilder
     {
         private readonly Assembly _assembly;
+        private readonly string _defaultSchema;
 
-        public AssemblyModelBuilder(Assembly assembly) 
+        public AssemblyModelBuilder(Assembly assembly, string defaultSchema) 
         {
             _assembly = assembly;
+            _defaultSchema = defaultSchema;
         }
 
         private Dictionary<Type, string> DataTypes => new Dictionary<Type, string>()
@@ -35,27 +38,63 @@ namespace ModelSync.Library.Services
 
         public async Task<DataModel> GetDataModelAsync()
         {
+            var typeTableMap = GetTypeTableMap(_assembly);
+
             var result = new DataModel();
-            result.Schemas = BuildSchemas(_assembly);
-            result.Tables = BuildTables(_assembly);
+            result.Tables = typeTableMap.Select(kp => kp.Value);
+            result.Schemas = result.Tables.GroupBy(item => item.GetSchema(_defaultSchema)).Select(grp => new Schema() { Name = grp.Key });
             result.ForeignKeys = BuildForeignKeys(_assembly);
             return await Task.FromResult(result);            
         }
 
-        private static IEnumerable<Schema> BuildSchemas(Assembly assembly)
+        private Dictionary<Type, Table> GetTypeTableMap(Assembly assembly)
         {
-            throw new NotImplementedException();
+            var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
+
+            string getTableName(Type type)
+            {
+                string name = (type.HasAttribute(out TableAttribute tableAttr)) ? tableAttr.Name : type.Name;
+
+                string schema =
+                    (type.HasAttribute(out SchemaAttribute schemaAttr)) ? schemaAttr.Name :
+                    (tableAttr != null && !string.IsNullOrEmpty(tableAttr.Schema)) ? tableAttr.Schema :
+                    _defaultSchema;
+
+                return $"{schema}.{name}";
+            };
+
+            IEnumerable<Column> getColumns(Type type)
+            {
+                throw new NotImplementedException();
+            }
+
+            IEnumerable<Index> getIndexes(Type type)
+            {
+                throw new NotImplementedException();
+            }
+
+            var source = types.Select(t => new
+            {
+                Type = t,
+                Table = new Table()
+                {
+                    Name = getTableName(t),
+                    Columns = getColumns(t),
+                    Indexes = getIndexes(t)
+                }
+            });
+
+            foreach (var item in source)
+            {
+                foreach (var col in item.Table.Columns) col.Parent = item.Table;
+                foreach (var ndx in item.Table.Indexes) ndx.Parent = item.Table;
+            }
+
+            return source.ToDictionary(item => item.Type, item => item.Table);
         }
 
         private static IEnumerable<ForeignKey> BuildForeignKeys(Assembly assembly)
         {
-            throw new NotImplementedException();
-        }
-
-        private static IEnumerable<Table> BuildTables(Assembly assembly)
-        {
-            var types = assembly.GetExportedTypes();
-
             throw new NotImplementedException();
         }
 
