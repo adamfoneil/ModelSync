@@ -15,18 +15,20 @@ namespace ModelSync.Library.Models
 
             var createTables = CreateTables(sourceModel, destModel);
             results.AddRange(createTables);
-
-            var tables = createTables.Select(scr => scr.Object);
-            results.AddRange(AddColumns(sourceModel, destModel, tables));
-            results.AddRange(AddIndexes(sourceModel, destModel, tables));
+            
+            results.AddRange(AddColumns(sourceModel, destModel, createTables));
+            results.AddRange(AddIndexes(sourceModel, destModel, createTables));
             results.AddRange(AlterColumns(sourceModel, destModel));
             results.AddRange(CreateForeignKeys(sourceModel, destModel));
 
             results.AddRange(DropIndexes(sourceModel, destModel));
-            results.AddRange(DropForeignKeys(sourceModel, destModel));            
-            results.AddRange(DropColumns(sourceModel, destModel));
-            results.AddRange(DropTables(sourceModel, destModel));            
+            results.AddRange(DropForeignKeys(sourceModel, destModel));
 
+            var dropTables = DropTables(sourceModel, destModel);
+            results.AddRange(dropTables);
+
+            results.AddRange(DropColumns(sourceModel, destModel, dropTables));
+            
             return results;
         }
 
@@ -50,9 +52,9 @@ namespace ModelSync.Library.Models
             });
         }
 
-        private static IEnumerable<ScriptAction> AddColumns(DataModel sourceModel, DataModel destModel, IEnumerable<DbObject> exceptCreatedTables)
+        private static IEnumerable<ScriptAction> AddColumns(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptCreatedTables)
         {
-            var exceptTables = exceptCreatedTables.OfType<Table>();
+            var exceptTables = exceptCreatedTables.Select(scr => scr.Object).OfType<Table>();
 
             return sourceModel.Tables
                 .Except(exceptTables)
@@ -76,14 +78,20 @@ namespace ModelSync.Library.Models
             });
         }
 
-        private static IEnumerable<ScriptAction> DropColumns(DataModel sourceModel, DataModel destModel)
+        private static IEnumerable<ScriptAction> DropColumns(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
         {
-            return destModel.Tables.SelectMany(tbl => tbl.Columns).Except(sourceModel.Tables.SelectMany(tbl => tbl.Columns)).Select(col => new ScriptAction()
-            {
-                Type = ActionType.Drop,
-                Object = col,
-                Commands = col.DropStatements(destModel)
-            });
+            var exceptTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
+
+            return destModel.Tables
+                .Except(exceptTables)
+                .SelectMany(tbl => tbl.Columns)                
+                .Except(sourceModel.Tables.SelectMany(tbl => tbl.Columns))
+                .Select(col => new ScriptAction()
+                {
+                    Type = ActionType.Drop,
+                    Object = col,
+                    Commands = col.DropStatements(destModel)
+                });
         }
 
         private static IEnumerable<ScriptAction> DropForeignKeys(DataModel sourceModel, DataModel destModel)
@@ -106,7 +114,7 @@ namespace ModelSync.Library.Models
             return Enumerable.Empty<ScriptAction>();
         }
 
-        private static IEnumerable<ScriptAction> AddIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<DbObject> exceptCreatedTables)
+        private static IEnumerable<ScriptAction> AddIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptCreatedTables)
         {
             return Enumerable.Empty<ScriptAction>();
         }

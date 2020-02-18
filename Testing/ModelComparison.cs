@@ -62,6 +62,40 @@ namespace Testing
 
         }
 
+        [TestMethod]
+        public void DropColumn()
+        {
+            var tableSrc = BuildTable("table1", "FirstName", "LastName", "HireDate");
+            var table2 = BuildTable("table2", "Jiminy", "Hambone", "Ecclesiast");
+            var tableDest = BuildTable("table1", "FirstName", "LastName", "HireDate", "WhateverDate");
+
+            var src = new DataModel()
+            {
+                Tables = new Table[] { tableSrc }
+            };
+
+            var dest = new DataModel()
+            {
+                Tables = new Table[] { tableDest, table2 }
+            };
+
+            var script = DataModel.Compare(src, dest);
+            var col = tableDest.Columns.Last();
+            Assert.IsTrue(script.Contains(new ScriptAction()
+            {
+                Type = ActionType.Drop,
+                Object = col,
+                Commands = col.DropStatements(dest)
+            }));
+
+            Assert.IsTrue(script.Contains(new ScriptAction()
+            {
+                Type = ActionType.Drop,
+                Object = table2,
+                Commands = table2.DropStatements(dest)
+            }));
+        }
+
         private Table BuildTable(string tableName, params string[] columnNames)
         {
             return new Table()

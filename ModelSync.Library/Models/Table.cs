@@ -32,8 +32,7 @@ namespace ModelSync.Library.Models
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
-            // return foreign keys referencing this table
-            throw new NotImplementedException();
+            return dataModel.ForeignKeys.Where(fk => fk.Parent.Equals(this));
         }
 
         public override bool IsAltered(DbObject @object)
