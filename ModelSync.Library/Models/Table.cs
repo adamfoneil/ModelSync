@@ -1,7 +1,9 @@
 ﻿using ModelSync.Library.Abstract;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ModelSync.Library.Models
 {
@@ -10,6 +12,7 @@ namespace ModelSync.Library.Models
         public override ObjectType ObjectType => ObjectType.Table;        
         public IEnumerable<Column> Columns { get; set; }
         public IEnumerable<Index> Indexes { get; set; }
+        public long RowCount { get; set; }
 
         public override string CreateStatement()
         {            
@@ -34,6 +37,11 @@ namespace ModelSync.Library.Models
         }
 
         public override bool IsAltered(DbObject @object)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<bool> ExistsAsync(IDbConnection connection)
         {
             throw new NotImplementedException();
         }

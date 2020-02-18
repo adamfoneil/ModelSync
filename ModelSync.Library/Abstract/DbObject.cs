@@ -1,6 +1,8 @@
 ﻿using ModelSync.Library.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace ModelSync.Library.Abstract
 {
@@ -23,7 +25,8 @@ namespace ModelSync.Library.Abstract
         public abstract string CreateStatement();
         public abstract string DropStatement();
         public abstract IEnumerable<DbObject> GetDropDependencies(DataModel dataModel);
-        public abstract bool IsAltered(DbObject @object);        
+        public abstract bool IsAltered(DbObject @object);
+        public abstract Task<bool> ExistsAsync(IDbConnection connection);
 
         public override string ToString()
         {

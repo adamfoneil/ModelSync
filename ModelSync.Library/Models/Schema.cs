@@ -1,7 +1,9 @@
 ﻿using ModelSync.Library.Abstract;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ModelSync.Library.Models
 {
@@ -27,6 +29,11 @@ namespace ModelSync.Library.Models
         }
 
         public override bool IsAltered(DbObject @object)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override async Task<bool> ExistsAsync(IDbConnection connection)
         {
             throw new NotImplementedException();
         }
