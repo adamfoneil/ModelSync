@@ -18,17 +18,9 @@ namespace ModelSync.Library.Abstract
         public abstract char EndDelimiter { get; }
         public abstract string BatchSeparator { get; }
         
-        public abstract Dictionary<IdentityType, Func<string, string>> IdentitySyntax { get; }
-        
         public string FormatStatement(string statement)
         {
             string result = statement;
-
-            var identityTokens = Regex.Matches(result, @"%(id:[^%]+)%").OfType<Match>();
-            foreach (var token in identityTokens)
-            {
-
-            }
 
             var objectNames = Regex.Matches(result, @"<([^>]+)>").OfType<Match>();
             foreach (var value in objectNames)
