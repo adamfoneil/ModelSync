@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelSync.Library.Abstract;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,8 +16,9 @@ namespace ModelSync.Library.Models
             var createTables = CreateTables(sourceModel, destModel);
             results.AddRange(createTables);
 
-            results.AddRange(AddColumns(sourceModel, destModel, createTables));
-            results.AddRange(AddIndexes(sourceModel, destModel, createTables));
+            var tables = createTables.Select(scr => scr.Object);
+            results.AddRange(AddColumns(sourceModel, destModel, tables));
+            results.AddRange(AddIndexes(sourceModel, destModel, tables));
             results.AddRange(AlterColumns(sourceModel, destModel));
             results.AddRange(CreateForeignKeys(sourceModel, destModel));
 
@@ -30,7 +32,7 @@ namespace ModelSync.Library.Models
 
         private static IEnumerable<ScriptAction> CreateSchemas(DataModel sourceModel, DataModel destModel)
         {            
-            return sourceModel.GetSchemas().Except(destModel.GetSchemas()).Select(sch => new ScriptAction()
+            return sourceModel.Schemas.Except(destModel.Schemas).Select(sch => new ScriptAction()
             {
                 Type = ActionType.Create,
                 Object = sch,
@@ -40,7 +42,7 @@ namespace ModelSync.Library.Models
 
         private static IEnumerable<ScriptAction> CreateTables(DataModel sourceModel, DataModel destModel)
         {
-            return sourceModel.GetTables().Except(destModel.GetTables()).Select(tbl => new ScriptAction()
+            return sourceModel.Tables.Except(destModel.Tables).Select(tbl => new ScriptAction()
             {
                 Type = ActionType.Create,
                 Object = tbl,
@@ -48,9 +50,25 @@ namespace ModelSync.Library.Models
             });
         }
 
+        private static IEnumerable<ScriptAction> AddColumns(DataModel sourceModel, DataModel destModel, IEnumerable<DbObject> exceptCreatedTables)
+        {
+            var exceptTables = exceptCreatedTables.OfType<Table>();
+
+            return sourceModel.Tables
+                .Except(exceptTables)
+                .SelectMany(tbl => tbl.Columns)
+                .Except(destModel.Tables.SelectMany(tbl => tbl.Columns))
+                .Select(col => new ScriptAction()
+                {
+                    Type = ActionType.Create,
+                    Object = col,
+                    Commands = col.CreateStatements()
+                });
+        }
+
         private static IEnumerable<ScriptAction> DropTables(DataModel sourceModel, DataModel destModel)
         {
-            return destModel.GetTables().Except(sourceModel.GetTables()).Select(tbl => new ScriptAction()
+            return destModel.Tables.Except(sourceModel.Tables).Select(tbl => new ScriptAction()
             {
                 Type = ActionType.Drop,
                 Object = tbl,
@@ -60,7 +78,7 @@ namespace ModelSync.Library.Models
 
         private static IEnumerable<ScriptAction> DropColumns(DataModel sourceModel, DataModel destModel)
         {
-            return destModel.GetTables().SelectMany(tbl => tbl.Columns).Except(sourceModel.GetTables().SelectMany(tbl => tbl.Columns)).Select(col => new ScriptAction()
+            return destModel.Tables.SelectMany(tbl => tbl.Columns).Except(sourceModel.Tables.SelectMany(tbl => tbl.Columns)).Select(col => new ScriptAction()
             {
                 Type = ActionType.Drop,
                 Object = col,
@@ -88,12 +106,7 @@ namespace ModelSync.Library.Models
             return Enumerable.Empty<ScriptAction>();
         }
 
-        private static IEnumerable<ScriptAction> AddIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptCreatedTables)
-        {
-            return Enumerable.Empty<ScriptAction>();
-        }
-
-        private static IEnumerable<ScriptAction> AddColumns(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptCreatedTables)
+        private static IEnumerable<ScriptAction> AddIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<DbObject> exceptCreatedTables)
         {
             return Enumerable.Empty<ScriptAction>();
         }

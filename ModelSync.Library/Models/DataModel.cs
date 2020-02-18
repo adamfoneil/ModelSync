@@ -10,24 +10,16 @@ namespace ModelSync.Library.Models
 {
     public partial class DataModel
     {
+        public DataModel()
+        {
+            Schemas = Enumerable.Empty<Schema>();
+            Tables = Enumerable.Empty<Table>();
+            ForeignKeys = Enumerable.Empty<ForeignKey>();
+        }
+
         public IEnumerable<Schema> Schemas { get; set; }
         public IEnumerable<Table> Tables { get; set; }
         public IEnumerable<ForeignKey> ForeignKeys { get; set; }
-
-        public IEnumerable<Schema> GetSchemas()
-        {
-            return Schemas ?? Enumerable.Empty<Schema>();
-        }
-
-        public IEnumerable<Table> GetTables()
-        {
-            return Tables ?? Enumerable.Empty<Table>();
-        }
-
-        public IEnumerable<ForeignKey> GetForeignKeys()
-        {
-            return ForeignKeys ?? Enumerable.Empty<ForeignKey>();
-        }
 
         public static async Task<DataModel> FromSqlServerAsync(IDbConnection connection)
         {

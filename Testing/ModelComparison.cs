@@ -1,9 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelSync.Library.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Testing
 {
@@ -34,6 +32,34 @@ namespace Testing
                 Object = table2,
                 Commands = table2.CreateStatements()
             }));
+        }
+
+        [TestMethod]
+        public void AddColumn()
+        {
+            var tableSrc = BuildTable("table1", "FirstName", "LastName", "HireDate", "WhateverDate");
+            var table2 = BuildTable("table2", "Jiminy", "Hambone", "Ecclesiast");
+            var tableDest = BuildTable("table1", "FirstName", "LastName", "HireDate");
+
+            var src = new DataModel()
+            {
+                Tables = new Table[] { tableSrc, table2 }
+            };
+
+            var dest = new DataModel()
+            {
+                Tables = new Table[] { tableDest }
+            };
+
+            var script = DataModel.Compare(src, dest);
+            var col = tableSrc.Columns.Last();
+            Assert.IsTrue(script.Contains(new ScriptAction()
+            {
+                Type = ActionType.Create,
+                Object = col,
+                Commands = col.CreateStatements()
+            }));
+
         }
 
         private Table BuildTable(string tableName, params string[] columnNames)
