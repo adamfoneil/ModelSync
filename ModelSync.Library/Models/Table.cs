@@ -18,7 +18,7 @@ namespace ModelSync.Library.Models
         {            
             List<string> members = new List<string>();
             members.AddRange(Columns.Select(col => col.GetDefinition()));
-            members.AddRange(Indexes.Select(ndx => ndx.GetDefinition()));
+            members.AddRange((Indexes ?? Enumerable.Empty<Index>()).Select(ndx => ndx.GetDefinition()));
 
             string createMembers = string.Join(",\r\n", members.Select(member => "\t" + member));
 

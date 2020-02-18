@@ -36,12 +36,39 @@ namespace ModelSync.Library.Abstract
         public override bool Equals(object obj)
         {
             var dbObj = obj as DbObject;
-            return (dbObj != null) ? dbObj.Name?.ToLower().Equals(Name?.ToLower()) ?? false : false;
+            return (dbObj != null) ? NamesAreEqual(this, dbObj) && ParentsAreEqual(this, dbObj) : false;
+        }
+
+        private static bool ParentsAreEqual(DbObject object1, DbObject object2)
+        {
+            if (object1.Parent == null ^ object2.Parent == null) return false;
+            if (object1.Parent == null && object2.Parent == null) return true;
+
+            try
+            {
+                return object1.Parent.Equals(object2.Parent);
+            }
+            catch 
+            {
+                return false;
+            }
+        }
+
+        private static bool NamesAreEqual(DbObject object1, DbObject object2)
+        {
+            try
+            {
+                return object1.Name.ToLower().Equals(object2.Name.ToLower());
+            }
+            catch 
+            {
+                return false;
+            }            
         }
 
         public override int GetHashCode()
         {
-            return Name.GetHashCode();
+            return (Parent?.Name?.ToLower().GetHashCode() ?? 0) + Name?.ToLower().GetHashCode() ?? 0;
         }
 
         public string GetSchema(string defaultSchema)
@@ -55,6 +82,21 @@ namespace ModelSync.Library.Abstract
             {
                 return defaultSchema;
             }            
+        }
+
+        public IEnumerable<string> CreateStatements()
+        {
+            yield return CreateStatement();
+        }
+
+        public IEnumerable<string> DropStatements(DataModel dataModel)
+        {
+            foreach (var obj in GetDropDependencies(dataModel))
+            {
+                yield return obj.DropStatement();
+            }
+
+            yield return DropStatement();
         }
     }
 }

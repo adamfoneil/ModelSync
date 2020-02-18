@@ -2,6 +2,7 @@
 using ModelSync.Library.Services;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -12,6 +13,21 @@ namespace ModelSync.Library.Models
         public IEnumerable<Schema> Schemas { get; set; }
         public IEnumerable<Table> Tables { get; set; }
         public IEnumerable<ForeignKey> ForeignKeys { get; set; }
+
+        public IEnumerable<Schema> GetSchemas()
+        {
+            return Schemas ?? Enumerable.Empty<Schema>();
+        }
+
+        public IEnumerable<Table> GetTables()
+        {
+            return Tables ?? Enumerable.Empty<Table>();
+        }
+
+        public IEnumerable<ForeignKey> GetForeignKeys()
+        {
+            return ForeignKeys ?? Enumerable.Empty<ForeignKey>();
+        }
 
         public static async Task<DataModel> FromSqlServerAsync(IDbConnection connection)
         {
