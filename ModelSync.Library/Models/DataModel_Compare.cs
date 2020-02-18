@@ -1,6 +1,4 @@
-﻿using ModelSync.Library.Abstract;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace ModelSync.Library.Models
