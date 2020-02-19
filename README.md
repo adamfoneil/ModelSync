@@ -4,6 +4,8 @@ The intent is the same: compare data models to generate a SQL diff merge script.
 
 The ultimate goal is to provide a GUI app for use as a Visual Studio "external tool" as an alternative to Entity Framework migrations. I never made peace with EF migrations, and have dabbled in alternative approaches for a long time. I believe it's a better dev experience to merge model classes on demand with a GUI tool rather than interrupting flow to write migrations. Besides being an interruption, migrations have their own administrative complications that, like I say, I never found acceptable.
 
+That said, my approach to model sync works best with a shared development database rather than local database copies. This is because the diff scripting is not always perfect, so a little bit of manual intervention may be needed sometimes. By merging to a shared dev database, you minimize the "finesse" needed to accomplish some merges.
+
 Things different this time around:
 
 - No MySQL support. This will target SQL Server only for now. There are base abstract classes I can build upon later to target other platforms if I get around to it.
