@@ -50,5 +50,10 @@ namespace ModelSync.Library.Models
         {
             throw new NotImplementedException();
         }
+
+        public Dictionary<string, Column> ColumnDictionary
+        {
+            get { return Columns.ToDictionary(row => row.Name); }
+        }
     }
 }

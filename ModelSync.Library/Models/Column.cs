@@ -53,7 +53,16 @@ namespace ModelSync.Library.Models
 
         public override bool IsAltered(DbObject @object)
         {
-            throw new NotImplementedException();
+            var column = @object as Column;
+            if (column != null)
+            {
+                if (!DataType.Equals(column.DataType)) return true;
+                if (IsNullable != column.IsNullable) return true;
+                if (IsCalculated != column.IsCalculated) return true;
+                if (!Expression?.Equals(column?.Expression) ?? false) return true;
+            }
+
+            return false;
         }
 
         public override async Task<bool> ExistsAsync(IDbConnection connection)

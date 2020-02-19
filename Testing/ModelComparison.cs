@@ -302,12 +302,40 @@ namespace Testing
             }));
         }
 
+        [TestMethod]
+        public void AlterColumn()
+        {
+            var srcTable = BuildTable("table1", "this:int", "that", "other", "Id");                        
+
+            srcTable.ColumnDictionary["this"].DataType = "int";
+
+            var destTable = BuildTable("table1", "this", "that", "other", "Id");
+
+            var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
+            var destModel = new DataModel() { Tables = new Table[] { destTable } };
+            var diff = DataModel.Compare(srcModel, destModel);
+            Assert.IsTrue(diff.Contains(new ScriptAction()
+            {
+                Type = ActionType.Alter,
+                Object = srcTable.ColumnDictionary["this"],
+                Commands = srcTable.ColumnDictionary["this"].CreateStatements()
+            }));
+        }
+
         private Table BuildTable(string tableName, params string[] columnNames)
         {
+            Column columnFromName(string name)
+            {
+                var nameAndType = name.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                return (nameAndType.Length == 2) ?
+                    new Column() { Name = nameAndType[0], DataType = nameAndType[1] } :
+                    new Column() { Name = name, DataType = "nvarchar(20)" };                    
+            };
+
             return new Table()
             {
                 Name = tableName,
-                Columns = columnNames.Select(col => new Column() { Name = col, DataType = "nvarchar(20)" })                
+                Columns = columnNames.Select(col => columnFromName(col))                
             };
         }
     }

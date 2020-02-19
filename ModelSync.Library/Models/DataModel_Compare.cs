@@ -154,7 +154,22 @@ namespace ModelSync.Library.Models
 
         private static IEnumerable<ScriptAction> AlterColumns(DataModel sourceModel, DataModel destModel)
         {
-            return Enumerable.Empty<ScriptAction>();
+            var allColumns = from src in sourceModel.Tables.SelectMany(tbl => tbl.Columns)
+                             join dest in destModel.Tables.SelectMany(tbl => tbl.Columns) on src equals dest
+                             select new
+                             {
+                                 Source = src,
+                                 Dest = dest
+                             };
+
+            return allColumns
+                .Where(columnPair => columnPair.Source.IsAltered(columnPair.Dest))
+                .Select(columnPair => new ScriptAction()
+                {
+                    Type = ActionType.Alter,
+                    Object = columnPair.Source,
+                    Commands = columnPair.Source.CreateStatements()
+                });                   
         }
     }
 }
