@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelSync.Library.Models;
+using ModelSync.Library.Services;
 using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Testing
@@ -373,6 +375,9 @@ namespace Testing
                     "DROP TABLE <parent>"
                 }
             }));
+
+            var script = new SqlServerDialect().FormatScript(diff);
+            Debug.Write(script);
         }
 
         private Table BuildTable(string tableName, params string[] columnNames)

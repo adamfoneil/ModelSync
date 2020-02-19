@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelSync.Library.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -35,6 +36,11 @@ namespace ModelSync.Library.Abstract
             string result = objectName.Replace("<", string.Empty).Replace(">", string.Empty);
             var parts = result.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim());
             return string.Join(".", parts.Select(part => $"{StartDelimiter}{part}{EndDelimiter}"));            
+        }
+
+        public string FormatScript(IEnumerable<ScriptAction> scriptActions)
+        {
+            return string.Join("\r\n" + BatchSeparator + "\r\n", scriptActions.SelectMany(scr => scr.Commands.Select(cmd => FormatStatement(cmd)))) + "\r\n\r\n";
         }
     }
 }
