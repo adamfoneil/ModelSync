@@ -9,6 +9,7 @@
     <RepositoryUrl>https://github.com/adamosoftware/ModelSync</RepositoryUrl>
     <PackageProjectUrl>https://github.com/adamosoftware/ModelSync</PackageProjectUrl>
     <Description>A database schema diff library for .NET assemblies using AO.DbSchema.Attributes and SQL Server</Description>
+    <PackageId>AO.ModelSync.Library</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
