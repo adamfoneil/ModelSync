@@ -319,6 +319,62 @@ namespace Testing
             }));
         }
 
+        [TestMethod]
+        public void DropParentShouldDropFKs()
+        {
+            ForeignKey getForeignKey(Table table, string fkColumn, Table parentTable, string parentColumn)
+            {
+                var fk = new ForeignKey()
+                {
+                    Parent = table,
+                    Name = $"FK_{table.Name}_{fkColumn}",
+                    ReferencedTable = parentTable,
+                    Columns = new ForeignKey.Column[]
+                    {
+                        new ForeignKey.Column() { ReferencingName = fkColumn, ReferencedName = parentColumn }
+                    }
+                };
+                return fk;
+            };
+
+            var parentTbl = BuildTable("parent", "this", "that", "other", "Id");
+            var child1 = BuildTable("child1", "parentId", "hello", "whatever", "chunga");            
+            var child2 = BuildTable("child2", "parentId", "yowza", "plimza", "faruga");
+
+            var srcModel = new DataModel()
+            {
+                Tables = new Table[] { child1, child2 },
+                ForeignKeys = new ForeignKey[]
+                {
+                    getForeignKey(child1, "parentId", parentTbl, "Id"),
+                    getForeignKey(child2, "parentId", parentTbl, "Id")
+                }
+            };
+
+            var destModel = new DataModel()
+            {
+                Tables = new Table[] { parentTbl, child1, child2 },
+                ForeignKeys = new ForeignKey[]
+                {
+                    getForeignKey(child1, "parentId", parentTbl, "Id"),
+                    getForeignKey(child2, "parentId", parentTbl, "Id")
+                }
+            };
+
+            var diff = DataModel.Compare(srcModel, destModel);
+            Assert.IsTrue(diff.Contains(new ScriptAction()
+            {
+                Type = ActionType.Drop,
+                Object = parentTbl,
+                Commands = new string[]
+                {
+                    "ALTER TABLE <child1> DROP CONSTRAINT <FK_child1_parentId>",
+                    "ALTER TABLE <child2> DROP CONSTRAINT <FK_child2_parentId>",
+                    "DROP TABLE <parent>"
+                }
+            }));
+        }
+
         private Table BuildTable(string tableName, params string[] columnNames)
         {
             Column columnFromName(string name)

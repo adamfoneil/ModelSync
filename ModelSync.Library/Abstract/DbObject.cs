@@ -90,7 +90,7 @@ namespace ModelSync.Library.Abstract
         }
 
         public IEnumerable<string> DropStatements(DataModel dataModel)
-        {
+        {            
             foreach (var obj in GetDropDependencies(dataModel))
             {
                 yield return obj.DropStatement();

@@ -70,12 +70,13 @@ namespace ModelSync.Library.Models
 
         private static IEnumerable<ScriptAction> DropTables(DataModel sourceModel, DataModel destModel)
         {
-            return destModel.Tables.Except(sourceModel.Tables).Select(tbl => new ScriptAction()
-            {
-                Type = ActionType.Drop,
-                Object = tbl,
-                Commands = tbl.DropStatements(destModel)
-            });
+            return destModel.Tables.Except(sourceModel.Tables).Select(tbl =>
+                new ScriptAction()
+                {
+                    Type = ActionType.Drop,
+                    Object = tbl,
+                    Commands = tbl.DropStatements(destModel)
+                });            
         }
 
         private static IEnumerable<ScriptAction> DropColumns(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
