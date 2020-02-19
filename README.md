@@ -1,4 +1,4 @@
-This is a reboot of my [SchemaSync](https://github.com/adamosoftware/SchemaSync) project, which had run into [issues](https://github.com/adamosoftware/SchemaSync/issues) I couldn't figure out.
+This is a reboot of my [SchemaSync](https://github.com/adamosoftware/SchemaSync) project, which had run into [issues](https://github.com/adamosoftware/SchemaSync/issues) I couldn't figure out. The Nuget package is **AO.ModelSync.Library**.
 
 The intent is the same: compare data models to generate a SQL diff merge script. The difference from other database diff apps out there is that this can treat .NET assemblies as data sources -- so that you can merge from C# model classes as well as from SQL Server databases.
 
