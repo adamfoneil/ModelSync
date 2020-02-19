@@ -19,7 +19,7 @@ The forthcoming GUI tool will be closed-source, but the library that powers it, 
 using (var cn = GetConnection())
 {
     var sourceModel = DataModel.FromAssembly(@"c:\users\adam\repos\whatever.dll");
-    var destModel = DataModel.FromSqlServer(cn);
+    var destModel = await DataModel.FromSqlServerAsync(cn);
     var diff = DataModel.Compare(sourceModel, destModel);    
     string script = new SqlServerDialect().FormatScript(diff);
 }
