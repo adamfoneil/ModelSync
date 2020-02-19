@@ -136,12 +136,23 @@ namespace ModelSync.Library.Models
                 });
         }
 
-        private static IEnumerable<ScriptAction> AlterColumns(DataModel sourceModel, DataModel destModel)
+        private static IEnumerable<ScriptAction> AddIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptCreatedTables)
         {
-            return Enumerable.Empty<ScriptAction>();
+            var exceptTables = exceptCreatedTables.Select(scr => scr.Object).OfType<Table>();
+
+            return sourceModel.Tables
+                .Except(exceptTables)
+                .SelectMany(tbl => tbl.Indexes)
+                .Except(destModel.Tables.SelectMany(tbl => tbl.Indexes))
+                .Select(ndx => new ScriptAction()
+                {
+                    Type = ActionType.Create,
+                    Object = ndx,
+                    Commands = ndx.CreateStatements()
+                });
         }
 
-        private static IEnumerable<ScriptAction> AddIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptCreatedTables)
+        private static IEnumerable<ScriptAction> AlterColumns(DataModel sourceModel, DataModel destModel)
         {
             return Enumerable.Empty<ScriptAction>();
         }

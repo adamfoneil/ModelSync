@@ -271,6 +271,37 @@ namespace Testing
             }));
         }
 
+        [TestMethod]
+        public void AddIndex()
+        {
+            var srcTable = BuildTable("table1", "this", "that", "other", "Id");
+            var destTable = BuildTable("table1", "this", "that", "other", "Id");
+
+            var index = new ModelSync.Library.Models.Index()
+            {
+                Parent = destTable,
+                Name = "U_table1_this_that",
+                Type = IndexType.UniqueConstraint,
+                Columns = new ModelSync.Library.Models.Index.Column[]
+                {
+                    new ModelSync.Library.Models.Index.Column() { Name = "this"},
+                    new ModelSync.Library.Models.Index.Column() { Name = "that" }
+                }
+            };
+
+            srcTable.Indexes = new ModelSync.Library.Models.Index[] { index };
+
+            var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
+            var destModel = new DataModel() { Tables = new Table[] { destTable } };
+            var diff = DataModel.Compare(srcModel, destModel);
+            Assert.IsTrue(diff.Contains(new ScriptAction()
+            {
+                Type = ActionType.Create,
+                Object = index,
+                Commands = index.CreateStatements()
+            }));
+        }
+
         private Table BuildTable(string tableName, params string[] columnNames)
         {
             return new Table()
