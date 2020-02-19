@@ -32,3 +32,4 @@ ALTER TABLE [child2] DROP CONSTRAINT [FK_child2_parentId]
 GO
 DROP TABLE [parent]
 ```
+Source links: [DataModel.FromAssemblyAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L36), [DataModel.FromSqlServerAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L24), [DataModel.Compare](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Compare.cs#L8)
