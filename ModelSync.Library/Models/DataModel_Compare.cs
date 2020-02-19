@@ -107,7 +107,7 @@ namespace ModelSync.Library.Models
         private static IEnumerable<ScriptAction> DropForeignKeys(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
         {
             var droppedTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
-            var alreadyDroppedFKs = sourceModel.ForeignKeys.Where(fk => !droppedTables.Contains(fk.Parent));
+            var alreadyDroppedFKs = destModel.ForeignKeys.Where(fk => droppedTables.Contains(fk.Parent));
 
             return destModel.ForeignKeys.Except(alreadyDroppedFKs).Except(sourceModel.ForeignKeys).Select(fk => new ScriptAction()
             {

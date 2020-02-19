@@ -171,9 +171,42 @@ namespace Testing
             }));
         }
 
+        [TestMethod]
         public void DropTableWithoutRedundantFKDrop()
         {
+            var parentTable = BuildTable("table1", "this", "that", "other", "Id");
+            var childTable = BuildTable("table2", "table1Id", "whatever", "tom", "dick", "harry");
 
+            var fk = new ForeignKey()
+            {
+                Name = "FK_table2_table1",
+                Parent = childTable,
+                ReferencedTable = parentTable,
+                Columns = new ForeignKey.Column[]
+                {
+                    new ForeignKey.Column() { ReferencingName = "table1Id", ReferencedName = "Id"}
+                }
+            };
+
+            var srcModel = new DataModel()
+            {
+                Tables = new Table[] { parentTable }
+            };
+
+            var destModel = new DataModel()
+            {
+                Tables = new Table[] { parentTable, childTable },
+                ForeignKeys = new ForeignKey[] { fk }
+            };
+
+            var diff = DataModel.Compare(srcModel, destModel);
+            Assert.IsTrue(diff.Contains(new ScriptAction()
+            {
+                Type = ActionType.Drop,
+                Object = childTable,
+                Commands = childTable.DropStatements(destModel)
+            }));
+            Assert.IsTrue(diff.Count() == 1);
         }
 
         private Table BuildTable(string tableName, params string[] columnNames)
