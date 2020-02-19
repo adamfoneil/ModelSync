@@ -306,9 +306,6 @@ namespace Testing
         public void AlterColumn()
         {
             var srcTable = BuildTable("table1", "this:int", "that", "other", "Id");                        
-
-            srcTable.ColumnDictionary["this"].DataType = "int";
-
             var destTable = BuildTable("table1", "this", "that", "other", "Id");
 
             var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
