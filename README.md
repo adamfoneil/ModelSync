@@ -12,3 +12,23 @@ Things different this time around:
 - A smaller dependency footprint. I had a lot of type load exceptions in my old GUI app due to dependencies getting out of date with my [Postulate](https://github.com/adamosoftware/Postulate) library. The app would have one version of Postulate, while projects might have a different version. I've refactored those dependencies into a new, smaller, more stable project called [DbSchema.Attributes](https://github.com/adamosoftware/DbSchema.Attributes). I'm hoping this will clear up type load exceptions in the app as well as be more attractive to dependency-concscious devs. This is all to say that ModelSync is not pure POCO when it comes to inferring metadata like unique constraints and foreign keys. I'll have more to say about developing model classes for ModelSync compatibility.
 
 The forthcoming GUI tool will be closed-source, but the library that powers it, this repo, will remain open source.
+
+## In a nutshell
+
+```csharp
+using (var cn = GetConnection())
+{
+    var sourceModel = DataModel.FromAssembly(@"c:\users\adam\repos\whatever.dll");
+    var destModel = DataModel.FromSqlServer(cn);
+    var diff = DataModel.Compare(sourceModel, destModel);    
+    string script = new SqlServerDialect().FormatScript(diff);
+}
+```
+Output might look like:
+```sql
+ALTER TABLE [child1] DROP CONSTRAINT [FK_child1_parentId]
+GO
+ALTER TABLE [child2] DROP CONSTRAINT [FK_child2_parentId]
+GO
+DROP TABLE [parent]
+```
