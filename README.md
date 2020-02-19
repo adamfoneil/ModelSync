@@ -22,6 +22,7 @@ using (var cn = GetConnection())
     var destModel = await DataModel.FromSqlServerAsync(cn);
     var diff = DataModel.Compare(sourceModel, destModel);    
     string script = new SqlServerDialect().FormatScript(diff);
+    Debug.Print(script);
 }
 ```
 Output might look like:
