@@ -1,4 +1,4 @@
-This is a reboot of my [SchemaSync](https://github.com/adamosoftware/SchemaSync) project, which had run into [issues](https://github.com/adamosoftware/SchemaSync/issues) I couldn't figure out.
+This is a reboot of my [SchemaSync](https://github.com/adamosoftware/SchemaSync) project, which had run into [issues](https://github.com/adamosoftware/SchemaSync/issues) I couldn't figure out. The Nuget package is **AO.ModelSync.Library**.
 
 The intent is the same: compare data models to generate a SQL diff merge script. The difference from other database diff apps out there is that this can treat .NET assemblies as data sources -- so that you can merge from C# model classes as well as from SQL Server databases.
 
@@ -12,3 +12,24 @@ Things different this time around:
 - A smaller dependency footprint. I had a lot of type load exceptions in my old GUI app due to dependencies getting out of date with my [Postulate](https://github.com/adamosoftware/Postulate) library. The app would have one version of Postulate, while projects might have a different version. I've refactored those dependencies into a new, smaller, more stable project called [DbSchema.Attributes](https://github.com/adamosoftware/DbSchema.Attributes). I'm hoping this will clear up type load exceptions in the app as well as be more attractive to dependency-concscious devs. This is all to say that ModelSync is not pure POCO when it comes to inferring metadata like unique constraints and foreign keys. I'll have more to say about developing model classes for ModelSync compatibility.
 
 The forthcoming GUI tool will be closed-source, but the library that powers it, this repo, will remain open source.
+
+## In a nutshell
+
+```csharp
+using (var cn = GetConnection())
+{
+    var sourceModel = await DataModel.FromAssemblyAsync(@"c:\users\adam\repos\whatever.dll");
+    var destModel = await DataModel.FromSqlServerAsync(cn);
+    var diff = DataModel.Compare(sourceModel, destModel);    
+    string script = new SqlServerDialect().FormatScript(diff);
+}
+```
+Output might look like:
+```sql
+ALTER TABLE [child1] DROP CONSTRAINT [FK_child1_parentId]
+GO
+ALTER TABLE [child2] DROP CONSTRAINT [FK_child2_parentId]
+GO
+DROP TABLE [parent]
+```
+Source links: [DataModel.FromAssemblyAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L36), [DataModel.FromSqlServerAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L24), [DataModel.Compare](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Compare.cs#L8)
