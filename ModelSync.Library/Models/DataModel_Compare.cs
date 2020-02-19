@@ -120,7 +120,7 @@ namespace ModelSync.Library.Models
         private static IEnumerable<ScriptAction> DropIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
         {
             var droppedTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
-            var alreadyDroppedIndexes = sourceModel.Tables.SelectMany(tbl => tbl.Indexes).Where(ndx => !droppedTables.Contains(ndx.Parent));
+            var alreadyDroppedIndexes = destModel.Tables.SelectMany(tbl => tbl.Indexes).Where(ndx => !droppedTables.Contains(ndx.Parent));
 
             return Enumerable.Empty<ScriptAction>();
         }

@@ -209,6 +209,37 @@ namespace Testing
             Assert.IsTrue(diff.Count() == 1);
         }
 
+        [TestMethod]
+        public void DropTableWithoutRedundantIndexDrop()
+        {
+            var table1 = BuildTable("table1", "this", "that", "other", "Id");
+
+            var index = new ModelSync.Library.Models.Index()
+            {
+                Name = "U_table1_this_that",
+                Type = IndexType.UniqueConstraint,
+                Columns = new ModelSync.Library.Models.Index.Column[]
+                {
+                    new ModelSync.Library.Models.Index.Column() { Name = "this"},
+                    new ModelSync.Library.Models.Index.Column() { Name = "that" }
+                }
+            };
+
+            table1.Indexes = new ModelSync.Library.Models.Index[] { index };
+
+            var srcModel = new DataModel();
+            var destModel = new DataModel() { Tables = new Table[] { table1 } };
+
+            var diff = DataModel.Compare(srcModel, destModel);
+            Assert.IsTrue(diff.Contains(new ScriptAction()
+            {
+                Type = ActionType.Drop,
+                Object = table1,
+                Commands = table1.DropStatements(destModel)
+            }));
+            Assert.IsTrue(diff.Count() == 1);
+        }
+
         private Table BuildTable(string tableName, params string[] columnNames)
         {
             return new Table()
