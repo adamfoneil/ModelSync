@@ -96,6 +96,86 @@ namespace Testing
             }));
         }
 
+        [TestMethod]
+        public void AddForeignKey()
+        {
+            var parentTable = BuildTable("table1", "this", "that", "other", "Id");
+            var childTable = BuildTable("table2", "table1Id", "whatever", "tom", "dick", "harry");
+
+            var fk = new ForeignKey()
+            {
+                Name = "FK_table2_table1",
+                Parent = childTable,
+                ReferencedTable = parentTable,
+                Columns = new ForeignKey.Column[]
+                {
+                    new ForeignKey.Column() { ReferencingName = "table1Id", ReferencedName = "Id"}
+                }
+            };                
+
+            var srcModel = new DataModel()
+            {
+                Tables = new Table[] { parentTable, childTable },
+                ForeignKeys = new ForeignKey[] { fk }
+            };
+
+            var destModel = new DataModel()
+            {
+                Tables = new Table[] { parentTable, childTable }
+            };
+
+            var diff = DataModel.Compare(srcModel, destModel);
+            Assert.IsTrue(diff.Contains(new ScriptAction()
+            {
+                Type = ActionType.Create,
+                Object = fk,
+                Commands = fk.CreateStatements()
+            }));
+        }
+
+        [TestMethod]
+        public void DropForeignKey()
+        {
+            var parentTable = BuildTable("table1", "this", "that", "other", "Id");
+            var childTable = BuildTable("table2", "table1Id", "whatever", "tom", "dick", "harry");
+
+            var fk = new ForeignKey()
+            {
+                Name = "FK_table2_table1",
+                Parent = childTable,
+                ReferencedTable = parentTable,
+                Columns = new ForeignKey.Column[]
+                {
+                    new ForeignKey.Column() { ReferencingName = "table1Id", ReferencedName = "Id"}
+                }
+            };
+
+            var srcModel = new DataModel()
+            {
+                Tables = new Table[] { parentTable, childTable }
+                
+            };
+
+            var destModel = new DataModel()
+            {
+                Tables = new Table[] { parentTable, childTable },
+                ForeignKeys = new ForeignKey[] { fk }
+            };
+
+            var diff = DataModel.Compare(srcModel, destModel);
+            Assert.IsTrue(diff.Contains(new ScriptAction()
+            {
+                Type = ActionType.Drop,
+                Object = fk,
+                Commands = fk.DropStatements(destModel)
+            }));
+        }
+
+        public void DropTableWithoutRedundantFKDrop()
+        {
+
+        }
+
         private Table BuildTable(string tableName, params string[] columnNames)
         {
             return new Table()

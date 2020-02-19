@@ -14,17 +14,19 @@ namespace ModelSync.Library.Models
             var createTables = CreateTables(sourceModel, destModel);
             results.AddRange(createTables);
             
+            // nested object creates need to omit tables already created
             results.AddRange(AddColumns(sourceModel, destModel, createTables));
             results.AddRange(AddIndexes(sourceModel, destModel, createTables));
-            results.AddRange(AlterColumns(sourceModel, destModel));
+            
+            results.AddRange(AlterColumns(sourceModel, destModel));            
             results.AddRange(CreateForeignKeys(sourceModel, destModel));
-
-            results.AddRange(DropIndexes(sourceModel, destModel));
-            results.AddRange(DropForeignKeys(sourceModel, destModel));
 
             var dropTables = DropTables(sourceModel, destModel);
             results.AddRange(dropTables);
 
+            // nested object drops need to exclude tables that were already dropped
+            results.AddRange(DropIndexes(sourceModel, destModel, dropTables));
+            results.AddRange(DropForeignKeys(sourceModel, destModel, dropTables));
             results.AddRange(DropColumns(sourceModel, destModel, dropTables));
             
             return results;
@@ -92,18 +94,34 @@ namespace ModelSync.Library.Models
                 });
         }
 
-        private static IEnumerable<ScriptAction> DropForeignKeys(DataModel sourceModel, DataModel destModel)
-        {
-            return Enumerable.Empty<ScriptAction>();
-        }
-
-        private static IEnumerable<ScriptAction> DropIndexes(DataModel sourceModel, DataModel destModel)
-        {
-            return Enumerable.Empty<ScriptAction>();
-        }
-
         private static IEnumerable<ScriptAction> CreateForeignKeys(DataModel sourceModel, DataModel destModel)
         {
+            return sourceModel.ForeignKeys.Except(destModel.ForeignKeys).Select(fk => new ScriptAction()
+            {
+                Type = ActionType.Create,
+                Object = fk,
+                Commands = fk.CreateStatements()
+            });
+        }
+
+        private static IEnumerable<ScriptAction> DropForeignKeys(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
+        {
+            var droppedTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
+            var alreadyDroppedFKs = sourceModel.ForeignKeys.Where(fk => !droppedTables.Contains(fk.Parent));
+
+            return destModel.ForeignKeys.Except(alreadyDroppedFKs).Except(sourceModel.ForeignKeys).Select(fk => new ScriptAction()
+            {
+                Type = ActionType.Drop,
+                Object = fk,
+                Commands = fk.DropStatements(destModel)
+            });
+        }
+
+        private static IEnumerable<ScriptAction> DropIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
+        {
+            var droppedTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
+            var alreadyDroppedIndexes = sourceModel.Tables.SelectMany(tbl => tbl.Indexes).Where(ndx => !droppedTables.Contains(ndx.Parent));
+
             return Enumerable.Empty<ScriptAction>();
         }
 
