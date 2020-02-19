@@ -120,9 +120,20 @@ namespace ModelSync.Library.Models
         private static IEnumerable<ScriptAction> DropIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
         {
             var droppedTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
-            var alreadyDroppedIndexes = destModel.Tables.SelectMany(tbl => tbl.Indexes).Where(ndx => !droppedTables.Contains(ndx.Parent));
+            var alreadyDroppedIndexes = droppedTables.SelectMany(tbl => tbl.Indexes);
 
-            return Enumerable.Empty<ScriptAction>();
+            var srcIndexes = sourceModel.Tables.SelectMany(tbl => tbl.Indexes).ToArray();
+
+            return destModel.Tables
+                .SelectMany(tbl => tbl.Indexes)
+                .Except(alreadyDroppedIndexes)
+                .Except(srcIndexes)
+                .Select(ndx => new ScriptAction()
+                {
+                    Type = ActionType.Drop,
+                    Object = ndx,
+                    Commands = ndx.DropStatements(destModel)
+                });
         }
 
         private static IEnumerable<ScriptAction> AlterColumns(DataModel sourceModel, DataModel destModel)

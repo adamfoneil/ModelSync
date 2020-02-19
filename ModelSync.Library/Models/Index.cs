@@ -74,8 +74,7 @@ namespace ModelSync.Library.Models
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
-            // return
-            throw new NotImplementedException();
+            return Enumerable.Empty<DbObject>();
         }
 
         public override bool IsAltered(DbObject @object)

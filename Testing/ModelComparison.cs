@@ -240,12 +240,43 @@ namespace Testing
             Assert.IsTrue(diff.Count() == 1);
         }
 
+        [TestMethod]
+        public void DropIndex()
+        {
+            var srcTable = BuildTable("table1", "this", "that", "other", "Id");            
+            var destTable = BuildTable("table1", "this", "that", "other", "Id");
+
+            var index = new ModelSync.Library.Models.Index()
+            {
+                Parent = destTable,
+                Name = "U_table1_this_that",
+                Type = IndexType.UniqueConstraint,
+                Columns = new ModelSync.Library.Models.Index.Column[]
+                {
+                    new ModelSync.Library.Models.Index.Column() { Name = "this"},
+                    new ModelSync.Library.Models.Index.Column() { Name = "that" }
+                }
+            };
+
+            destTable.Indexes = new ModelSync.Library.Models.Index[] { index };
+
+            var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
+            var destModel = new DataModel() { Tables = new Table[] { destTable } };
+            var diff = DataModel.Compare(srcModel, destModel);
+            Assert.IsTrue(diff.Contains(new ScriptAction()
+            {
+                Type = ActionType.Drop,
+                Object = index,
+                Commands = index.DropStatements(destModel)
+            }));
+        }
+
         private Table BuildTable(string tableName, params string[] columnNames)
         {
             return new Table()
             {
                 Name = tableName,
-                Columns = columnNames.Select(col => new Column() { Name = col, DataType = "nvarchar(20)" })
+                Columns = columnNames.Select(col => new Column() { Name = col, DataType = "nvarchar(20)" })                
             };
         }
     }

@@ -9,6 +9,12 @@ namespace ModelSync.Library.Models
 {
     public class Table : DbObject
     {
+        public Table()
+        {
+            Columns = Enumerable.Empty<Column>();
+            Indexes = Enumerable.Empty<Index>();
+        }
+
         public override ObjectType ObjectType => ObjectType.Table;        
         public IEnumerable<Column> Columns { get; set; }
         public IEnumerable<Index> Indexes { get; set; }
