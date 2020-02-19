@@ -15,6 +15,7 @@ The forthcoming GUI tool will be closed-source, but the library that powers it, 
 
 ## In a nutshell
 
+This example is adapted from this [test](https://github.com/adamosoftware/ModelSync/blob/master/Testing/ModelComparison.cs#L325):
 ```csharp
 using (var cn = GetConnection())
 {
