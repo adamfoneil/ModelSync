@@ -380,21 +380,60 @@ namespace Testing
             Debug.Write(script);
         }
 
+        [TestMethod]
+        public void DropColumnShouldDropContainingIndex()
+        {
+            ModelSync.Library.Models.Index getIndex(Table parentTable)
+            {
+                return new ModelSync.Library.Models.Index()
+                {
+                    Parent = parentTable,
+                    Name = "U_table1_ThisThat",
+                    Columns = new ModelSync.Library.Models.Index.Column[]
+                    {
+                        new ModelSync.Library.Models.Index.Column() { Name = "this"},
+                        new ModelSync.Library.Models.Index.Column() { Name = "that"}
+                    }
+                };
+            };
+
+            var srcTable = BuildTable("table1", "that", "other", "hello", "goodbye");
+            srcTable.Indexes = new ModelSync.Library.Models.Index[] { getIndex(srcTable) };
+
+            var destTable = BuildTable("table1", "this", "that", "other", "hello", "goodbye");
+            destTable.Indexes = new ModelSync.Library.Models.Index[] { getIndex(destTable) };
+
+            var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
+            var destModel = new DataModel() { Tables = new Table[] { destTable } };
+            var diff = DataModel.Compare(srcModel, destModel);
+            Assert.IsTrue(diff.Contains(new ScriptAction()
+            {
+                Type = ActionType.Drop,
+                Object = destTable.ColumnDictionary["this"],
+                Commands = new string[]
+                {
+                    "ALTER TABLE <table1> DROP INDEX <U_table1_ThisThat>",
+                    "ALTER TABLE <table1> DROP COLUMN <this>"
+                }
+            }));
+
+            Assert.IsTrue(diff.Count() == 1);
+        }
+
         private Table BuildTable(string tableName, params string[] columnNames)
         {
-            Column columnFromName(string name)
+            Column columnFromName(Table table, string name)
             {
                 var nameAndType = name.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                 return (nameAndType.Length == 2) ?
-                    new Column() { Name = nameAndType[0], DataType = nameAndType[1] } :
-                    new Column() { Name = name, DataType = "nvarchar(20)" };                    
+                    new Column() { Name = nameAndType[0], DataType = nameAndType[1], Parent = table } :
+                    new Column() { Name = name, DataType = "nvarchar(20)", Parent = table };                    
             };
 
-            return new Table()
-            {
-                Name = tableName,
-                Columns = columnNames.Select(col => columnFromName(col))                
-            };
+            var result = new Table() { Name = tableName };
+            result.Columns = columnNames.Select(col => columnFromName(result, col));
+
+            return result;
         }
     }
 }
