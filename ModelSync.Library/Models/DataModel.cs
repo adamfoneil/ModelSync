@@ -21,6 +21,11 @@ namespace ModelSync.Library.Models
         public IEnumerable<Table> Tables { get; set; }
         public IEnumerable<ForeignKey> ForeignKeys { get; set; }
 
+        public Dictionary<string, Table> TableDictionary
+        {
+            get { return Tables.ToDictionary(item => item.Name); }
+        }
+
         public static async Task<DataModel> FromSqlServerAsync(IDbConnection connection)
         {
             var sqlServer = new SqlServerModelBuilder(connection as SqlConnection);
