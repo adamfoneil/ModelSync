@@ -15,8 +15,7 @@ namespace Testing
         {
             var dataModel = AssemblyModelBuilder.GetDataModelFromTypes(new Type[] 
             { 
-                typeof(Employee), 
-                typeof(ActionItem),
+                typeof(Employee),                 
                 typeof(LogTable),
                 typeof(UserProfile)
             }, "dbo", "Id");
