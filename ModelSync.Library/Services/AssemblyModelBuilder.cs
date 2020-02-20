@@ -1,6 +1,5 @@
 ﻿using AO.DbSchema.Attributes;
 using ModelSync.Library.Extensions;
-using ModelSync.Library.Interfaces;
 using ModelSync.Library.Models;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,7 @@ namespace ModelSync.Library.Services
     /// look back to https://github.com/adamosoftware/SchemaSync/blob/master/SchemaSync.Postulate/PostulateDbProvider.cs
     /// for example/inspiration
     /// </summary>
-    public class AssemblyModelBuilder : IModelBuilder
+    public class AssemblyModelBuilder
     {
         private readonly Assembly _assembly;
         private readonly string _defaultSchema;

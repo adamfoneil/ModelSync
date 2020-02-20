@@ -1,12 +1,11 @@
-﻿using ModelSync.Library.Interfaces;
-using ModelSync.Library.Models;
+﻿using ModelSync.Library.Models;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
 namespace ModelSync.Library.Abstract
 {
-    public abstract class ConnectionModelBuilder : IModelBuilder
+    public abstract class ConnectionModelBuilder
     {
         protected readonly IDbConnection Connection;
 
