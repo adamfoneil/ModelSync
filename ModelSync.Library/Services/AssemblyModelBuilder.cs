@@ -2,6 +2,7 @@
 using ModelSync.Library.Extensions;
 using ModelSync.Library.Interfaces;
 using ModelSync.Library.Models;
+using ModelSync.Library.Models.Internal;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -114,7 +115,7 @@ namespace ModelSync.Library.Services
 
             return new ForeignKey()
             {
-                Name = $"FK_{GetTableName(propertyInfo.DeclaringType, defaultSchema)}_{propertyInfo.Name}",
+                Name = $"FK_{GetTableConstraintName(propertyInfo.DeclaringType, defaultSchema)}_{propertyInfo.Name}",
                 ReferencedTable = typeTableMap[fk.PrimaryType],
                 Parent = typeTableMap[propertyInfo.DeclaringType],
                 CascadeUpdate = false,
@@ -147,7 +148,7 @@ namespace ModelSync.Library.Services
             return source.ToDictionary(item => item.Type, item => item.Table);
         }
 
-        private static string GetTableName(Type type, string defaultSchema)
+        private static ObjectName GetObjectName(Type type, string defaultSchema)
         {
             string name = (type.HasAttribute(out TableAttribute tableAttr)) ? tableAttr.Name : type.Name;
 
@@ -156,12 +157,24 @@ namespace ModelSync.Library.Services
                 (tableAttr != null && !string.IsNullOrEmpty(tableAttr.Schema)) ? tableAttr.Schema :
                 defaultSchema;
 
-            return $"{schema}.{name}";
+            return new ObjectName() { Schema = schema, Name = name };
+        }
+
+        private static string GetTableName(Type type, string defaultSchema)
+        {
+            var objName = GetObjectName(type, defaultSchema);
+            return $"{objName.Schema}.{objName.Name}";
+        }
+
+        private static string GetTableConstraintName(Type type, string defaultSchema)
+        {
+            var objName = GetObjectName(type, defaultSchema);
+            return (objName.Schema.Equals(defaultSchema)) ? objName.Name : objName.Schema + objName.Name;
         }
 
         private static Table GetTableFromType(Type modelType, string defaultSchema, string defaultIdentityColumn)
         {
-            string constraintName = GetTableName(modelType, defaultSchema).Replace(".", string.Empty);
+            string constraintName = GetTableConstraintName(modelType, defaultSchema);
 
             var idProperty = FindIdentityProperty(modelType, defaultIdentityColumn);
             if (idProperty == null) throw new Exception($"No 'Id` or [Identity] property found on class {modelType.Name}");
