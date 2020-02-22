@@ -234,7 +234,7 @@ namespace ModelSync.Library.Services
                 };
             }
 
-            return new Table()
+            var result = new Table()
             {
                 Name = GetTableName(modelType, defaultSchema),
                 Columns = modelType
@@ -243,6 +243,10 @@ namespace ModelSync.Library.Services
                     .ToArray(),
                 Indexes = getIndexes(modelType).ToArray()
             };
+
+            foreach (var col in result.Columns) col.Parent = result;
+
+            return result;
         }
 
         private static Column GetColumnFromProperty(PropertyInfo propertyInfo, string defaultIdentityColumn)

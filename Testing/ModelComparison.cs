@@ -1,9 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelSync.Library.Models;
 using ModelSync.Library.Services;
+using SqlServer.LocalDb;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 
 namespace Testing
 {
@@ -418,6 +420,18 @@ namespace Testing
             }));
 
             Assert.IsTrue(diff.Count() == 1);
+        }
+
+        [TestMethod]
+        public void SampleModelCompare()
+        {
+            using (var cn = LocalDb.GetConnection("Hs5"))
+            {
+                var asm = Assembly.LoadFile(@"C:\Users\Adam\Source\Repos\ModelSync.WinForms\SampleModel\bin\Debug\netstandard2.0\SampleModel.dll");
+                var srcModel = new AssemblyModelBuilder().GetDataModel(asm);
+                var destModel = new SqlServerModelBuilder().GetDataModelAsync(cn).Result;
+                var diff = DataModel.Compare(srcModel, destModel);
+            }
         }
 
         private Table BuildTable(string tableName, params string[] columnNames)

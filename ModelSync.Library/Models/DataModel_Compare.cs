@@ -56,16 +56,15 @@ namespace ModelSync.Library.Models
         {
             var exceptTables = exceptCreatedTables.Select(scr => scr.Object).OfType<Table>();
 
-            return sourceModel.Tables
-                .Except(exceptTables)
-                .SelectMany(tbl => tbl.Columns)
-                .Except(destModel.Tables.SelectMany(tbl => tbl.Columns))
-                .Select(col => new ScriptAction()
-                {
-                    Type = ActionType.Create,
-                    Object = col,
-                    Commands = col.CreateStatements()
-                });
+            var srcColumns = sourceModel.Tables.Except(exceptTables).SelectMany(tbl => tbl.Columns);
+            var destColumns = destModel.Tables.SelectMany(tbl => tbl.Columns);
+
+            return srcColumns.Except(destColumns).Select(col => new ScriptAction()
+            {
+                Type = ActionType.Create,
+                Object = col,
+                Commands = col.CreateStatements()
+            });
         }
 
         private static IEnumerable<ScriptAction> DropTables(DataModel sourceModel, DataModel destModel)
