@@ -6,6 +6,6 @@ namespace ModelSync.Library.Interfaces
 {
     public interface IAssemblyModelBuilder
     {
-        Task<DataModel> GetDataModelAsync(Assembly assembly, string defaultSchema, string defaultIdentityColumn);
+        DataModel GetDataModel(Assembly assembly, string defaultSchema, string defaultIdentityColumn);        
     }
 }

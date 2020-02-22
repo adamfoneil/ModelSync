@@ -25,23 +25,5 @@ namespace ModelSync.Library.Models
         {
             get { return Tables.ToDictionary(item => item.Name); }
         }
-
-        public static async Task<DataModel> FromSqlServerAsync(IDbConnection connection)
-        {
-            var sqlServer = new SqlServerModelBuilder();
-            return await sqlServer.GetDataModelAsync(connection);
-        }
-
-        public static async Task<DataModel> FromAssemblyAsync(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
-        {
-            var builder = new AssemblyModelBuilder();
-            return await builder.GetDataModelAsync(assembly, defaultSchema, defaultIdentityColumn);
-        }
-
-        public static async Task<DataModel> FromAssemblyAsync(string fileName, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
-        {
-            var assembly = Assembly.LoadFrom(fileName);
-            return await FromAssemblyAsync(assembly, defaultSchema, defaultIdentityColumn);
-        }
     }
 }

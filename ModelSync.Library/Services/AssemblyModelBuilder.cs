@@ -18,12 +18,12 @@ namespace ModelSync.Library.Services
     /// </summary>
     public class AssemblyModelBuilder : IAssemblyModelBuilder
     {
-        public async Task<DataModel> GetDataModelAsync(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
-        {
+        public DataModel GetDataModel(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
+        {           
             var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
             var typeTableMap = GetTypeTableMap(types, defaultSchema, defaultIdentityColumn);
             DataModel result = GetDataModelInner(typeTableMap, defaultSchema, defaultIdentityColumn);
-            return await Task.FromResult(result);
+            return result;
         }
 
         public static Table GetTableFromType<T>(string defaultSchema, string defaultIdentityColumn)
