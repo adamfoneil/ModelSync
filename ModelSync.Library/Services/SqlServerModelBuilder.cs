@@ -1,32 +1,30 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using ModelSync.Library.Abstract;
+using ModelSync.Library.Interfaces;
 using ModelSync.Library.Models;
 using ModelSync.Library.Models.Internal;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ModelSync.Library.Services
 {
-	public partial class SqlServerModelBuilder : ConnectionModelBuilder
+	public partial class SqlServerModelBuilder : IConnectionModelBuilder
 	{
-		public SqlServerModelBuilder(SqlConnection connection) : base(connection)
+		protected async Task<IEnumerable<Schema>> GetSchemasAsync(IDbConnection connection)
 		{
-		}
-
-		protected override async Task<IEnumerable<Schema>> GetSchemasAsync()
-		{
-			var schemas = await Connection.QueryAsync<string>(
+			var schemas = await connection.QueryAsync<string>(
 				@"SELECT [name] FROM sys.schemas
 				WHERE [name] NOT IN ('guest', 'sys', 'information_schema')");
 
 			return schemas.Select(s => new Schema() { Name = s });
 		}
 
-		protected override async Task<IEnumerable<Table>> GetTablesAsync()
+		protected async Task<IEnumerable<Table>> GetTablesAsync(IDbConnection connection)
 		{
-			var tables = await Connection.QueryAsync<Table>(
+			var tables = await connection.QueryAsync<Table>(
 				@"WITH [clusteredIndexes] AS (
 					SELECT [name], [object_id] FROM [sys].[indexes] WHERE [type_desc]='CLUSTERED'
 				), [identityColumns] AS (
@@ -46,7 +44,7 @@ namespace ModelSync.Library.Services
 					([t].[name] NOT LIKE 'AspNet%' OR [t].[name] LIKE 'AspNetUsers') AND
 					[t].[name] NOT IN ('__MigrationHistory', '__EFMigrationsHistory')");
 
-			var columns = await Connection.QueryAsync<Column>(
+			var columns = await connection.QueryAsync<Column>(
 				@"SELECT
 					[col].[object_id] AS [ObjectId],
 					[col].[name] AS [Name],
@@ -71,7 +69,7 @@ namespace ModelSync.Library.Services
 				WHERE
 					[t].[type_desc]='USER_TABLE'");
 
-			var indexes = await Connection.QueryAsync<Index>(
+			var indexes = await connection.QueryAsync<Index>(
 				@"SELECT
 					[x].[object_id] AS [ObjectId],
 					[x].[name] AS [Name],
@@ -93,7 +91,7 @@ namespace ModelSync.Library.Services
 					[t].[type_desc]='USER_TABLE' AND
 					[x].[type]<>0");
 
-			var indexCols = await Connection.QueryAsync<IndexColumnResult>(
+			var indexCols = await connection.QueryAsync<IndexColumnResult>(
 				@"SELECT
 					[xcol].[object_id],
 					[xcol].[index_id],
@@ -135,9 +133,9 @@ namespace ModelSync.Library.Services
 			return tables;
 		}
 
-		protected override async Task<IEnumerable<ForeignKey>> GetForeignKeysAsync()
+		protected async Task<IEnumerable<ForeignKey>> GetForeignKeysAsync(IDbConnection connection)
 		{
-			var foreignKeys = await Connection.QueryAsync<ForeignKeysResult>(
+			var foreignKeys = await connection.QueryAsync<ForeignKeysResult>(
 				@"SELECT
 					[fk].[object_id] AS [ObjectId],
 					[fk].[name] AS [ConstraintName],
@@ -155,7 +153,7 @@ namespace ModelSync.Library.Services
 					[fk].[name] NOT LIKE '%AspNetUser%' AND
 					[fk].[name] NOT LIKE '%AspNetRole%'");
 
-			var columns = await Connection.QueryAsync<ForeignKeyColumnsResult>(
+			var columns = await connection.QueryAsync<ForeignKeyColumnsResult>(
 				@"SELECT
 					[fkcol].[constraint_object_id] AS [ObjectId],
 					[child_col].[name] AS [ReferencingName],
@@ -186,6 +184,15 @@ namespace ModelSync.Library.Services
 					ReferencingName = fkcol.ReferencingName 
 				})
 			});
+		}
+
+		public async Task<DataModel> GetDataModelAsync(IDbConnection connection)
+		{
+			var result = new DataModel();
+			result.Schemas = await GetSchemasAsync(connection);
+			result.Tables = await GetTablesAsync(connection);
+			result.ForeignKeys = await GetForeignKeysAsync(connection);
+			return result;
 		}
 	}
 }

@@ -28,14 +28,14 @@ namespace ModelSync.Library.Models
 
         public static async Task<DataModel> FromSqlServerAsync(IDbConnection connection)
         {
-            var sqlServer = new SqlServerModelBuilder(connection as SqlConnection);
-            return await sqlServer.GetDataModelAsync();
+            var sqlServer = new SqlServerModelBuilder();
+            return await sqlServer.GetDataModelAsync(connection);
         }
 
         public static async Task<DataModel> FromAssemblyAsync(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {
-            var builder = new AssemblyModelBuilder(assembly, defaultSchema, defaultIdentityColumn);
-            return await builder.GetDataModelAsync();
+            var builder = new AssemblyModelBuilder();
+            return await builder.GetDataModelAsync(assembly, defaultSchema, defaultIdentityColumn);
         }
 
         public static async Task<DataModel> FromAssemblyAsync(string fileName, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")

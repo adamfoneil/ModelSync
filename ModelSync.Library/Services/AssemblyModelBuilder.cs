@@ -1,5 +1,6 @@
 ﻿using AO.DbSchema.Attributes;
 using ModelSync.Library.Extensions;
+using ModelSync.Library.Interfaces;
 using ModelSync.Library.Models;
 using System;
 using System.Collections.Generic;
@@ -15,24 +16,13 @@ namespace ModelSync.Library.Services
     /// look back to https://github.com/adamosoftware/SchemaSync/blob/master/SchemaSync.Postulate/PostulateDbProvider.cs
     /// for example/inspiration
     /// </summary>
-    public class AssemblyModelBuilder
+    public class AssemblyModelBuilder : IAssemblyModelBuilder
     {
-        private readonly Assembly _assembly;
-        private readonly string _defaultSchema;
-        private readonly string _defaultIdentityColumn;
-
-        public AssemblyModelBuilder(Assembly assembly, string defaultSchema, string defaultIdentityColumn) 
+        public async Task<DataModel> GetDataModelAsync(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {
-            _assembly = assembly;
-            _defaultSchema = defaultSchema;
-            _defaultIdentityColumn = defaultIdentityColumn;
-        }
-
-        public async Task<DataModel> GetDataModelAsync()
-        {
-            var types = _assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
-            var typeTableMap = GetTypeTableMap(types, _defaultSchema, _defaultIdentityColumn);
-            DataModel result = GetDataModelInner(typeTableMap, _defaultSchema, _defaultIdentityColumn);
+            var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
+            var typeTableMap = GetTypeTableMap(types, defaultSchema, defaultIdentityColumn);
+            DataModel result = GetDataModelInner(typeTableMap, defaultSchema, defaultIdentityColumn);
             return await Task.FromResult(result);
         }
 
