@@ -30,8 +30,7 @@ namespace ModelSync.Library.Services
 				), [identityColumns] AS (
 					SELECT [object_id], [name] FROM [sys].[columns] WHERE [is_identity]=1
 				) SELECT
-					[t].[name] AS [Name],
-					SCHEMA_NAME([t].[schema_id]) AS [Schema],
+					SCHEMA_NAME([t].[schema_id]) + '.' + [t].[name] AS [Name],					
 					[t].[object_id] AS [ObjectId],
 					[c].[name] AS [ClusteredIndex],
 					[i].[name] AS [IdentityColumn],
