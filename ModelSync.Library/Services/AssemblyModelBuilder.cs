@@ -16,7 +16,7 @@ namespace ModelSync.Library.Services
     /// look back to https://github.com/adamosoftware/SchemaSync/blob/master/SchemaSync.Postulate/PostulateDbProvider.cs
     /// for example/inspiration
     /// </summary>
-    public class AOAssemblyModelBuilder : IAssemblyModelBuilder
+    public class AssemblyModelBuilder : IAssemblyModelBuilder
     {
         public DataModel GetDataModel(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {           
@@ -82,10 +82,12 @@ namespace ModelSync.Library.Services
         {
             var result = new DataModel();
 
-            bool referencedTypeIsMapped(PropertyInfo propertyInfo)
+            bool referencedTypeIsMapped(PropertyInfo propertyInfo, IEnumerable<string> fkPropertyNamesInner)
             {
                 var referenced = propertyInfo.GetCustomAttribute<ReferencesAttribute>();
-                return typeTableMap.ContainsKey(referenced.PrimaryType);
+                return (referenced != null) ?
+                    typeTableMap.ContainsKey(referenced.PrimaryType) :
+                    fkPropertyNamesInner.Contains(propertyInfo.Name);
             };
 
             result.Tables = typeTableMap.Select(kp => kp.Value).ToArray();
@@ -94,28 +96,45 @@ namespace ModelSync.Library.Services
                 .GroupBy(item => item.GetSchema(defaultSchema)).Select(grp => new Schema() { Name = grp.Key })
                 .ToArray();
 
-            var defaultFKNames = result.Tables
+            // reverse the typeTableMap so we can get types from tables
+            var tableTypeMap = typeTableMap.ToDictionary(item => item.Value, item => item.Key);
+
+            // combine all table names with identity column to get properties that we can infer are FKs
+            var fkProperties = result.Tables
                 .Where(tbl => tbl.TryGetIdentityColumn(defaultIdentityColumn, out _))
-                .Select(tbl => tbl.GetBaseName() + tbl.GetIdentityColumn(defaultIdentityColumn)).ToArray();
+                .Select(tbl => new ForeignKeyProperty
+                {                    
+                    PropertyName = tbl.GetBaseName() + tbl.GetIdentityColumn(defaultIdentityColumn),
+                    PrimaryType = tableTypeMap[tbl]
+                }).ToArray();
+
+            var fkPropertyNames = fkProperties.Select(p => p.PropertyName);
+            var fkPropertyMap = fkProperties.ToDictionary(item => item.PropertyName);
 
             result.ForeignKeys = typeTableMap
-                .SelectMany(kp => ForeignKeyProperties(kp.Key, defaultFKNames))
-                .Where(pi => referencedTypeIsMapped(pi))
-                .Select(pi => ForeignKeyFromProperty(pi, typeTableMap, defaultSchema, defaultIdentityColumn))
+                .SelectMany(kp => ForeignKeyProperties(kp.Key, fkPropertyNames))
+                .Where(pi => referencedTypeIsMapped(pi, fkPropertyNames))
+                .Select(pi => ForeignKeyFromProperty(pi, typeTableMap, fkPropertyMap, defaultSchema, defaultIdentityColumn))
                 .ToArray();
 
             return result;
         }
 
-        private static IEnumerable<PropertyInfo> ForeignKeyProperties(Type type, string[] defaultFKNames)
+        private static IEnumerable<PropertyInfo> ForeignKeyProperties(Type type, IEnumerable<string> defaultFKNames)
         {
-            return type.GetProperties().Where(pi => defaultFKNames.Contains(pi.Name) || pi.HasAttribute<ReferencesAttribute>(out _));
+            return type.GetProperties().Where(pi => 
+                defaultFKNames.Contains(pi.Name) || 
+                pi.HasAttribute<ReferencesAttribute>(out _) || 
+                pi.HasAttribute<ForeignKeyAttribute>(out _)); // needed for EF support, but doesn't work now
         }
 
-        private static ForeignKey ForeignKeyFromProperty(PropertyInfo propertyInfo, Dictionary<Type, Table> typeTableMap, string defaultSchema, string defaultIdentityColumn)
+        private static ForeignKey ForeignKeyFromProperty(PropertyInfo propertyInfo, Dictionary<Type, Table> typeTableMap, Dictionary<string, ForeignKeyProperty> fkPropertyMap, string defaultSchema, string defaultIdentityColumn)
         {
-            var fk = propertyInfo.GetCustomAttribute<ReferencesAttribute>();
-
+            var fk = propertyInfo.GetCustomAttribute<ReferencesAttribute>() ??
+                ((fkPropertyMap.ContainsKey(propertyInfo.Name)) ?
+                    new ReferencesAttribute(fkPropertyMap[propertyInfo.Name].PrimaryType) :
+                    throw new Exception($"Couldn't infer foreign key info from {propertyInfo.DeclaringType.Name}.{propertyInfo.Name}")); 
+                
             return new ForeignKey()
             {
                 Name = $"FK_{GetTableConstraintName(propertyInfo.DeclaringType, defaultSchema)}_{propertyInfo.Name}",

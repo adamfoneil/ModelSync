@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Testing.Models;
 
 namespace Testing
 {
@@ -428,10 +429,25 @@ namespace Testing
             using (var cn = LocalDb.GetConnection("Hs5"))
             {
                 var asm = Assembly.LoadFile(@"C:\Users\Adam\Source\Repos\ModelSync.WinForms\SampleModel\bin\Debug\netstandard2.0\SampleModel.dll");
-                var srcModel = new AOAssemblyModelBuilder().GetDataModel(asm);
+                var srcModel = new AssemblyModelBuilder().GetDataModel(asm);
                 var destModel = new SqlServerModelBuilder().GetDataModelAsync(cn).Result;
                 var diff = DataModel.Compare(srcModel, destModel);
             }
+        }
+
+        [TestMethod]
+        public void InferFKWithoutReferencesAttr()
+        {
+            var model = AssemblyModelBuilder.GetDataModelFromTypes(new Type[]
+            {
+                typeof(Employee), typeof(ActionItem2)
+            }, "dbo", "Id");
+
+            Assert.IsTrue(model.ForeignKeys.Contains(new ForeignKey()
+            {
+                Parent = new Table() { Name = "dbo.ActionItem2" },
+                Name = "FK_ActionItem2_EmployeeId"
+            }));
         }
 
         private Table BuildTable(string tableName, params string[] columnNames)
