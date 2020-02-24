@@ -55,5 +55,36 @@ namespace ModelSync.Library.Models
         {
             get { return Columns.ToDictionary(row => row.Name); }
         }
+
+        public bool TryGetIdentityColumn(string defaultIdentityColumn, out string identityColumn)
+        {
+            try
+            {
+                identityColumn = GetIdentityColumn(defaultIdentityColumn);
+                return true;
+            }
+            catch 
+            {
+                identityColumn = null;
+                return false;
+            }
+        }
+
+        public string GetIdentityColumn(string defaultIdentityColumn)
+        {
+            Func<Index, bool>[] searchIndexes = new Func<Index, bool>[]
+            {
+                (ndx) => ndx.Columns.Select(col => col.Name).SequenceEqual(new string[] { defaultIdentityColumn }),
+                (ndx) => ndx.Columns.Count() == 1
+            };
+
+            foreach (var func in searchIndexes)
+            {
+                var identityIndex = Indexes.FirstOrDefault(ndx => func.Invoke(ndx));
+                if (identityIndex != null) return identityIndex.Columns.First().Name;
+            }
+
+            throw new Exception($"Table {Name} has no identity column.");
+        }
     }
 }

@@ -428,7 +428,7 @@ namespace Testing
             using (var cn = LocalDb.GetConnection("Hs5"))
             {
                 var asm = Assembly.LoadFile(@"C:\Users\Adam\Source\Repos\ModelSync.WinForms\SampleModel\bin\Debug\netstandard2.0\SampleModel.dll");
-                var srcModel = new AssemblyModelBuilder().GetDataModel(asm);
+                var srcModel = new AOAssemblyModelBuilder().GetDataModel(asm);
                 var destModel = new SqlServerModelBuilder().GetDataModelAsync(cn).Result;
                 var diff = DataModel.Compare(srcModel, destModel);
             }

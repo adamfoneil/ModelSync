@@ -9,7 +9,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace ModelSync.Library.Services
 {
@@ -17,7 +16,7 @@ namespace ModelSync.Library.Services
     /// look back to https://github.com/adamosoftware/SchemaSync/blob/master/SchemaSync.Postulate/PostulateDbProvider.cs
     /// for example/inspiration
     /// </summary>
-    public class AssemblyModelBuilder : IAssemblyModelBuilder
+    public class AOAssemblyModelBuilder : IAssemblyModelBuilder
     {
         public DataModel GetDataModel(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {           
@@ -95,8 +94,12 @@ namespace ModelSync.Library.Services
                 .GroupBy(item => item.GetSchema(defaultSchema)).Select(grp => new Schema() { Name = grp.Key })
                 .ToArray();
 
+            var defaultFKNames = result.Tables
+                .Where(tbl => tbl.TryGetIdentityColumn(defaultIdentityColumn, out _))
+                .Select(tbl => tbl.GetBaseName() + tbl.GetIdentityColumn(defaultIdentityColumn)).ToArray();
+
             result.ForeignKeys = typeTableMap
-                .SelectMany(kp => ForeignKeyProperties(kp.Key))
+                .SelectMany(kp => ForeignKeyProperties(kp.Key, defaultFKNames))
                 .Where(pi => referencedTypeIsMapped(pi))
                 .Select(pi => ForeignKeyFromProperty(pi, typeTableMap, defaultSchema, defaultIdentityColumn))
                 .ToArray();
@@ -104,9 +107,9 @@ namespace ModelSync.Library.Services
             return result;
         }
 
-        private static IEnumerable<PropertyInfo> ForeignKeyProperties(Type type)
+        private static IEnumerable<PropertyInfo> ForeignKeyProperties(Type type, string[] defaultFKNames)
         {
-            return type.GetProperties().Where(pi => pi.HasAttribute<ReferencesAttribute>(out _));
+            return type.GetProperties().Where(pi => defaultFKNames.Contains(pi.Name) || pi.HasAttribute<ReferencesAttribute>(out _));
         }
 
         private static ForeignKey ForeignKeyFromProperty(PropertyInfo propertyInfo, Dictionary<Type, Table> typeTableMap, string defaultSchema, string defaultIdentityColumn)

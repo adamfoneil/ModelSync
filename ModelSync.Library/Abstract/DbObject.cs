@@ -84,6 +84,19 @@ namespace ModelSync.Library.Abstract
             }            
         }
 
+        public string GetBaseName()
+        {
+            try
+            {
+                var parts = Name.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                return (parts.Length > 1) ? parts[1] : Name;
+            }
+            catch
+            {
+                return Name;
+            }
+        }
+
         public IEnumerable<string> CreateStatements()
         {
             yield return CreateStatement();
