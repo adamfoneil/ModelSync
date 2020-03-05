@@ -1,4 +1,5 @@
 ﻿using ModelSync.Library.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,7 +18,7 @@ namespace ModelSync.Library.Abstract
 
     public abstract class DbObject
     {        
-        public string Name { get; set; }
+        public string Name { get; set; }        
         public DbObject Parent { get; set; }
         public int ObjectId { get; set; }
 

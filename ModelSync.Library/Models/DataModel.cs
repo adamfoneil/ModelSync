@@ -1,10 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
-using ModelSync.Library.Services;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Data;
+using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace ModelSync.Library.Models
 {
@@ -21,6 +18,19 @@ namespace ModelSync.Library.Models
         public IEnumerable<Table> Tables { get; set; }
         public IEnumerable<ForeignKey> ForeignKeys { get; set; }
 
+        public static DataModel FromJsonFile(string fileName)
+        {
+            string json = File.ReadAllText(fileName);
+            return JsonConvert.DeserializeObject<DataModel>(json);
+        }        
+
+        public void SaveJson(string fileName)
+        {
+            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            File.WriteAllText(fileName, json);
+        }
+
+        [JsonIgnore]
         public Dictionary<string, Table> TableDictionary
         {
             get { return Tables.ToDictionary(item => item.Name); }
