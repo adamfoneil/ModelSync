@@ -32,7 +32,7 @@ namespace ModelSync.Library.Models
 
         public override string CreateStatement()
         {
-            return $"ALTER TABLE <{Parent}> ADD <{Name}> {GetDefinition()}";
+            return $"ALTER TABLE <{Parent}> ADD {GetDefinition()}";
         }
 
         public override string DropStatement()
@@ -68,6 +68,11 @@ namespace ModelSync.Library.Models
         public override async Task<bool> ExistsAsync(IDbConnection connection)
         {
             throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            return $"{Parent}.{Name}";
         }
     }
 }

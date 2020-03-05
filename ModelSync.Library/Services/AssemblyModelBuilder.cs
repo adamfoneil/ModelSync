@@ -267,6 +267,7 @@ namespace ModelSync.Library.Services
             };
 
             foreach (var col in result.Columns) col.Parent = result;
+            foreach (var ndx in result.Indexes) ndx.Parent = result;
 
             return result;
         }
