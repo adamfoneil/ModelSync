@@ -26,7 +26,11 @@ namespace ModelSync.Library.Models
 
         public void SaveJson(string fileName)
         {
-            string json = JsonConvert.SerializeObject(this, Formatting.Indented);
+            string json = JsonConvert.SerializeObject(this, new JsonSerializerSettings()
+            {
+                Formatting = Formatting.Indented,
+                PreserveReferencesHandling = PreserveReferencesHandling.Objects
+            });
             File.WriteAllText(fileName, json);
         }
 
