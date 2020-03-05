@@ -82,10 +82,11 @@ namespace ModelSync.Library.Models
         {
             var exceptTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
 
-            return destModel.Tables
-                .Except(exceptTables)
-                .SelectMany(tbl => tbl.Columns)                
-                .Except(sourceModel.Tables.SelectMany(tbl => tbl.Columns))
+            var sourceColumns = sourceModel.Tables.SelectMany(tbl => tbl.Columns).ToArray();
+            var destColumns = destModel.Tables.Except(exceptTables).SelectMany(tbl => tbl.Columns).ToArray();
+
+            return 
+                destColumns.Except(sourceColumns)
                 .Select(col => new ScriptAction()
                 {
                     Type = ActionType.Drop,

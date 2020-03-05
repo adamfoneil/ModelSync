@@ -48,9 +48,10 @@ namespace ModelSync.Library.Services
                 { typeof(short), "smallint" },
                 { typeof(byte), "tinyint" },
                 { typeof(DateTime), "datetime" },
+                { typeof(decimal), "decimal" },
                 { typeof(bool), "bit" },
                 { typeof(TimeSpan), "time" },
-                { typeof(Guid), "uniqueidentifier" }
+                { typeof(Guid), "uniqueidentifier" }                
             };
 
             // help from https://stackoverflow.com/a/23402195/2023653
@@ -74,6 +75,7 @@ namespace ModelSync.Library.Services
 
             // string is special in that it's already nullable
             result.Add(typeof(string), "nvarchar");
+            result.Add(typeof(byte[]), "varbinary");
 
             return result;
         }
@@ -260,7 +262,10 @@ namespace ModelSync.Library.Services
             {
                 Name = GetTableName(modelType, defaultSchema),
                 Columns = modelType
-                    .GetProperties().Where(pi => DataTypes.ContainsKey(pi.PropertyType))
+                    .GetProperties().Where(pi => 
+                        (DataTypes.ContainsKey(pi.PropertyType) || pi.PropertyType.IsEnum) && 
+                        pi.CanWrite && 
+                        !pi.HasAttribute<NotMappedAttribute>(out _))
                     .Select(pi => GetColumnFromProperty(pi, defaultIdentityColumn))
                     .ToArray(),
                 Indexes = getIndexes(modelType).ToArray()
@@ -277,12 +282,17 @@ namespace ModelSync.Library.Services
             var result = new Column()
             {
                 Name = propertyInfo.Name,
-                IsNullable = propertyInfo.PropertyType.IsNullable() && !propertyInfo.HasAttribute<RequiredAttribute>(out _)
+                IsNullable = propertyInfo.PropertyType.IsNullable() && !propertyInfo.HasAttribute<RequiredAttribute>(out _) && !propertyInfo.HasAttribute<KeyAttribute>(out _)
             };
 
             if (DataTypes.ContainsKey(propertyInfo.PropertyType))
             {
                 result.DataType = DataTypes[propertyInfo.PropertyType];
+            }
+
+            if (propertyInfo.PropertyType.IsEnum)
+            {
+                result.DataType = "int";
             }
 
             SetColumnProperties(propertyInfo, result, defaultIdentityColumn);

@@ -44,29 +44,55 @@ namespace ModelSync.Library.Services
 					[t].[name] NOT IN ('__MigrationHistory', '__EFMigrationsHistory')");
 
 			var columns = await connection.QueryAsync<Column>(
-				@"SELECT
-					[col].[object_id] AS [ObjectId],
-					[col].[name] AS [Name],
-					TYPE_NAME([col].[system_type_id]) AS [DataType],
-					[col].[is_nullable] AS [IsNullable],
-					[def].[definition]  AS [Default],
-					[col].[collation_name] AS [Collation],
+				@"WITH [identityColumns] AS (
+					SELECT [object_id], [name] FROM [sys].[columns] WHERE [is_identity]=1
+				), [source] AS (
+					SELECT
+						[col].[object_id] AS [ObjectId],
+						[col].[name] AS [Name],
+						TYPE_NAME([col].[system_type_id]) AS [DataType],
+						[col].[is_nullable] AS [IsNullable],
+						[def].[definition]  AS [Default],
+						[col].[collation_name] AS [Collation],
+						CASE
+							WHEN TYPE_NAME([col].[system_type_id]) LIKE 'nvar%' AND [col].[max_length]>0 THEN ([col].[max_length]/2)
+							WHEN TYPE_NAME([col].[system_type_id]) LIKE 'nvar%' AND [col].[max_length]=-1 THEN -1
+							ELSE NULL
+						END AS [MaxLength],
+						[col].[precision] AS [Precision],
+						[col].[scale] AS [Scale],
+						[col].[column_id] AS [InternalId],
+						[calc].[definition] AS [Expression],
+						CASE
+							WHEN [ic].[name] IS NOT NULL THEN 1
+							ELSE 0
+						END AS [IsIdentity]
+					FROM
+						[sys].[columns] [col]
+						INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
+						LEFT JOIN [sys].[default_constraints] [def] ON [col].[default_object_id]=[def].[object_id]
+						LEFT JOIN [sys].[computed_columns] [calc] ON [col].[object_id]=[calc].[object_id] AND [col].[column_id]=[calc].[column_id]
+						LEFT JOIN [identityColumns] [ic] ON [ic].[object_id]=[col].[object_id] AND [ic].[name]=[col].[name]
+					WHERE
+						[t].[type_desc]='USER_TABLE'
+				) SELECT
+					[ObjectId],
+					[Name],
 					CASE
-						WHEN TYPE_NAME([col].[system_type_id]) LIKE 'nvar%' AND [col].[max_length]>0 THEN ([col].[max_length]/2)
-						WHEN TYPE_NAME([col].[system_type_id]) LIKE 'nvar%' AND [col].[max_length]=0 THEN -1
-						ELSE [col].[max_length]
-					END AS [MaxLength],
-					[col].[precision] AS [Precision],
-					[col].[scale] AS [Scale],
-					[col].[column_id] AS [InternalId],
-					[calc].[definition] AS [Expression]
+						WHEN [IsIdentity]=1 THEN [DataType] + ' identity(1,1)'
+						WHEN [MaxLength]=-1 THEN [DataType] + '(max)'
+						WHEN [MaxLength] IS NULL THEN [DataType]
+						ELSE [DataType] + '(' + CONVERT(varchar, [MaxLength]) + ')'
+					END AS [DataType],
+					[IsNullable],
+					[Default],
+					[Collation],
+					[Precision],
+					[InternalId],
+					[Expression]
 				FROM
-					[sys].[columns] [col]
-					INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
-					LEFT JOIN [sys].[default_constraints] [def] ON [col].[default_object_id]=[def].[object_id]
-					LEFT JOIN [sys].[computed_columns] [calc] ON [col].[object_id]=[calc].[object_id] AND [col].[column_id]=[calc].[column_id]
-				WHERE
-					[t].[type_desc]='USER_TABLE'");
+					[source]
+				");
 
 			var indexes = await connection.QueryAsync<Index>(
 				@"SELECT
