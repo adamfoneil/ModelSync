@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace ModelSync.Library.Extensions
 {
-    public static class AssemblyExtensions
+    public static class AssemblyHelper
     {        
         private static void ExportDataModel(Assembly assembly, string defaultSchema, string defaultIdentityColumn)
         {
