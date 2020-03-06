@@ -41,7 +41,7 @@ namespace ModelSync.Library.Models
             return dataModel.ForeignKeys.Where(fk => fk.ReferencedTable.Equals(this));
         }
 
-        public override bool IsAltered(DbObject @object)
+        public override bool IsAltered(DbObject @object, out string comment)
         {
             throw new NotImplementedException();
         }

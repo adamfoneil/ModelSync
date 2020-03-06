@@ -28,7 +28,7 @@ namespace ModelSync.Library.Models
             return dataModel.Tables.Where(t => t.GetSchema(DefaultSchema).Equals(this.Name));
         }
 
-        public override bool IsAltered(DbObject @object)
+        public override bool IsAltered(DbObject @object, out string comment)
         {
             throw new NotImplementedException();
         }

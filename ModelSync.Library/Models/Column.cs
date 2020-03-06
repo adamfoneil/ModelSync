@@ -35,6 +35,11 @@ namespace ModelSync.Library.Models
             return $"ALTER TABLE <{Parent}> ADD {GetDefinition()}";
         }
 
+        public IEnumerable<string> AlterStatements(string comment)
+        {            
+            yield return $"-- {comment}\r\nALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition()}";
+        }
+
         public override string DropStatement()
         {
             return $"ALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
@@ -51,17 +56,37 @@ namespace ModelSync.Library.Models
             return Enumerable.Empty<DbObject>();
         }
 
-        public override bool IsAltered(DbObject @object)
+        public override bool IsAltered(DbObject @object, out string comment)
         {
             var column = @object as Column;
             if (column != null)
             {
-                if (!DataType.Equals(column.DataType)) return true;
-                if (IsNullable != column.IsNullable) return true;
-                if (IsCalculated != column.IsCalculated) return true;
-                if (!Expression?.Equals(column?.Expression) ?? false) return true;
+                if (!DataType.Equals(column.DataType))
+                {
+                    comment = $"{column.DataType} -> {DataType}";
+                    return true;
+                }
+
+                if (IsNullable != column.IsNullable)
+                {
+                    comment = $"nullable {column.IsNullable} -> {IsNullable}";
+                    return true;
+                }
+
+                if (IsCalculated != column.IsCalculated)
+                {
+                    comment = $"calculated {column.IsCalculated} -> {IsCalculated}";
+                    return true;
+                }
+
+                if (!Expression?.Equals(column?.Expression) ?? false)
+                {
+                    comment = $"expression {column.Expression} -> {Expression}";
+                    return true;
+                }
             }
 
+            comment = null;
             return false;
         }
 

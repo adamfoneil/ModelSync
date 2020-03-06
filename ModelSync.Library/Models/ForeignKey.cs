@@ -35,7 +35,7 @@ namespace ModelSync.Library.Models
             return Enumerable.Empty<DbObject>();
         }
 
-        public override bool IsAltered(DbObject @object)
+        public override bool IsAltered(DbObject @object, out string comment)
         {
             throw new System.NotImplementedException();
         }

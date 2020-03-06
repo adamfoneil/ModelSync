@@ -164,12 +164,16 @@ namespace ModelSync.Library.Models
                              };
 
             return allColumns
-                .Where(columnPair => columnPair.Source.IsAltered(columnPair.Dest))
-                .Select(columnPair => new ScriptAction()
+                .Where(columnPair => columnPair.Source.IsAltered(columnPair.Dest, out _))
+                .Select(columnPair =>
                 {
-                    Type = ActionType.Alter,
-                    Object = columnPair.Source,
-                    Commands = columnPair.Source.CreateStatements()
+                    columnPair.Source.IsAltered(columnPair.Dest, out string comment);
+                    return new ScriptAction()
+                    {
+                        Type = ActionType.Alter,
+                        Object = columnPair.Source,
+                        Commands = columnPair.Source.AlterStatements(comment)
+                    };
                 });                   
         }
     }
