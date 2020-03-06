@@ -66,7 +66,8 @@ namespace ModelSync.Library.Services
 						CASE
 							WHEN [ic].[name] IS NOT NULL THEN 1
 							ELSE 0
-						END AS [IsIdentity]
+						END AS [IsIdentity],
+						[col].[system_type_id]
 					FROM
 						[sys].[columns] [col]
 						INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
@@ -79,6 +80,7 @@ namespace ModelSync.Library.Services
 					[ObjectId],
 					[Name],
 					CASE
+						WHEN [system_type_id]=106 THEN [DataType] + '(' + CONVERT(varchar, [Precision]) + ',' + CONVERT(varchar, [Scale]) + ')'
 						WHEN [IsIdentity]=1 THEN [DataType] + ' identity(1,1)'
 						WHEN [MaxLength]=-1 THEN [DataType] + '(max)'
 						WHEN [MaxLength] IS NULL THEN [DataType]
@@ -89,10 +91,13 @@ namespace ModelSync.Library.Services
 					[Collation],
 					[Precision],
 					[InternalId],
-					[Expression]
+					[Expression],
+					CASE
+						WHEN [Expression] IS NOT NULL THEN 1
+						ELSE 0
+					END AS [IsCalculated]
 				FROM
-					[source]
-				");
+					[source]");
 
 			var indexes = await connection.QueryAsync<Index>(
 				@"SELECT

@@ -58,30 +58,56 @@ namespace ModelSync.Library.Models
 
         public override bool IsAltered(DbObject @object, out string comment)
         {
+            string prepDataType(string input)
+            {
+                return input.Replace(" ", string.Empty).ToLower();
+            };
+
+            string prepExpression(string input)
+            {
+                string result = input;
+                if (result?.StartsWith("(") ?? false) result = result.Substring(1);
+                if (result?.EndsWith(")") ?? false) result = result.Substring(0, result.Length - 1);
+                return result;
+            }
+
             var column = @object as Column;
             if (column != null)
             {
-                if (!DataType.Equals(column.DataType))
+                if (IsCalculated && column.IsCalculated)
                 {
-                    comment = $"{column.DataType} -> {DataType}";
-                    return true;
+                    string thisExpr = prepExpression(Expression);
+                    string thatExpr = prepExpression(column.Expression);
+
+                    // for calculated columns, we care only about the expression diff
+                    if (!thisExpr?.Equals(thatExpr) ?? false)
+                    {
+                        comment = $"expression {column.Expression} -> {Expression}";
+                        return true;
+                    }
+                }
+                else
+                {
+                    string thisDataType = prepDataType(DataType);
+                    string thatDataType = prepDataType(column.DataType);
+
+                    if (!thisDataType.Equals(thatDataType))
+                    {
+                        comment = $"data type {column.DataType} -> {DataType}";
+                        return true;
+                    }
+
+                    if (IsNullable != column.IsNullable)
+                    {
+                        comment = $"nullable {column.IsNullable} -> {IsNullable}";
+                        return true;
+                    }
                 }
 
-                if (IsNullable != column.IsNullable)
-                {
-                    comment = $"nullable {column.IsNullable} -> {IsNullable}";
-                    return true;
-                }
-
+                // changes in calc status I think would be pretty uncommon
                 if (IsCalculated != column.IsCalculated)
                 {
                     comment = $"calculated {column.IsCalculated} -> {IsCalculated}";
-                    return true;
-                }
-
-                if (!Expression?.Equals(column?.Expression) ?? false)
-                {
-                    comment = $"expression {column.Expression} -> {Expression}";
                     return true;
                 }
             }

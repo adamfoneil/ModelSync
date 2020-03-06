@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AO.DbSchema.Attributes" Version="1.0.7" />
+    <PackageReference Include="AO.DbSchema.Attributes" Version="1.0.10" />
     <PackageReference Include="Dapper" Version="2.0.30" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="1.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />

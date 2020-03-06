@@ -258,16 +258,21 @@ namespace ModelSync.Library.Services
                 };
             }
 
+            IEnumerable<Column> getColumns(Type type)
+            {
+                return
+                    type
+                        .GetProperties().Where(pi =>
+                            (DataTypes.ContainsKey(pi.PropertyType) || pi.PropertyType.IsEnum) &&
+                            pi.CanWrite &&
+                            !pi.HasAttribute<NotMappedAttribute>(out _))
+                        .Select(pi => GetColumnFromProperty(pi, defaultIdentityColumn));
+            };
+
             var result = new Table()
             {
                 Name = GetTableName(modelType, defaultSchema),
-                Columns = modelType
-                    .GetProperties().Where(pi => 
-                        (DataTypes.ContainsKey(pi.PropertyType) || pi.PropertyType.IsEnum) && 
-                        pi.CanWrite && 
-                        !pi.HasAttribute<NotMappedAttribute>(out _))
-                    .Select(pi => GetColumnFromProperty(pi, defaultIdentityColumn))
-                    .ToArray(),
+                Columns = getColumns(modelType).ToArray(),
                 Indexes = getIndexes(modelType).ToArray()
             };
 
@@ -293,7 +298,7 @@ namespace ModelSync.Library.Services
             if (propertyInfo.PropertyType.IsEnum)
             {
                 result.DataType = "int";
-            }
+            }            
 
             SetColumnProperties(propertyInfo, result, defaultIdentityColumn);
 
@@ -320,6 +325,12 @@ namespace ModelSync.Library.Services
                 {
                     column.DataType = columnAttr.TypeName;
                 }
+            }
+
+            if (propertyInfo.HasAttribute(out CalculatedAttribute calcAttr))
+            {
+                column.IsCalculated = true;
+                column.Expression = calcAttr.Expression;
             }
 
             if (IsIdentity(propertyInfo, defaultIdentityColumn))
