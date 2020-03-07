@@ -77,7 +77,9 @@ namespace ModelSync.Library.Models
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
-            return Enumerable.Empty<DbObject>();
+            return (Type == IndexType.PrimaryKey || Type == IndexType.UniqueConstraint) ? 
+                dataModel.ForeignKeys.Where(fk => fk.ReferencedTable.Equals(this.Parent)) :
+                Enumerable.Empty<DbObject>();
         }
 
         public override bool IsAltered(DbObject @object, out string comment)
