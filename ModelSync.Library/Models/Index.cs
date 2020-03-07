@@ -69,7 +69,7 @@ namespace ModelSync.Library.Models
 
         public override string DropStatement()
         {
-            return $"ALTER TABLE <{Parent}> DROP INDEX <{Name}>";
+            return $"DROP INDEX <{Name}> ON <{Parent}>";
         }
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
