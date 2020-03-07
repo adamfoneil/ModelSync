@@ -22,7 +22,8 @@ namespace Testing
             {
                 TestCase testCase = ExtractTestCase(resourceName);
                 var diff = DataModel.Compare(testCase.SourceModel, testCase.DestModel);
-                Assert.IsTrue(diff.SequenceEqual(testCase.DiffActions));
+                var commands = diff.SelectMany(scr => scr.Commands);
+                Assert.IsTrue(commands.SequenceEqual(testCase.SqlCommands));
             }
         }
 

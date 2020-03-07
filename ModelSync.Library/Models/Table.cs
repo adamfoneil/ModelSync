@@ -1,4 +1,5 @@
 ﻿using ModelSync.Library.Abstract;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -51,6 +52,7 @@ namespace ModelSync.Library.Models
             throw new NotImplementedException();
         }
 
+        [JsonIgnore]
         public Dictionary<string, Column> ColumnDictionary
         {
             get { return Columns.ToDictionary(row => row.Name); }

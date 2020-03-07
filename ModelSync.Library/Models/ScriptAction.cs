@@ -1,6 +1,5 @@
 ﻿using ModelSync.Library.Abstract;
 using ModelSync.Library.Interfaces;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,10 +15,7 @@ namespace ModelSync.Library.Models
     public class ScriptAction : IActionable
     {
         public ActionType Type { get; set; }
-
-        [JsonIgnore]
         public DbObject Object { get; set; }
-
         public IEnumerable<string> Commands { get; set; }
         
         public string ObjectName => Object.ToString();
