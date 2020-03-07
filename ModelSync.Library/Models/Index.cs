@@ -64,7 +64,6 @@ namespace ModelSync.Library.Models
 
                 default:
                     throw new Exception($"Unrecognized index type {Type} on {Name}");
-
             }
         }
 
