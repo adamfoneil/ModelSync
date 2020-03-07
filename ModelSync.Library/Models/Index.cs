@@ -15,9 +15,10 @@ namespace ModelSync.Library.Models
 
     public enum IndexType
     {
-        PrimaryKey,
-        UniqueIndex,
-        UniqueConstraint
+        PrimaryKey = 1,
+        UniqueIndex = 2,
+        UniqueConstraint = 3,
+        NonUnique = 4
     }
 
     public class Index : DbObject
@@ -69,7 +70,10 @@ namespace ModelSync.Library.Models
 
         public override string DropStatement()
         {
-            return $"DROP INDEX <{Name}> ON <{Parent}>";
+            return 
+                (Type == IndexType.UniqueIndex || Type == IndexType.PrimaryKey || Type == IndexType.NonUnique) ? $"DROP INDEX <{Name}> ON <{Parent}>" :
+                (Type == IndexType.UniqueConstraint) ? $"ALTER TABLE <{Parent}> DROP CONSTRAINT <{Name}>" :
+                throw new Exception($"Unrecognized index type {Type}");
         }
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
