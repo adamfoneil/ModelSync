@@ -13,7 +13,7 @@ namespace ModelSync.Library.Services
 {
 	public partial class SqlServerModelBuilder : IConnectionModelBuilder
 	{
-		protected async Task<IEnumerable<Schema>> GetSchemasAsync(IDbConnection connection)
+		protected static async Task<IEnumerable<Schema>> GetSchemasAsync(IDbConnection connection)
 		{
 			var schemas = await connection.QueryAsync<string>(
 				@"SELECT [name] FROM sys.schemas
@@ -22,7 +22,7 @@ namespace ModelSync.Library.Services
 			return schemas.Select(s => new Schema() { Name = s });
 		}
 
-		protected async Task<IEnumerable<Table>> GetTablesAsync(IDbConnection connection)
+		protected static async Task<IEnumerable<Table>> GetTablesAsync(IDbConnection connection)
 		{
 			var tables = await connection.QueryAsync<Table>(
 				@"WITH [clusteredIndexes] AS (
@@ -163,8 +163,10 @@ namespace ModelSync.Library.Services
 			return tables;
 		}
 
-		protected async Task<IEnumerable<ForeignKey>> GetForeignKeysAsync(IDbConnection connection)
+		protected static async Task<IEnumerable<ForeignKey>> GetForeignKeysAsync(IDbConnection connection, IEnumerable<Table> tables)
 		{
+			var tableDictionary = tables.ToDictionary(item => item.Name);
+
 			var foreignKeys = await connection.QueryAsync<ForeignKeysResult>(
 				@"SELECT
 					[fk].[object_id] AS [ObjectId],
@@ -204,8 +206,8 @@ namespace ModelSync.Library.Services
 			return foreignKeys.Select(fk => new ForeignKey()
 			{
 				Name = fk.ConstraintName,
-				ReferencedTable = new Table() { Name = $"{fk.ReferencedSchema}.{fk.ReferencedTable}" },
-				Parent = new Table() { Name = $"{fk.ReferencingSchema}.{fk.ReferencingTable}" },
+				ReferencedTable = tableDictionary[$"{fk.ReferencedSchema}.{fk.ReferencedTable}"],
+				Parent = tableDictionary[$"{fk.ReferencingSchema}.{fk.ReferencingTable}"],
 				CascadeDelete = fk.CascadeDelete,
 				CascadeUpdate = fk.CascadeUpdate,
 				Columns = colLookup[fk.ObjectId].Select(fkcol => new ForeignKey.Column() 
@@ -221,7 +223,7 @@ namespace ModelSync.Library.Services
 			var result = new DataModel();
 			result.Schemas = await GetSchemasAsync(connection);
 			result.Tables = await GetTablesAsync(connection);
-			result.ForeignKeys = await GetForeignKeysAsync(connection);
+			result.ForeignKeys = await GetForeignKeysAsync(connection, result.Tables);
 			return result;
 		}
 	}

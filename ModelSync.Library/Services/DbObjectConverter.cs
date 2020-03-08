@@ -35,6 +35,7 @@ namespace ModelSync.Library.Services
             }
 
             ObjectType dbObjType = (ObjectType)((int)jo["ObjectType"]);
+            int id = jo["$id"].Value<int>();
 
             DbObject dbObj;
             switch (dbObjType)
@@ -63,9 +64,28 @@ namespace ModelSync.Library.Services
                     throw new Exception($"Unrecognized object type {dbObjType}");
             }          
 
-            serializer.Populate(jo.CreateReader(), dbObj);
+            serializer.Populate(jo.CreateReader(), dbObj);            
+            _refs.Add(id, dbObj);
 
-            _refs.Add(jo["$id"].Value<int>(), dbObj);
+            if (jo.ContainsKey("Parent") && jo["Parent"].HasValues)
+            {
+                // this works with FKs but not with Columns.
+                // the issue is that when Columns are inspected, the parent table hasn't been written to the _refs dictionary yet.
+                int parentId = jo["Parent"]["$ref"].Value<int>();
+                if (_refs.ContainsKey(parentId))
+                {
+                    dbObj.Parent = _refs[parentId];
+                }                
+            }
+
+            // when dealing with a table, we know that the columns and indexes always have the current obj as their parent,
+            // and the parent Id has not been written to the _refs dictionary yet
+            if (dbObj is Table)
+            {
+                foreach (var col in ((Table)dbObj).Columns) col.Parent = dbObj;
+                foreach (var ndx in ((Table)dbObj).Indexes) ndx.Parent = dbObj;
+            }
+
             return dbObj;
         }
         
