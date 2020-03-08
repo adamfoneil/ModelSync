@@ -2,6 +2,7 @@
 using ModelSync.Library.Models;
 using ModelSync.Library.Services;
 using System;
+using Testing.Helpers;
 using Testing.Models;
 
 namespace Testing
@@ -21,5 +22,21 @@ namespace Testing
             model.SaveJson(fileName);
             var load = DataModel.FromJsonFile(fileName);
         }
+
+        [TestMethod]
+        public void SaveAndLoadModel()
+        {
+            var model =
+                ModelBuilder.BuildModel(
+                    new ModelBuilder.TableSignature("Clinic", "Id:int", "Name", "Address", "City", "State"),
+                    new ModelBuilder.TableSignature("Calendar", "Id:int", "ClinicId:int", "Name", "IsActive"),
+                    new ModelBuilder.TableSignature("Item", "Id", "ClinicId:int", "Name", "IsActive"),
+                    new ModelBuilder.TableSignature("Species", "Id", "ClinicId:int", "Name"),
+                    new ModelBuilder.TableSignature("PointCapacity", "Id", "CalendarId:int", "Sex", "SpeciesId", "Maximum")
+                );
+
+            model.SaveJson(@"c:\users\adam\desktop\miniHsModel.json");
+        }
+
     }
 }

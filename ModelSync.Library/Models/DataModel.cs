@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ModelSync.Library.Services;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,17 +22,21 @@ namespace ModelSync.Library.Models
         public static DataModel FromJsonFile(string fileName)
         {
             string json = File.ReadAllText(fileName);
-            return JsonConvert.DeserializeObject<DataModel>(json);
+            return JsonConvert.DeserializeObject<DataModel>(json, new DbObjectConverter());
         }        
 
-        public void SaveJson(string fileName)
+        public string ToJson()
         {
-            string json = JsonConvert.SerializeObject(this, new JsonSerializerSettings()
+            return JsonConvert.SerializeObject(this, new JsonSerializerSettings()
             {
                 Formatting = Formatting.Indented,
                 PreserveReferencesHandling = PreserveReferencesHandling.Objects
             });
-            File.WriteAllText(fileName, json);
+        }
+
+        public void SaveJson(string fileName)
+        {            
+            File.WriteAllText(fileName, ToJson());
         }
 
         [JsonIgnore]

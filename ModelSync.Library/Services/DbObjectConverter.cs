@@ -3,11 +3,14 @@ using ModelSync.Library.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 
 namespace ModelSync.Library.Services
 {
     public class DbObjectConverter : JsonConverter
     {
+        private Dictionary<int, DbObject> _refs = new Dictionary<int, DbObject>();
+
         public override bool CanConvert(Type objectType)
         {
             return typeof(DbObject).IsAssignableFrom(objectType);
@@ -18,11 +21,18 @@ namespace ModelSync.Library.Services
         /// </summary>
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            if (reader.Path.EndsWith("Parent") && reader.Value == null) return null;            
+            if (reader.Path.EndsWith("Parent") && reader.Value == null)
+            {
+                return null;
+            }
 
             JObject jo = JObject.Load(reader);
 
-            if (!jo.ContainsKey("ObjectType")) return null;
+            if (jo.ContainsKey("$ref"))
+            {
+                int refId = jo["$ref"].Value<int>();
+                return _refs[refId];
+            }
 
             ObjectType dbObjType = (ObjectType)((int)jo["ObjectType"]);
 
@@ -55,6 +65,7 @@ namespace ModelSync.Library.Services
 
             serializer.Populate(jo.CreateReader(), dbObj);
 
+            _refs.Add(jo["$id"].Value<int>(), dbObj);
             return dbObj;
         }
         

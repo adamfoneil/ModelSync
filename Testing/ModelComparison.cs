@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Testing.Helpers;
 using Testing.Models;
 
 namespace Testing
@@ -16,9 +17,9 @@ namespace Testing
         [TestMethod]
         public void CreateTable()
         {
-            var table1 = BuildTable("table1", "FirstName", "LastName", "HireDate");
-            var table2 = BuildTable("table2", "Jiminy", "Hambone", "Ecclesiast");
-            var table3 = BuildTable("table3", "Yardicle", "Shorshana", "Mranzikis");
+            var table1 = ModelBuilder.BuildTable("table1", "FirstName", "LastName", "HireDate");
+            var table2 = ModelBuilder.BuildTable("table2", "Jiminy", "Hambone", "Ecclesiast");
+            var table3 = ModelBuilder.BuildTable("table3", "Yardicle", "Shorshana", "Mranzikis");
 
             var src = new DataModel()
             {
@@ -42,9 +43,9 @@ namespace Testing
         [TestMethod]
         public void AddColumn()
         {
-            var tableSrc = BuildTable("table1", "FirstName", "LastName", "HireDate", "WhateverDate");
-            var table2 = BuildTable("table2", "Jiminy", "Hambone", "Ecclesiast");
-            var tableDest = BuildTable("table1", "FirstName", "LastName", "HireDate");
+            var tableSrc = ModelBuilder.BuildTable("table1", "FirstName", "LastName", "HireDate", "WhateverDate");
+            var table2 = ModelBuilder.BuildTable("table2", "Jiminy", "Hambone", "Ecclesiast");
+            var tableDest = ModelBuilder.BuildTable("table1", "FirstName", "LastName", "HireDate");
 
             var src = new DataModel()
             {
@@ -70,9 +71,9 @@ namespace Testing
         [TestMethod]
         public void DropColumn()
         {
-            var tableSrc = BuildTable("table1", "FirstName", "LastName", "HireDate");
-            var table2 = BuildTable("table2", "Jiminy", "Hambone", "Ecclesiast");
-            var tableDest = BuildTable("table1", "FirstName", "LastName", "HireDate", "WhateverDate");
+            var tableSrc = ModelBuilder.BuildTable("table1", "FirstName", "LastName", "HireDate");
+            var table2 = ModelBuilder.BuildTable("table2", "Jiminy", "Hambone", "Ecclesiast");
+            var tableDest = ModelBuilder.BuildTable("table1", "FirstName", "LastName", "HireDate", "WhateverDate");
 
             var src = new DataModel()
             {
@@ -104,8 +105,8 @@ namespace Testing
         [TestMethod]
         public void AddForeignKey()
         {
-            var parentTable = BuildTable("table1", "this", "that", "other", "Id");
-            var childTable = BuildTable("table2", "table1Id", "whatever", "tom", "dick", "harry");
+            var parentTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
+            var childTable = ModelBuilder.BuildTable("table2", "table1Id", "whatever", "tom", "dick", "harry");
 
             var fk = new ForeignKey()
             {
@@ -141,8 +142,8 @@ namespace Testing
         [TestMethod]
         public void DropForeignKey()
         {
-            var parentTable = BuildTable("table1", "this", "that", "other", "Id");
-            var childTable = BuildTable("table2", "table1Id", "whatever", "tom", "dick", "harry");
+            var parentTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
+            var childTable = ModelBuilder.BuildTable("table2", "table1Id", "whatever", "tom", "dick", "harry");
 
             var fk = new ForeignKey()
             {
@@ -179,8 +180,8 @@ namespace Testing
         [TestMethod]
         public void DropTableWithoutRedundantFKDrop()
         {
-            var parentTable = BuildTable("table1", "this", "that", "other", "Id");
-            var childTable = BuildTable("table2", "table1Id", "whatever", "tom", "dick", "harry");
+            var parentTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
+            var childTable = ModelBuilder.BuildTable("table2", "table1Id", "whatever", "tom", "dick", "harry");
 
             var fk = new ForeignKey()
             {
@@ -217,7 +218,7 @@ namespace Testing
         [TestMethod]
         public void DropTableWithoutRedundantIndexDrop()
         {
-            var table1 = BuildTable("table1", "this", "that", "other", "Id");
+            var table1 = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
 
             var index = new ModelSync.Library.Models.Index()
             {
@@ -248,8 +249,8 @@ namespace Testing
         [TestMethod]
         public void DropIndex()
         {
-            var srcTable = BuildTable("table1", "this", "that", "other", "Id");            
-            var destTable = BuildTable("table1", "this", "that", "other", "Id");
+            var srcTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");            
+            var destTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
 
             var index = new ModelSync.Library.Models.Index()
             {
@@ -279,8 +280,8 @@ namespace Testing
         [TestMethod]
         public void AddIndex()
         {
-            var srcTable = BuildTable("table1", "this", "that", "other", "Id");
-            var destTable = BuildTable("table1", "this", "that", "other", "Id");
+            var srcTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
+            var destTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
 
             var index = new ModelSync.Library.Models.Index()
             {
@@ -310,8 +311,8 @@ namespace Testing
         [TestMethod]
         public void AlterColumn()
         {
-            var srcTable = BuildTable("table1", "this:int", "that", "other", "Id");                        
-            var destTable = BuildTable("table1", "this", "that", "other", "Id");
+            var srcTable = ModelBuilder.BuildTable("table1", "this:int", "that", "other", "Id");                        
+            var destTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
 
             var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
             var destModel = new DataModel() { Tables = new Table[] { destTable } };
@@ -342,9 +343,9 @@ namespace Testing
                 return fk;
             };
 
-            var parentTbl = BuildTable("parent", "this", "that", "other", "Id");
-            var child1 = BuildTable("child1", "parentId", "hello", "whatever", "chunga");            
-            var child2 = BuildTable("child2", "parentId", "yowza", "plimza", "faruga");
+            var parentTbl = ModelBuilder.BuildTable("parent", "this", "that", "other", "Id");
+            var child1 = ModelBuilder.BuildTable("child1", "parentId", "hello", "whatever", "chunga");            
+            var child2 = ModelBuilder.BuildTable("child2", "parentId", "yowza", "plimza", "faruga");
 
             var srcModel = new DataModel()
             {
@@ -400,10 +401,10 @@ namespace Testing
                 };
             };
 
-            var srcTable = BuildTable("table1", "that", "other", "hello", "goodbye");
+            var srcTable = ModelBuilder.BuildTable("table1", "that", "other", "hello", "goodbye");
             srcTable.Indexes = new ModelSync.Library.Models.Index[] { getIndex(srcTable) };
 
-            var destTable = BuildTable("table1", "this", "that", "other", "hello", "goodbye");
+            var destTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "hello", "goodbye");
             destTable.Indexes = new ModelSync.Library.Models.Index[] { getIndex(destTable) };
 
             var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
@@ -448,22 +449,6 @@ namespace Testing
                 Parent = new Table() { Name = "dbo.ActionItem2" },
                 Name = "FK_ActionItem2_EmployeeId"
             }));
-        }
-
-        private Table BuildTable(string tableName, params string[] columnNames)
-        {
-            Column columnFromName(Table table, string name)
-            {
-                var nameAndType = name.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                return (nameAndType.Length == 2) ?
-                    new Column() { Name = nameAndType[0], DataType = nameAndType[1], Parent = table } :
-                    new Column() { Name = name, DataType = "nvarchar(20)", Parent = table };                    
-            };
-
-            var result = new Table() { Name = tableName };
-            result.Columns = columnNames.Select(col => columnFromName(result, col));
-
-            return result;
         }
     }
 }
