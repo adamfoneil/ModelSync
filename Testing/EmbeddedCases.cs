@@ -21,30 +21,30 @@ namespace Testing
 
             foreach (var resourceName in embedded)
             {
-                TestCase testCase = ExtractTestCase(resourceName);
-
-                //testCase.SourceModel.SaveJson(@"c:\users\adam\desktop\sourceModel.json");
-
-                var diff = DataModel.Compare(testCase.SourceModel, testCase.DestModel);
+                var sourceModel = Extract(resourceName, "SourceModel.json", (content) => DataModel.FromJson(content));
+                var destModel = Extract(resourceName, "DestModel.json", (content) => DataModel.FromJson(content));
+                var testCase = Extract<TestCase>(resourceName, "TestCase.json");
+                
+                var diff = DataModel.Compare(sourceModel, destModel);
                 var commands = diff.SelectMany(scr => scr.Commands);
                 Assert.IsTrue(commands.SequenceEqual(testCase.SqlCommands));
             }
         }
 
-        private TestCase ExtractTestCase(string resourceName)
+        private T Extract<T>(string resourceName, string entryName, Func<string, T> objectBuilder = null) where T : class
         {
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
             {
                 using (var zip = new ZipArchive(stream, ZipArchiveMode.Read))
                 {
-                    var entry = zip.Entries.First();
+                    var entry = zip.GetEntry(entryName);
                     using (var entryStream = entry.Open())
                     {
                         using (var reader = new StreamReader(entryStream))
                         {
                             string json = reader.ReadToEnd();
-                            return JsonConvert.DeserializeObject<TestCase>(json, new DbObjectConverter());
-                        }                        
+                            return objectBuilder?.Invoke(json) ?? JsonConvert.DeserializeObject<T>(json);
+                        }
                     }
                 }
             }

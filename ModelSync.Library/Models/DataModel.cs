@@ -22,8 +22,13 @@ namespace ModelSync.Library.Models
         public static DataModel FromJsonFile(string fileName)
         {
             string json = File.ReadAllText(fileName);
-            return JsonConvert.DeserializeObject<DataModel>(json, new DbObjectConverter());
+            return FromJson(json);
         }        
+
+        public static DataModel FromJson(string json)
+        {
+            return JsonConvert.DeserializeObject<DataModel>(json, new DbObjectConverter());
+        }
 
         public string ToJson()
         {
