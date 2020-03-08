@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelSync.Library.Models;
+using ModelSync.Library.Services;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -21,6 +22,9 @@ namespace Testing
             foreach (var resourceName in embedded)
             {
                 TestCase testCase = ExtractTestCase(resourceName);
+
+                //testCase.SourceModel.SaveJson(@"c:\users\adam\desktop\sourceModel.json");
+
                 var diff = DataModel.Compare(testCase.SourceModel, testCase.DestModel);
                 var commands = diff.SelectMany(scr => scr.Commands);
                 Assert.IsTrue(commands.SequenceEqual(testCase.SqlCommands));
@@ -39,7 +43,7 @@ namespace Testing
                         using (var reader = new StreamReader(entryStream))
                         {
                             string json = reader.ReadToEnd();
-                            return JsonConvert.DeserializeObject<TestCase>(json);
+                            return JsonConvert.DeserializeObject<TestCase>(json, new DbObjectConverter());
                         }                        
                     }
                 }
