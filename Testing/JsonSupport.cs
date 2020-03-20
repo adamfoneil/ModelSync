@@ -36,6 +36,8 @@ namespace Testing
                 );
 
             model.SaveJson(@"c:\users\adam\desktop\miniHsModel.json");
+
+            var load = DataModel.FromJsonFile(@"c:\users\adam\desktop\miniHsModel.json");
         }
 
     }
