@@ -1,6 +1,8 @@
 ﻿using ModelSync.Library.Services;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace ModelSync.Library.Models
 {
@@ -31,5 +33,10 @@ namespace ModelSync.Library.Models
             File.WriteAllText(fileName, ToJson());
         }
 
+        [JsonIgnore]
+        public Dictionary<string, Table> TableDictionary
+        {
+            get { return Tables.ToDictionary(item => item.Name); }
+        }
     }
 }

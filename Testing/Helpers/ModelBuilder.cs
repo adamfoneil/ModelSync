@@ -43,18 +43,16 @@ namespace Testing.Helpers
 
             model.Tables = tables.Select(t => BuildTable(t.TableName, t.Columns));
 
-            var pkCandidates = model.Tables.SelectMany(t => t.Columns.Select(col => new { Table = t, FKColumnName = t.Name + col.Name, PKColumnName = col.Name }));
-            var allColumns = model.Tables.SelectMany(t => t.Columns.Select(col => new { TableName = t.Name, ColumnName = col.Name }));
-
-            var tableDictionary = model.Tables.ToDictionary(item => item.Name);
+            var pkCandidates = model.Tables.SelectMany(t => t.Columns.Select(col => new { TableName = t.Name, FKColumnName = t.Name + col.Name, PKColumnName = col.Name }));
+            var allColumns = model.Tables.SelectMany(t => t.Columns.Select(col => new { TableName = t.Name, ColumnName = col.Name }));            
 
             model.ForeignKeys = from pkCols in pkCandidates
                                 join fkCols in allColumns on pkCols.FKColumnName equals fkCols.ColumnName
                                 select new ForeignKey()
                                 {
                                     Name = $"FK_{fkCols.TableName}_{fkCols.ColumnName}",
-                                    Parent = tableDictionary[fkCols.TableName],
-                                    ReferencedTable = pkCols.Table,
+                                    Parent = model.TableDictionary[fkCols.TableName],
+                                    ReferencedTable = model.TableDictionary[pkCols.TableName],
                                     Columns = new ForeignKey.Column[] 
                                     { 
                                         new ForeignKey.Column() { ReferencedName = pkCols.PKColumnName, ReferencingName = fkCols.ColumnName } 

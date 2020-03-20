@@ -2,6 +2,7 @@
 using ModelSync.Library.Models;
 using ModelSync.Library.Services;
 using System;
+using System.Linq;
 using Testing.Helpers;
 using Testing.Models;
 
@@ -18,9 +19,13 @@ namespace Testing
                 typeof(Employee), typeof(ActionItem2)
             }, "dbo", "Id");
 
+            Assert.IsTrue(model.ForeignKeys.Count() == 1);
+
             string fileName = @"C:\users\adam\desktop\sampleModel.json";
             model.SaveJson(fileName);
             var load = DataModel.FromJsonFile(fileName);
+
+            Assert.IsTrue(load.ForeignKeys.Count() == 1);
         }
 
         [TestMethod]
