@@ -3,15 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.7</Version>
+    <Version>2.0.8</Version>
     <Authors>Adam O'Neil</Authors>
     <Copyright>Copyright (c) 2020 Adam O'Neil</Copyright>
     <RepositoryUrl>https://github.com/adamosoftware/ModelSync</RepositoryUrl>
     <PackageProjectUrl>https://github.com/adamosoftware/ModelSync</PackageProjectUrl>
-    <Description>A database schema diff library for .NET assemblies using AO.DbSchema.Attributes and SQL Server</Description>
+    <Description>A database schema diff library for .NET assemblies and SQL Server databases using AO.DbSchema.Attributes</Description>
     <PackageId>AO.ModelSync.Library</PackageId>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>fixed indexes not having Parent set, improved Column.ToString()</PackageReleaseNotes>
+    <PackageReleaseNotes>added DataModel.CreateTablesAsync</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
