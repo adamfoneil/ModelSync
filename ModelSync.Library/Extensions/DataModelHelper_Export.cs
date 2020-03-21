@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace ModelSync.Library.Extensions
 {
-    public static class DataModelHelper
+    public static partial class DataModelHelper
     {
         public const string DataModelFileSuffix = ".DataModel.json";
         public const string DataModelErrorFileSuffix = ".DataModel.Error.json";

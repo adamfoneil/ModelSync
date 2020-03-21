@@ -46,6 +46,18 @@ namespace ModelSync.Library.Abstract
             return string.Join("\r\n" + BatchSeparator + "\r\n", scriptActions.SelectMany(scr => scr.Commands.Select(cmd => FormatStatement(cmd)))) + "\r\n\r\n";
         }
 
+        public void Execute(IDbConnection connection, IEnumerable<ScriptAction> scriptActions)
+        {
+            string script = FormatScript(scriptActions);
+            Execute(connection, script);
+        }
+
+        public async Task ExecuteAsync(IDbConnection connection, IEnumerable<ScriptAction> scriptActions)
+        {
+            string script = FormatScript(scriptActions);
+            await ExecuteAsync(connection, script);
+        }
+
         public void Execute(IDbConnection connection, string script)
         {
             if (connection.State == ConnectionState.Closed) connection.Open();
