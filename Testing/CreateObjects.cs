@@ -24,7 +24,7 @@ namespace Testing
                 DropTableIfExists(cn, "dbo.Employee").Wait();                
             }
 
-            DataModel.CreateIfNotExistsAsync(new[]
+            DataModel.CreateTablesAsync(new[]
             {
                 typeof(Employee),
                 typeof(ActionItem2)

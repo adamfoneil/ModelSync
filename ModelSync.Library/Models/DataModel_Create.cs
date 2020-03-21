@@ -9,7 +9,7 @@ namespace ModelSync.Library.Models
 {
     public partial class DataModel
     {
-        public static async Task CreateIfNotExistsAsync(IEnumerable<Type> modelTypes, IDbConnection connection, SqlDialect dialect = null, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
+        public static async Task CreateTablesAsync(IEnumerable<Type> modelTypes, IDbConnection connection, SqlDialect dialect = null, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {
             var dataModel = AssemblyModelBuilder.GetDataModelFromTypes(modelTypes, defaultSchema, defaultIdentityColumn);
 
@@ -18,11 +18,11 @@ namespace ModelSync.Library.Models
             await dialect.ExecuteAsync(connection, script);
         }
 
-        public static async Task CreateIfNotExistsAsync(IEnumerable<Type> modelTypes, Func<IDbConnection> getConnection, SqlDialect dialect = null, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
+        public static async Task CreateTablesAsync(IEnumerable<Type> modelTypes, Func<IDbConnection> getConnection, SqlDialect dialect = null, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {
             using (var cn = getConnection.Invoke())
             {
-                await CreateIfNotExistsAsync(modelTypes, cn, dialect, defaultSchema, defaultIdentityColumn);
+                await CreateTablesAsync(modelTypes, cn, dialect, defaultSchema, defaultIdentityColumn);
             }
         }
 
