@@ -41,12 +41,12 @@ namespace Testing.Helpers
         {
             var model = new DataModel();
 
-            model.Tables = tables.Select(t => BuildTable(t.TableName, t.Columns));
+            model.Tables = tables.Select(t => BuildTable(t.TableName, t.Columns)).ToArray();
 
             var pkCandidates = model.Tables.SelectMany(t => t.Columns.Select(col => new { TableName = t.Name, FKColumnName = t.Name + col.Name, PKColumnName = col.Name }));
             var allColumns = model.Tables.SelectMany(t => t.Columns.Select(col => new { TableName = t.Name, ColumnName = col.Name }));            
 
-            model.ForeignKeys = from pkCols in pkCandidates
+            model.ForeignKeys = (from pkCols in pkCandidates
                                 join fkCols in allColumns on pkCols.FKColumnName equals fkCols.ColumnName
                                 select new ForeignKey()
                                 {
@@ -57,7 +57,7 @@ namespace Testing.Helpers
                                     { 
                                         new ForeignKey.Column() { ReferencedName = pkCols.PKColumnName, ReferencingName = fkCols.ColumnName } 
                                     }
-                                };
+                                }).ToArray();
 
             return model;
         }

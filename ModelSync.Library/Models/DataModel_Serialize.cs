@@ -30,6 +30,8 @@ namespace ModelSync.Library.Models
 
         public void SaveJson(string fileName)
         {
+            string path = Path.GetDirectoryName(fileName);
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             File.WriteAllText(fileName, ToJson());
         }
 

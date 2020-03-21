@@ -21,7 +21,7 @@ namespace Testing
 
             Assert.IsTrue(model.ForeignKeys.Count() == 1);
 
-            string fileName = @"C:\users\adam\desktop\sampleModel.json";
+            string fileName = @"C:\users\adam\desktop\DataModels\sampleModel.json";
             model.SaveJson(fileName);
             var load = DataModel.FromJsonFile(fileName);
 
@@ -40,9 +40,9 @@ namespace Testing
                     new ModelBuilder.TableSignature("PointCapacity", "Id", "CalendarId:int", "Sex", "SpeciesId", "Maximum")
                 );
 
-            model.SaveJson(@"c:\users\adam\desktop\miniHsModel.json");
+            model.SaveJson(@"c:\users\adam\desktop\DataModels\miniHsModel.json");
 
-            var load = DataModel.FromJsonFile(@"c:\users\adam\desktop\miniHsModel.json");
+            var load = DataModel.FromJsonFile(@"c:\users\adam\desktop\DataModels\miniHsModel.json");
         }
 
     }
