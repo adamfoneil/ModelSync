@@ -9,7 +9,7 @@ namespace ModelSync.Library.Models
 {
     public class Schema : DbObject
     {
-        public override ObjectType ObjectType => ObjectType.Schema;        
+        public override ObjectType ObjectType => ObjectType.Schema;
 
         public const string DefaultSchema = "dbo";
 

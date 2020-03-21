@@ -22,9 +22,9 @@ namespace ModelSync.Library.Models
     }
 
     public class Index : DbObject
-    {        
-        public override ObjectType ObjectType => ObjectType.Index;        
-        
+    {
+        public override ObjectType ObjectType => ObjectType.Index;
+
         public IndexType Type { get; set; }
         public IEnumerable<Column> Columns { get; set; }
         public int InternalId { get; set; }
@@ -38,7 +38,7 @@ namespace ModelSync.Library.Models
                 case IndexType.UniqueIndex:
                     return $"CREATE {definition}";
 
-                case IndexType.UniqueConstraint:                    
+                case IndexType.UniqueConstraint:
                 case IndexType.PrimaryKey:
                     return $"ALTER TABLE <{Parent}> ADD {definition}";
 
@@ -49,7 +49,7 @@ namespace ModelSync.Library.Models
 
         public string GetDefinition()
         {
-            string columnList = string.Join(", ", Columns.OrderBy(col => col.Order).Select(col => $"<{col.Name}> {((col.SortDirection == SortDirection.Ascending) ? "ASC" : "DESC")}"));            
+            string columnList = string.Join(", ", Columns.OrderBy(col => col.Order).Select(col => $"<{col.Name}> {((col.SortDirection == SortDirection.Ascending) ? "ASC" : "DESC")}"));
 
             switch (Type)
             {
@@ -69,7 +69,7 @@ namespace ModelSync.Library.Models
 
         public override string DropStatement()
         {
-            return 
+            return
                 (Type == IndexType.UniqueIndex || Type == IndexType.PrimaryKey || Type == IndexType.NonUnique) ? $"DROP INDEX <{Name}> ON <{Parent}>" :
                 (Type == IndexType.UniqueConstraint) ? $"ALTER TABLE <{Parent}> DROP CONSTRAINT <{Name}>" :
                 throw new Exception($"Unrecognized index type {Type}");
@@ -77,7 +77,7 @@ namespace ModelSync.Library.Models
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
-            return (Type == IndexType.PrimaryKey || Type == IndexType.UniqueConstraint) ? 
+            return (Type == IndexType.PrimaryKey || Type == IndexType.UniqueConstraint) ?
                 dataModel.ForeignKeys.Where(fk => fk.ReferencedTable.Equals(this.Parent)) :
                 Enumerable.Empty<DbObject>();
         }

@@ -16,13 +16,13 @@ namespace ModelSync.Library.Models
             Indexes = Enumerable.Empty<Index>();
         }
 
-        public override ObjectType ObjectType => ObjectType.Table;        
+        public override ObjectType ObjectType => ObjectType.Table;
         public IEnumerable<Column> Columns { get; set; }
         public IEnumerable<Index> Indexes { get; set; }
         public long RowCount { get; set; }
 
         public override string CreateStatement()
-        {            
+        {
             List<string> members = new List<string>();
             members.AddRange(Columns.Select(col => col.GetDefinition()));
             members.AddRange((Indexes ?? Enumerable.Empty<Index>()).Select(ndx => ndx.GetDefinition()));
@@ -38,7 +38,7 @@ namespace ModelSync.Library.Models
         }
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
-        {            
+        {
             return dataModel.ForeignKeys.Where(fk => fk.ReferencedTable.Equals(this));
         }
 
@@ -65,7 +65,7 @@ namespace ModelSync.Library.Models
                 identityColumn = GetIdentityColumn(defaultIdentityColumn);
                 return true;
             }
-            catch 
+            catch
             {
                 identityColumn = null;
                 return false;

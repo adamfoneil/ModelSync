@@ -19,7 +19,7 @@ namespace ModelSync.Library.Services
     public class AssemblyModelBuilder : IAssemblyModelBuilder
     {
         public DataModel GetDataModel(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
-        {           
+        {
             var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
             var typeTableMap = GetTypeTableMap(types, defaultSchema, defaultIdentityColumn);
             DataModel result = GetDataModelInner(typeTableMap, defaultSchema, defaultIdentityColumn);
@@ -51,7 +51,7 @@ namespace ModelSync.Library.Services
                 { typeof(decimal), "decimal" },
                 { typeof(bool), "bit" },
                 { typeof(TimeSpan), "time" },
-                { typeof(Guid), "uniqueidentifier" }                
+                { typeof(Guid), "uniqueidentifier" }
             };
 
             // help from https://stackoverflow.com/a/23402195/2023653
@@ -105,7 +105,7 @@ namespace ModelSync.Library.Services
             var fkProperties = result.Tables
                 .Where(tbl => tbl.TryGetIdentityColumn(defaultIdentityColumn, out _))
                 .Select(tbl => new ForeignKeyProperty
-                {                    
+                {
                     PropertyName = tbl.GetBaseName() + tbl.GetIdentityColumn(defaultIdentityColumn),
                     PrimaryType = tableTypeMap[tbl]
                 }).ToArray();
@@ -124,9 +124,9 @@ namespace ModelSync.Library.Services
 
         private static IEnumerable<PropertyInfo> ForeignKeyProperties(Type type, IEnumerable<string> defaultFKNames)
         {
-            return type.GetProperties().Where(pi => 
-                defaultFKNames.Contains(pi.Name) || 
-                pi.HasAttribute<ReferencesAttribute>(out _) || 
+            return type.GetProperties().Where(pi =>
+                defaultFKNames.Contains(pi.Name) ||
+                pi.HasAttribute<ReferencesAttribute>(out _) ||
                 pi.HasAttribute<ForeignKeyAttribute>(out _)); // needed for EF support, but doesn't work now
         }
 
@@ -135,8 +135,8 @@ namespace ModelSync.Library.Services
             var fk = propertyInfo.GetCustomAttribute<ReferencesAttribute>() ??
                 ((fkPropertyMap.ContainsKey(propertyInfo.Name)) ?
                     new ReferencesAttribute(fkPropertyMap[propertyInfo.Name].PrimaryType) :
-                    throw new Exception($"Couldn't infer foreign key info from {propertyInfo.DeclaringType.Name}.{propertyInfo.Name}")); 
-                
+                    throw new Exception($"Couldn't infer foreign key info from {propertyInfo.DeclaringType.Name}.{propertyInfo.Name}"));
+
             return new ForeignKey()
             {
                 Name = $"FK_{GetTableConstraintName(propertyInfo.DeclaringType, defaultSchema)}_{propertyInfo.Name}",
@@ -144,8 +144,8 @@ namespace ModelSync.Library.Services
                 Parent = typeTableMap[propertyInfo.DeclaringType],
                 CascadeUpdate = false,
                 CascadeDelete = fk.CascadeDelete,
-                Columns = new ForeignKey.Column[] 
-                { 
+                Columns = new ForeignKey.Column[]
+                {
                     new ForeignKey.Column()
                     {
                         ReferencedName = FindIdentityProperty(fk.PrimaryType, defaultIdentityColumn).Name,
@@ -156,7 +156,7 @@ namespace ModelSync.Library.Services
         }
 
         private static Dictionary<Type, Table> GetTypeTableMap(IEnumerable<Type> modelTypes, string defaultSchema, string defaultIdentityColumn)
-        {            
+        {
             var source = modelTypes.Select(t => new
             {
                 Type = t,
@@ -206,10 +206,10 @@ namespace ModelSync.Library.Services
             IEnumerable<Index> getIndexes(Type type)
             {
                 IndexType identityType = IndexType.PrimaryKey;
-                
+
                 var keyColumns = type.GetProperties().Where(pi => pi.HasAttribute<KeyAttribute>(out _));
                 if (keyColumns.Any())
-                {                    
+                {
                     if (idProperty != null && keyColumns.Contains(idProperty))
                     {
                         throw new Exception($"Model property {modelType.Name}.{idProperty.Name} can be either an [Identity] or [Key] property, but not both.");
@@ -251,9 +251,9 @@ namespace ModelSync.Library.Services
                 {
                     Type = identityType,
                     Name = identityIndexName,
-                    Columns = new Index.Column[] 
-                    { 
-                        new Index.Column() { Name = idProperty.Name, Order = 1, SortDirection = SortDirection.Ascending } 
+                    Columns = new Index.Column[]
+                    {
+                        new Index.Column() { Name = idProperty.Name, Order = 1, SortDirection = SortDirection.Ascending }
                     }
                 };
             }
@@ -298,7 +298,7 @@ namespace ModelSync.Library.Services
             if (propertyInfo.PropertyType.IsEnum)
             {
                 result.DataType = "int";
-            }            
+            }
 
             SetColumnProperties(propertyInfo, result, defaultIdentityColumn);
 
@@ -355,7 +355,7 @@ namespace ModelSync.Library.Services
 
         private static bool IsIdentity(PropertyInfo propertyInfo, string defaultIdentityColumn)
         {
-            return 
+            return
                 (propertyInfo.DeclaringType.HasAttribute(out IdentityAttribute idAttr) && idAttr.PropertyName.Equals(propertyInfo.Name)) ||
                 (propertyInfo.Name.Equals(defaultIdentityColumn));
         }

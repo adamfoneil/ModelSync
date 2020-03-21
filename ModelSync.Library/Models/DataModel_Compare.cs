@@ -13,12 +13,12 @@ namespace ModelSync.Library.Models
 
             var createTables = CreateTables(sourceModel, destModel);
             results.AddRange(createTables);
-            
+
             // nested object creates need to omit tables already created
             results.AddRange(AddColumns(sourceModel, destModel, createTables));
             results.AddRange(AddIndexes(sourceModel, destModel, createTables));
-            
-            results.AddRange(AlterColumns(sourceModel, destModel));            
+
+            results.AddRange(AlterColumns(sourceModel, destModel));
             results.AddRange(CreateForeignKeys(sourceModel, destModel));
 
             var dropTables = DropTables(sourceModel, destModel);
@@ -28,12 +28,12 @@ namespace ModelSync.Library.Models
             results.AddRange(DropIndexes(sourceModel, destModel, dropTables));
             results.AddRange(DropForeignKeys(sourceModel, destModel, dropTables));
             results.AddRange(DropColumns(sourceModel, destModel, dropTables));
-            
+
             return results;
         }
 
         private static IEnumerable<ScriptAction> CreateSchemas(DataModel sourceModel, DataModel destModel)
-        {            
+        {
             return sourceModel.Schemas.Except(destModel.Schemas).Select(sch => new ScriptAction()
             {
                 Type = ActionType.Create,
@@ -75,7 +75,7 @@ namespace ModelSync.Library.Models
                     Type = ActionType.Drop,
                     Object = tbl,
                     Commands = tbl.DropStatements(destModel)
-                });            
+                });
         }
 
         private static IEnumerable<ScriptAction> DropColumns(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
@@ -85,7 +85,7 @@ namespace ModelSync.Library.Models
             var sourceColumns = sourceModel.Tables.SelectMany(tbl => tbl.Columns).ToArray();
             var destColumns = destModel.Tables.Except(exceptTables).SelectMany(tbl => tbl.Columns).ToArray();
 
-            return 
+            return
                 destColumns.Except(sourceColumns)
                 .Select(col => new ScriptAction()
                 {
@@ -174,7 +174,7 @@ namespace ModelSync.Library.Models
                         Object = columnPair.Source,
                         Commands = columnPair.Source.AlterStatements(comment)
                     };
-                });                   
+                });
         }
     }
 }

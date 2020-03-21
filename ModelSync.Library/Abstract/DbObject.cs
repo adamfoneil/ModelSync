@@ -16,8 +16,8 @@ namespace ModelSync.Library.Abstract
     }
 
     public abstract class DbObject
-    {        
-        public string Name { get; set; }        
+    {
+        public string Name { get; set; }
         public DbObject Parent { get; set; }
         public int ObjectId { get; set; }
 
@@ -48,7 +48,7 @@ namespace ModelSync.Library.Abstract
             {
                 return object1.Parent.Equals(object2.Parent);
             }
-            catch 
+            catch
             {
                 return false;
             }
@@ -60,10 +60,10 @@ namespace ModelSync.Library.Abstract
             {
                 return object1.Name.ToLower().Equals(object2.Name.ToLower());
             }
-            catch 
+            catch
             {
                 return false;
-            }            
+            }
         }
 
         public override int GetHashCode()
@@ -72,16 +72,16 @@ namespace ModelSync.Library.Abstract
         }
 
         public string GetSchema(string defaultSchema)
-        {            
+        {
             try
             {
                 var parts = Name.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
                 return (parts.Length > 1) ? parts[0] : defaultSchema;
             }
-            catch 
+            catch
             {
                 return defaultSchema;
-            }            
+            }
         }
 
         public string GetBaseName()
@@ -103,7 +103,7 @@ namespace ModelSync.Library.Abstract
         }
 
         public IEnumerable<string> DropStatements(DataModel dataModel)
-        {            
+        {
             foreach (var obj in GetDropDependencies(dataModel))
             {
                 yield return obj.DropStatement();

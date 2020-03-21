@@ -17,15 +17,15 @@ namespace ModelSync.Library.Models
         public ActionType Type { get; set; }
         public DbObject Object { get; set; }
         public IEnumerable<string> Commands { get; set; }
-        
+
         public string ObjectName => Object.ToString();
         public ObjectType ObjectType => Object.ObjectType;
 
-        public ExcludeAction GetExcludeAction() => new ExcludeAction() 
-        { 
-            Type = this.Type, 
+        public ExcludeAction GetExcludeAction() => new ExcludeAction()
+        {
+            Type = this.Type,
             ObjectType = this.Object.ObjectType,
-            ObjectName = this.Object.ToString() 
+            ObjectName = this.Object.ToString()
         };
 
         public override bool Equals(object obj)
@@ -45,7 +45,7 @@ namespace ModelSync.Library.Models
                     test.Commands.SequenceEqual(Commands);
             }
 
-            return false;                
+            return false;
         }
 
         public override int GetHashCode()

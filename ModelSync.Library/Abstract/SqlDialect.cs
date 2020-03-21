@@ -21,14 +21,14 @@ namespace ModelSync.Library.Abstract
         public abstract char EndDelimiter { get; }
         public abstract string BatchSeparator { get; }
         public abstract string CommentStart { get; }
-        
+
         public string FormatStatement(string statement)
         {
             string result = statement;
 
             var objectNames = Regex.Matches(result, @"<([^>]+)>").OfType<Match>();
             foreach (var value in objectNames)
-            {                
+            {
                 result = result.Replace(value.Value, ApplyDelimiters(value.Value));
             }
             return result;
@@ -38,7 +38,7 @@ namespace ModelSync.Library.Abstract
         {
             string result = objectName.Replace("<", string.Empty).Replace(">", string.Empty);
             var parts = result.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim());
-            return string.Join(".", parts.Select(part => $"{StartDelimiter}{part}{EndDelimiter}"));            
+            return string.Join(".", parts.Select(part => $"{StartDelimiter}{part}{EndDelimiter}"));
         }
 
         public string FormatScript(IEnumerable<ScriptAction> scriptActions)

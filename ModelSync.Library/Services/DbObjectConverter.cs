@@ -62,9 +62,9 @@ namespace ModelSync.Library.Services
 
                 default:
                     throw new Exception($"Unrecognized object type {dbObjType}");
-            }          
+            }
 
-            serializer.Populate(jo.CreateReader(), dbObj);            
+            serializer.Populate(jo.CreateReader(), dbObj);
             _refs.Add(id, dbObj);
 
             if (jo.ContainsKey("Parent") && jo["Parent"].HasValues)
@@ -75,7 +75,7 @@ namespace ModelSync.Library.Services
                 if (_refs.ContainsKey(parentId))
                 {
                     dbObj.Parent = _refs[parentId];
-                }                
+                }
             }
 
             // when dealing with a table, we know that the columns and indexes always have the current obj as their parent,
@@ -88,7 +88,7 @@ namespace ModelSync.Library.Services
 
             return dbObj;
         }
-        
+
         public override bool CanWrite => false;
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
