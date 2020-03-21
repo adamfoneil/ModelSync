@@ -1,4 +1,6 @@
 ﻿using ModelSync.Library.Abstract;
+using ModelSync.Library.Extensions;
+using ModelSync.Library.Services;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -47,8 +49,16 @@ namespace ModelSync.Library.Models
             throw new NotImplementedException();
         }
 
-        public override Task<bool> ExistsAsync(IDbConnection connection)
+        public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
         {
+            var sqlServer = dialect as SqlServerDialect;
+            if (sqlServer != null)
+            {
+                return await connection.RowExistsAsync(
+                    "[sys].[tables] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name",
+                    new { schema = GetSchema("dbo"), name = GetBaseName() });
+            }
+
             throw new NotImplementedException();
         }
 

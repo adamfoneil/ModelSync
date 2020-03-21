@@ -116,7 +116,7 @@ namespace ModelSync.Library.Models
             return false;
         }
 
-        public override async Task<bool> ExistsAsync(IDbConnection connection)
+        public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
         {
             throw new NotImplementedException();
         }

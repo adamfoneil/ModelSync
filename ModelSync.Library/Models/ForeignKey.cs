@@ -1,4 +1,7 @@
 ﻿using ModelSync.Library.Abstract;
+using ModelSync.Library.Extensions;
+using ModelSync.Library.Services;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -40,9 +43,15 @@ namespace ModelSync.Library.Models
             throw new System.NotImplementedException();
         }
 
-        public override async Task<bool> ExistsAsync(IDbConnection connection)
+        public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
         {
-            throw new System.NotImplementedException();
+            var sqlServer = dialect as SqlServerDialect;
+            if (sqlServer != null)
+            {
+                return await connection.RowExistsAsync("[sys].[foreign_keys] WHERE [name]=@name", new { Name });
+            }
+
+            throw new NotImplementedException();
         }
 
         public class Column

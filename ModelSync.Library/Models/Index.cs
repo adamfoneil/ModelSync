@@ -87,7 +87,7 @@ namespace ModelSync.Library.Models
             throw new NotImplementedException();
         }
 
-        public override async Task<bool> ExistsAsync(IDbConnection connection)
+        public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
         {
             throw new NotImplementedException();
         }
