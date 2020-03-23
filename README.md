@@ -1,4 +1,13 @@
-This is a library for generating SQL diff merge scripts, using both .NET assemblies and SQL Server databases as sources. I use this to power my [ModelSync](http://www.aosoftware.net/modelSync.html) app. Another use is to generate SQL Server tables from model classes as part of a component initialization. For example [WorkTracker](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/JobManager.cs#L32)
+This is a library for generating SQL diff merge scripts, using both .NET assemblies and SQL Server databases as sources. I use this to power my [ModelSync](http://www.aosoftware.net/modelSync.html) app. Another use is to generate SQL Server tables from model classes as part of a component initialization. For example in my [WorkTracker](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/JobManager.cs#L32) project, I create tables from a couple model classes [Job](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/Models/Job.cs) and [Error](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/Models/Error.cs):
+
+```csharp
+ await DataModel.CreateTablesAsync(new[]
+{
+    typeof(Job),
+    typeof(Error)
+}, GetConnection);
+```
+Source for the [DataModel.CreateTablesAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Create.cs#L21) static method.
 
 Nuget package: **AO.ModelSync.Library**
 
