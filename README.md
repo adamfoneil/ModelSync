@@ -11,7 +11,7 @@ Use `DataModel.Compare` to generate a diff script from an assembly or database t
 ```csharp
 using (var cn = GetConnection())
 {
-    var sourceModel = await DataModel.FromAssemblyAsync(@"c:\users\adam\repos\whatever.dll");
+    var sourceModel = DataModel.FromAssembly(@"c:\users\adam\repos\whatever.dll");
     var destModel = await DataModel.FromSqlServerAsync(cn);
     var diff = DataModel.Compare(sourceModel, destModel);    
     string script = new SqlServerDialect().FormatScript(diff);
@@ -26,7 +26,7 @@ ALTER TABLE [child2] DROP CONSTRAINT [FK_child2_parentId]
 GO
 DROP TABLE [parent]
 ```
-Source links: [DataModel.FromAssemblyAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L36), [DataModel.FromSqlServerAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L24), [DataModel.Compare](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Compare.cs#L8)
+Source links: [DataModel.FromAssembly](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L34), [DataModel.FromSqlServerAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L23)
 
 # DataModel.CreateTablesAsync
 Use `DataModel.CreateTablesAsync` to create empty tables as part of a component initialization. For example in my [WorkTracker](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/JobManager.cs#L32) project, I create tables from a couple model classes [Job](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/Models/Job.cs) and [Error](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/Models/Error.cs). This `CreateTableAsync` overload accepts a `Func<IDbConnection>` through which your database connection is opened. In this example, I have a private method [GetConnection](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/JobManager.cs#L24).
