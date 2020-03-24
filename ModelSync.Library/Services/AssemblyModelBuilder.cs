@@ -260,13 +260,20 @@ namespace ModelSync.Library.Services
 
             IEnumerable<Column> getColumns(Type type)
             {
-                return
-                    type
+                List<Column> results = new List<Column>();
+                results.Add(GetColumnFromProperty(idProperty, defaultIdentityColumn));
+
+                var properties = type
                         .GetProperties().Where(pi =>
                             (DataTypes.ContainsKey(pi.PropertyType) || pi.PropertyType.IsEnum) &&
                             pi.CanWrite &&
-                            !pi.HasAttribute<NotMappedAttribute>(out _))
-                        .Select(pi => GetColumnFromProperty(pi, defaultIdentityColumn));
+                            !pi.HasAttribute<NotMappedAttribute>(out _))                        
+                        .Select(pi => GetColumnFromProperty(pi, defaultIdentityColumn))
+                        .Except(results);
+
+                results.AddRange(properties);
+
+                return results;
             };
 
             var result = new Table()
