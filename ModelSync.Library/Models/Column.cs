@@ -43,13 +43,36 @@ namespace ModelSync.Library.Models
             if (DefaultValueRequired && !string.IsNullOrEmpty(DefaultValue))
             {
                 yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isNullable: true)}";
-                yield return $"UPDATE <{Parent}> SET <{Name}> = {DefaultValue}";
+                yield return $"UPDATE <{Parent}> SET <{Name}> = {SqlLiteral(DefaultValue)}";
                 yield return $"ALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition()}";
             }
             else
             {
                 yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition()}";
             }
+        }
+
+        private string SqlLiteral(string input)
+        {
+            string result = input;
+
+            string quote(string value)
+            {
+                return "'" + value + "'";
+            };
+
+            if (DataType.Contains("char"))
+            {
+                result = result.Replace("'", "''");
+                result = quote(result);
+            }
+
+            if (DataType.Contains("date"))
+            {
+                result = quote(result);
+            }
+
+            return result;
         }
 
         public IEnumerable<string> AlterStatements(string comment)
