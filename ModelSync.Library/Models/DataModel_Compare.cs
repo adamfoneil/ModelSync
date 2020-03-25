@@ -59,11 +59,15 @@ namespace ModelSync.Library.Models
             var srcColumns = sourceModel.Tables.Except(exceptTables).SelectMany(tbl => tbl.Columns);
             var destColumns = destModel.Tables.SelectMany(tbl => tbl.Columns);
 
-            return srcColumns.Except(destColumns).Select(col => new ScriptAction()
+            return srcColumns.Except(destColumns).Select(col =>
             {
-                Type = ActionType.Create,
-                Object = col,
-                Commands = col.CreateStatements()
+                col.DefaultValueRequired = destModel.TableDictionary[col.Parent.Name].RowCount > 0 && !col.IsNullable;
+                return new ScriptAction()
+                {
+                    Type = ActionType.Create,
+                    Object = col,
+                    Commands = col.CreateStatements()
+                };
             });
         }
 

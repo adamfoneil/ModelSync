@@ -13,6 +13,12 @@ namespace ModelSync.Library.Models
         public bool IsNullable { get; set; }
         public bool IsCalculated { get; set; }
         public string Expression { get; set; }
+        public string DefaultValue { get; set; }
+
+        /// <summary>
+        /// true when you're merging a non-nullable column into a non-empty table
+        /// </summary>
+        public bool DefaultValueRequired { get; set; }
 
         public override ObjectType ObjectType => ObjectType.Column;
 
