@@ -29,18 +29,20 @@ namespace ModelSync.Library.Models
         public IEnumerable<Column> Columns { get; set; }
         public int InternalId { get; set; }
 
-        public override string CreateStatement()
+        public override IEnumerable<string> CreateStatements()
         {
             string definition = GetDefinition();
 
             switch (Type)
             {
                 case IndexType.UniqueIndex:
-                    return $"CREATE {definition}";
+                    yield return $"CREATE {definition}";
+                    break;
 
                 case IndexType.UniqueConstraint:
                 case IndexType.PrimaryKey:
-                    return $"ALTER TABLE <{Parent}> ADD {definition}";
+                    yield return $"ALTER TABLE <{Parent}> ADD {definition}";
+                    break;
 
                 default:
                     throw new Exception($"Unrecognized index type {Type} on {Name}");

@@ -23,7 +23,7 @@ namespace ModelSync.Library.Models
         public IEnumerable<Index> Indexes { get; set; }
         public long RowCount { get; set; }
 
-        public override string CreateStatement()
+        public override IEnumerable<string> CreateStatements()
         {
             List<string> members = new List<string>();
             members.AddRange(Columns.Select(col => col.GetDefinition()));
@@ -31,7 +31,7 @@ namespace ModelSync.Library.Models
 
             string createMembers = string.Join(",\r\n", members.Select(member => "\t" + member));
 
-            return $"CREATE TABLE <{Name}> (\r\n{createMembers}\r\n)";
+            yield return $"CREATE TABLE <{Name}> (\r\n{createMembers}\r\n)";
         }
 
         public override string DropStatement()

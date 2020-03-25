@@ -22,8 +22,10 @@ namespace ModelSync.Library.Models
 
         public override ObjectType ObjectType => ObjectType.Column;
 
-        public string GetDefinition()
+        public string GetDefinition(bool? isNullable = null)
         {
+            if (!isNullable.HasValue) isNullable = IsNullable;
+
             string result = $"<{Name}>";
             if (IsCalculated)
             {
@@ -31,14 +33,23 @@ namespace ModelSync.Library.Models
             }
             else
             {
-                string nullable = (IsNullable) ? "NULL" : "NOT NULL";
+                string nullable = (isNullable.Value) ? "NULL" : "NOT NULL";
                 return $"{result} {DataType} {nullable}";
             }
         }
 
-        public override string CreateStatement()
+        public override IEnumerable<string> CreateStatements()
         {
-            return $"ALTER TABLE <{Parent}> ADD {GetDefinition()}";
+            if (DefaultValueRequired && !string.IsNullOrEmpty(DefaultValue))
+            {
+                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isNullable: true)}";
+                yield return $"UPDATE <{Parent}> SET <{Name}> = {DefaultValue}";
+                yield return $"ALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition()}";
+            }
+            else
+            {
+                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition()}";
+            }
         }
 
         public IEnumerable<string> AlterStatements(string comment)

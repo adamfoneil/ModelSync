@@ -15,9 +15,9 @@ namespace ModelSync.Library.Models
 
         public const string DefaultSchema = "dbo";
 
-        public override string CreateStatement()
+        public override IEnumerable<string> CreateStatements()
         {
-            return $"CREATE SCHEMA <{Name}>";
+            yield return $"CREATE SCHEMA <{Name}>";
         }
 
         public override string DropStatement()

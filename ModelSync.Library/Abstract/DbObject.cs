@@ -22,7 +22,7 @@ namespace ModelSync.Library.Abstract
         public int ObjectId { get; set; }
 
         public abstract ObjectType ObjectType { get; }
-        public abstract string CreateStatement();
+        public abstract IEnumerable<string> CreateStatements();
         public abstract string DropStatement();
         public abstract IEnumerable<DbObject> GetDropDependencies(DataModel dataModel);
         public abstract bool IsAltered(DbObject @object, out string comment);
@@ -95,12 +95,7 @@ namespace ModelSync.Library.Abstract
             {
                 return Name;
             }
-        }
-
-        public IEnumerable<string> CreateStatements()
-        {
-            yield return CreateStatement();
-        }
+        }        
 
         public IEnumerable<string> DropStatements(DataModel dataModel)
         {

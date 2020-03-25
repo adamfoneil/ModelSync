@@ -18,14 +18,14 @@ namespace ModelSync.Library.Models
         public bool CascadeUpdate { get; set; }
         public IEnumerable<Column> Columns { get; set; }
 
-        public override string CreateStatement()
+        public override IEnumerable<string> CreateStatements()
         {
             string referencingColumns = string.Join(", ", Columns.Select(col => $"<{col.ReferencingName}>"));
             string referencedColumns = string.Join(", ", Columns.Select(col => $"<{col.ReferencedName}>"));
             string result = $"ALTER TABLE <{Parent}> ADD CONSTRAINT <{Name}> FOREIGN KEY ({referencingColumns}) REFERENCES <{ReferencedTable}> ({referencedColumns})";
             if (CascadeDelete) result += " ON DELETE CASCADE";
             if (CascadeUpdate) result += " ON UPDATE CASCADE";
-            return result;
+            yield return result;
         }
 
         public override string DropStatement()
