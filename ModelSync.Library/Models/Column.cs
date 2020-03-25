@@ -48,6 +48,10 @@ namespace ModelSync.Library.Models
             }
             else
             {
+                if (DefaultValueRequired && string.IsNullOrEmpty(DefaultValue))
+                {
+                    yield return "-- adding non-nullable column to table with rows requires a default";
+                }
                 yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition()}";
             }
         }
