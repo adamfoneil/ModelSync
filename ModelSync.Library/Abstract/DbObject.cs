@@ -106,5 +106,7 @@ namespace ModelSync.Library.Abstract
 
             yield return DropStatement();
         }
+
+        public string CreateStatement() => string.Join("\r\n", CreateStatements());
     }
 }
