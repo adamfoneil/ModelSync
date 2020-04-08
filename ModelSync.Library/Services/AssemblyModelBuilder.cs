@@ -1,4 +1,5 @@
 ﻿using AO.DbSchema.Attributes;
+using AO.DbSchema.Attributes.Models;
 using ModelSync.Library.Extensions;
 using ModelSync.Library.Interfaces;
 using ModelSync.Library.Models;
@@ -174,14 +175,7 @@ namespace ModelSync.Library.Services
 
         private static ObjectName GetObjectName(Type type, string defaultSchema)
         {
-            string name = (type.HasAttribute(out TableAttribute tableAttr)) ? tableAttr.Name : type.Name;
-
-            string schema =
-                (type.HasAttribute(out SchemaAttribute schemaAttr)) ? schemaAttr.Name :
-                (tableAttr != null && !string.IsNullOrEmpty(tableAttr.Schema)) ? tableAttr.Schema :
-                defaultSchema;
-
-            return new ObjectName() { Schema = schema, Name = name };
+            return ObjectName.FromType(type, defaultSchema);
         }
 
         private static string GetTableName(Type type, string defaultSchema)
