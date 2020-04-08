@@ -30,12 +30,6 @@ namespace ModelSync.Library.Models
 
         public override bool Equals(object obj)
         {
-            var actionable = obj as IActionable;
-            if (actionable != null)
-            {
-                return Type == actionable.Type && ObjectName.ToLower().Equals(actionable.ObjectName);
-            }
-
             var test = obj as ScriptAction;
             if (test != null)
             {
@@ -43,6 +37,12 @@ namespace ModelSync.Library.Models
                     test.Type == Type &&
                     test.Object.Equals(Object) &&
                     test.Commands.SequenceEqual(Commands);
+            }
+
+            var actionable = obj as IActionable;
+            if (actionable != null)
+            {
+                return Type == actionable.Type && ObjectName.ToLower().Equals(actionable.ObjectName);
             }
 
             return false;
