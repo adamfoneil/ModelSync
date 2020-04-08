@@ -36,11 +36,11 @@ namespace ModelSync.Library.Models
                 {
                     if (!await obj.ExistsAsync(connection, dialect))
                     {
-                        results.Add(new ScriptAction() 
-                        { 
-                            Object = obj, 
-                            Commands = obj.CreateStatements(), 
-                            Type = ActionType.Create 
+                        results.Add(new ScriptAction()
+                        {
+                            Object = obj,
+                            Commands = obj.CreateStatements(),
+                            Type = ActionType.Create
                         });
                     }
                 }

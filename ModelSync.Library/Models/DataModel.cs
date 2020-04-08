@@ -27,7 +27,7 @@ namespace ModelSync.Library.Models
         }
 
         public static DataModel FromAssembly(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
-        {            
+        {
             return new AssemblyModelBuilder().GetDataModel(assembly, defaultSchema, defaultIdentityColumn);
         }
 

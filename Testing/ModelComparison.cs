@@ -117,7 +117,7 @@ namespace Testing
                 {
                     new ForeignKey.Column() { ReferencingName = "table1Id", ReferencedName = "Id"}
                 }
-            };                
+            };
 
             var srcModel = new DataModel()
             {
@@ -159,7 +159,7 @@ namespace Testing
             var srcModel = new DataModel()
             {
                 Tables = new Table[] { parentTable, childTable }
-                
+
             };
 
             var destModel = new DataModel()
@@ -249,7 +249,7 @@ namespace Testing
         [TestMethod]
         public void DropIndex()
         {
-            var srcTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");            
+            var srcTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
             var destTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
 
             var index = new ModelSync.Library.Models.Index()
@@ -311,7 +311,7 @@ namespace Testing
         [TestMethod]
         public void AlterColumn()
         {
-            var srcTable = ModelBuilder.BuildTable("table1", "this:int", "that", "other", "Id");                        
+            var srcTable = ModelBuilder.BuildTable("table1", "this:int", "that", "other", "Id");
             var destTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
 
             var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
@@ -344,7 +344,7 @@ namespace Testing
             };
 
             var parentTbl = ModelBuilder.BuildTable("parent", "this", "that", "other", "Id");
-            var child1 = ModelBuilder.BuildTable("child1", "parentId", "hello", "whatever", "chunga");            
+            var child1 = ModelBuilder.BuildTable("child1", "parentId", "hello", "whatever", "chunga");
             var child2 = ModelBuilder.BuildTable("child2", "parentId", "yowza", "plimza", "faruga");
 
             var srcModel = new DataModel()

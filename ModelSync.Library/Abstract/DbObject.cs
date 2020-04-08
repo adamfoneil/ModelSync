@@ -95,7 +95,7 @@ namespace ModelSync.Library.Abstract
             {
                 return Name;
             }
-        }        
+        }
 
         public IEnumerable<string> DropStatements(DataModel dataModel)
         {

@@ -267,7 +267,7 @@ namespace ModelSync.Library.Services
                         .GetProperties().Where(pi =>
                             (DataTypes.ContainsKey(pi.PropertyType) || pi.PropertyType.IsEnum) &&
                             pi.CanWrite &&
-                            !pi.HasAttribute<NotMappedAttribute>(out _))                        
+                            !pi.HasAttribute<NotMappedAttribute>(out _))
                         .Select(pi => GetColumnFromProperty(pi, defaultIdentityColumn))
                         .Except(results);
 

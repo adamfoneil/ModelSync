@@ -26,7 +26,7 @@ namespace Testing.Models
     public class ActionItem2
     {
         public int Id { get; set; }
-        
+
         public int EmployeeId { get; set; }
 
         [MaxLength(255)]

@@ -13,9 +13,9 @@ namespace Testing
         [TestMethod]
         public void VerifyTableNaming()
         {
-            var dataModel = AssemblyModelBuilder.GetDataModelFromTypes(new Type[] 
-            { 
-                typeof(Employee),                 
+            var dataModel = AssemblyModelBuilder.GetDataModelFromTypes(new Type[]
+            {
+                typeof(Employee),
                 typeof(LogTable),
                 typeof(UserProfile)
             }, "dbo", "Id");

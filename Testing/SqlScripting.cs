@@ -26,7 +26,7 @@ namespace Testing
                 },
                 Indexes = new Index[]
                 {
-                    new Index() { Name = "PK_dboEmployee", Type = IndexType.PrimaryKey, Columns = new Index.Column[] 
+                    new Index() { Name = "PK_dboEmployee", Type = IndexType.PrimaryKey, Columns = new Index.Column[]
                         {
                             new Index.Column() { Name = "Id"}
                         }

@@ -43,7 +43,7 @@ namespace ModelSync.Library.Models
                 return await connection.RowExistsAsync("[sys].[schemas] WHERE [Name]=@name", new { Name });
             }
 
-            throw new NotImplementedException();    
+            throw new NotImplementedException();
         }
     }
 }

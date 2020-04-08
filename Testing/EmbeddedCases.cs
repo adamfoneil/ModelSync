@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelSync.Library.Models;
-using ModelSync.Library.Services;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -24,7 +23,7 @@ namespace Testing
                 var sourceModel = Extract(resourceName, "SourceModel.json", (content) => DataModel.FromJson(content));
                 var destModel = Extract(resourceName, "DestModel.json", (content) => DataModel.FromJson(content));
                 var testCase = Extract<TestCase>(resourceName, "TestCase.json");
-                
+
                 var diff = DataModel.Compare(sourceModel, destModel);
                 var commands = diff.SelectMany(scr => scr.Commands);
                 Assert.IsTrue(commands.SequenceEqual(testCase.SqlCommands));

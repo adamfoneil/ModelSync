@@ -34,7 +34,7 @@ namespace Testing.Helpers
             }
 
             public string TableName { get; set; }
-            public string[] Columns { get; set; }            
+            public string[] Columns { get; set; }
         }
 
         internal static DataModel BuildModel(params TableSignature[] tables)
@@ -44,20 +44,20 @@ namespace Testing.Helpers
             model.Tables = tables.Select(t => BuildTable(t.TableName, t.Columns)).ToArray();
 
             var pkCandidates = model.Tables.SelectMany(t => t.Columns.Select(col => new { TableName = t.Name, FKColumnName = t.Name + col.Name, PKColumnName = col.Name }));
-            var allColumns = model.Tables.SelectMany(t => t.Columns.Select(col => new { TableName = t.Name, ColumnName = col.Name }));            
+            var allColumns = model.Tables.SelectMany(t => t.Columns.Select(col => new { TableName = t.Name, ColumnName = col.Name }));
 
             model.ForeignKeys = (from pkCols in pkCandidates
-                                join fkCols in allColumns on pkCols.FKColumnName equals fkCols.ColumnName
-                                select new ForeignKey()
-                                {
-                                    Name = $"FK_{fkCols.TableName}_{fkCols.ColumnName}",
-                                    Parent = model.TableDictionary[fkCols.TableName],
-                                    ReferencedTable = model.TableDictionary[pkCols.TableName],
-                                    Columns = new ForeignKey.Column[] 
-                                    { 
-                                        new ForeignKey.Column() { ReferencedName = pkCols.PKColumnName, ReferencingName = fkCols.ColumnName } 
-                                    }
-                                }).ToArray();
+                                 join fkCols in allColumns on pkCols.FKColumnName equals fkCols.ColumnName
+                                 select new ForeignKey()
+                                 {
+                                     Name = $"FK_{fkCols.TableName}_{fkCols.ColumnName}",
+                                     Parent = model.TableDictionary[fkCols.TableName],
+                                     ReferencedTable = model.TableDictionary[pkCols.TableName],
+                                     Columns = new ForeignKey.Column[]
+                                     {
+                                        new ForeignKey.Column() { ReferencedName = pkCols.PKColumnName, ReferencingName = fkCols.ColumnName }
+                                     }
+                                 }).ToArray();
 
             return model;
         }

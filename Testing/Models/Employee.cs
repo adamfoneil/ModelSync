@@ -6,9 +6,9 @@ namespace Testing.Models
 {
     [Identity(nameof(Id))]
     public class Employee
-    {        
+    {
         public int Id { get; set; }
-     
+
         [MaxLength(30)]
         [Required]
         [Key]
