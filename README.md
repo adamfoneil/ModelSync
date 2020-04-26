@@ -39,8 +39,9 @@ await DataModel.CreateTablesAsync(new[]
     typeof(Job),
     typeof(Error)
 }, GetConnection);
-
 ```
+I have another example along these lines in my Dapper.CX [Change Tracking](https://github.com/adamosoftware/Dapper.CX/wiki/Using-ChangeTracker) stuff, which [creates a couple tables](https://github.com/adamosoftware/Dapper.CX/blob/master/Dapper.CX.ChangeTracking/LoggedChangeTracker.cs#L119-L123) from some model classes.
+
 
 # Background
 This is a reboot of my [SchemaSync](https://github.com/adamosoftware/SchemaSync) project, which had run into [issues](https://github.com/adamosoftware/SchemaSync/issues) I couldn't figure out.
