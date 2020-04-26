@@ -1,3 +1,5 @@
+[![Nuget](https://img.shields.io/nuget/v/AO.ModelSync.Library)](https://www.nuget.org/packages/AO.ModelSync.Library/)
+
 This is a library for generating and executing SQL diff merge scripts. There are two use cases:
 
 - Generate diff script by comparing an assembly or database with another database using [DataModel.Compare](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Compare.cs#L8). This functionality powers my [ModelSync](http://www.aosoftware.net/modelSync.html) app.
