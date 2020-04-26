@@ -31,7 +31,7 @@ DROP TABLE [parent]
 Source links: [DataModel.FromAssembly](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L34), [DataModel.FromSqlServerAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L23)
 
 # DataModel.CreateTablesAsync
-Use `DataModel.CreateTablesAsync` to create empty tables as part of a component initialization. For example in my [WorkTracker](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/JobManager.cs#L32) project, I create tables from a couple model classes [Job](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/Models/Job.cs) and [Error](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/Models/Error.cs). This `CreateTableAsync` overload accepts a `Func<IDbConnection>` through which your database connection is opened. In this example, I have a private method [GetConnection](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/JobManager.cs#L24).
+Use `DataModel.CreateTablesAsync` to create empty tables as part of a component initialization. For example in my [WorkTracker](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/JobTracker.cs#L32) project, I create tables from a couple model classes [Job](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/Models/Job.cs) and [Error](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/Models/Error.cs). This `CreateTableAsync` overload accepts a `Func<IDbConnection>` through which your database connection is opened.
 
 ```csharp
 await DataModel.CreateTablesAsync(new[]
