@@ -33,6 +33,8 @@ namespace Testing
                 Assert.IsTrue(ObjectExistsAsync(cn, new Table() { Name = "dbo.ActionItem2" }).Result);
                 Assert.IsTrue(ObjectExistsAsync(cn, new Table() { Name = "dbo.Employee" }).Result);
                 Assert.IsTrue(ObjectExistsAsync(cn, new ForeignKey() { Name = "FK_ActionItem2_EmployeeId" }).Result);
+                Assert.IsTrue(ObjectExistsAsync(cn, new Column() { Parent = new Table() { Name = "dbo.Employee" }, Name = "Status" }).Result);
+                Assert.IsTrue(ObjectExistsAsync(cn, new Column() { Parent = new Table() { Name = "dbo.Employee" }, Name = "Another" }).Result);
             }
         }
 

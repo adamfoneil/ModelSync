@@ -265,7 +265,7 @@ namespace ModelSync.Library.Services
 
                 var properties = type
                         .GetProperties().Where(pi =>
-                            (DataTypes.ContainsKey(pi.PropertyType) || pi.PropertyType.IsEnum) &&
+                            (DataTypes.ContainsKey(pi.PropertyType) || pi.PropertyType.IsEnum || pi.PropertyType.IsNullableEnum()) &&
                             pi.CanWrite &&
                             !pi.HasAttribute<NotMappedAttribute>(out _))
                         .Select(pi => GetColumnFromProperty(pi, defaultIdentityColumn))
@@ -305,6 +305,12 @@ namespace ModelSync.Library.Services
             if (propertyInfo.PropertyType.IsEnum)
             {
                 result.DataType = "int";
+            }
+
+            if (propertyInfo.PropertyType.IsNullableEnum())
+            {
+                result.DataType = "int";
+                result.IsNullable = true;
             }
 
             SetColumnProperties(propertyInfo, result, defaultIdentityColumn);

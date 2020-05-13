@@ -1,4 +1,6 @@
 ﻿using ModelSync.Library.Abstract;
+using ModelSync.Library.Extensions;
+using ModelSync.Library.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -162,6 +164,16 @@ namespace ModelSync.Library.Models
 
         public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
         {
+            var sqlServer = dialect as SqlServerDialect;
+            if (sqlServer != null)
+            {
+                return await connection.RowExistsAsync(
+                    @"[sys].[columns] [col]
+	                INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
+                    WHERE SCHEMA_NAME([t].[schema_id])=@schema AND [t].[name]=@tableName AND [col].[name]=@columnName",
+                    new { schema = Parent.GetSchema("dbo"), tableName = Parent.GetBaseName(), columnName = Name });
+            }
+
             throw new NotImplementedException();
         }
 
