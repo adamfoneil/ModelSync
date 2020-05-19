@@ -1,4 +1,4 @@
-﻿using AO.DbSchema.Attributes;
+﻿using AO.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Testing.Models
