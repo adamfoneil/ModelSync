@@ -98,5 +98,18 @@ namespace ModelSync.Library.Models
 
             throw new Exception($"Table {Name} has no identity column.");
         }
+
+        public bool IsIdentityColumn(string name, string defaultIdentityColumn)
+        {
+            try
+            {
+                string identityCol = GetIdentityColumn(defaultIdentityColumn);
+                return name.ToLower().Equals(identityCol.ToLower());
+            }
+            catch 
+            {
+                return false;
+            }
+        }
     }
 }

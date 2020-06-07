@@ -61,7 +61,8 @@ namespace ModelSync.Library.Models
 
             return srcColumns.Except(destColumns).Select(col =>
             {
-                col.DefaultValueRequired = destModel.TableDictionary[col.Parent.Name].RowCount > 0 && !col.IsNullable;
+                var tbl = destModel.TableDictionary[col.Parent.Name];
+                col.DefaultValueRequired = tbl.RowCount > 0 && !col.IsNullable && !tbl.IsIdentityColumn(col.Name, "Id");
                 return new ScriptAction()
                 {
                     Type = ActionType.Create,
