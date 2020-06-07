@@ -1,4 +1,5 @@
 ﻿using AO.Models;
+using Dapper;
 using ModelSync.Library.Extensions;
 using ModelSync.Library.Interfaces;
 using ModelSync.Library.Models;
@@ -245,7 +246,14 @@ namespace ModelSync.Library.Services
                     };
                 }
 
-                string identityIndexName = (!keyColumns.Any()) ? $"PK_{constraintName}" : $"U_{constraintName}_{idProperty.Name}";
+                var explicitIdentity = modelType.GetCustomAttribute<IdentityAttribute>();
+                
+                string identityIndexName =                     
+                    (explicitIdentity != null) ? $"U_{constraintName}_{idProperty.Name}" :
+                    (!keyColumns.Any()) ? $"PK_{constraintName}" :
+                    $"U_{constraintName}_{idProperty.Name}";
+
+                if (explicitIdentity != null) identityType = IndexType.UniqueConstraint;
 
                 yield return new Index()
                 {
