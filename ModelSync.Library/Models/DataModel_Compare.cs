@@ -61,14 +61,25 @@ namespace ModelSync.Library.Models
 
             return srcColumns.Except(destColumns).Select(col =>
             {
-                var tbl = destModel.TableDictionary[col.Parent.Name];
-                col.DefaultValueRequired = tbl.RowCount > 0 && !col.IsNullable && !tbl.IsIdentityColumn(col.Name, "Id");
+                var destTable = destModel.TableDictionary[col.Parent.Name];
+                var srcTable = sourceModel.TableDictionary[col.Parent.Name];
+                col.DefaultValueRequired = destTable.RowCount > 0 && !col.IsNullable && !srcTable.IsIdentityColumn(col.Name, "Id");
                 return new ScriptAction()
                 {
                     Type = ActionType.Create,
                     Object = col,
                     Commands = col.CreateStatements()
                 };
+
+                // todo: include unique constraint for new identity
+                if (srcTable.IsIdentityColumn(col.Name, "Id"))
+                {
+                    return new ScriptAction()
+                    {
+                        Type = ActionType.Create,
+                        Object = new Index() { }
+                    };
+                }
             });
         }
 
