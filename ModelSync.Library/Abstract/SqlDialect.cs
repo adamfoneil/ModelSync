@@ -64,7 +64,7 @@ namespace ModelSync.Library.Abstract
 
             var commentsRemoved = string.Join("\r\n", script
                 .Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(s => !s.StartsWith("--")));
+                .Where(s => !s.Trim().StartsWith(CommentStart)));
 
             string[] commands = commentsRemoved
                 .Split(new string[] { $"\r\n{BatchSeparator}\r\n" }, StringSplitOptions.RemoveEmptyEntries)                
