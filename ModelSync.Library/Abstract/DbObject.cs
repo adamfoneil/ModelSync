@@ -107,6 +107,21 @@ namespace ModelSync.Library.Abstract
             yield return DropStatement();
         }
 
+        public IEnumerable<string> RebuildStatements(DataModel dataModel, string comment)
+        {
+            yield return $"-- {comment}";
+
+            var deps = GetDropDependencies(dataModel);
+
+            foreach (var dep in deps) yield return dep.DropStatement();
+
+            yield return DropStatement();
+
+            foreach (var c in CreateStatements()) yield return c;
+
+            foreach (var dep in deps) yield return dep.CreateStatement();
+        }
+
         public string CreateStatement() => string.Join("\r\n", CreateStatements());
     }
 }

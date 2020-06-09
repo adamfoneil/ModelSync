@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ModelSync.Library.Models
@@ -19,6 +20,7 @@ namespace ModelSync.Library.Models
             results.AddRange(AddIndexes(sourceModel, destModel, createTables));
 
             results.AddRange(AlterColumns(sourceModel, destModel));
+            results.AddRange(AlterIndexes(sourceModel, destModel));
             results.AddRange(CreateForeignKeys(sourceModel, destModel));
 
             var dropTables = DropTables(sourceModel, destModel);
@@ -70,16 +72,6 @@ namespace ModelSync.Library.Models
                     Object = col,
                     Commands = col.CreateStatements()
                 };
-
-                // todo: include unique constraint for new identity
-                if (srcTable.IsIdentityColumn(col.Name, "Id"))
-                {
-                    return new ScriptAction()
-                    {
-                        Type = ActionType.Create,
-                        Object = new Index() { }
-                    };
-                }
             });
         }
 
@@ -189,6 +181,30 @@ namespace ModelSync.Library.Models
                         Type = ActionType.Alter,
                         Object = columnPair.Source,
                         Commands = columnPair.Source.AlterStatements(comment)
+                    };
+                });
+        }
+
+        private static IEnumerable<ScriptAction> AlterIndexes(DataModel sourceModel, DataModel destModel)
+        {
+            var allIndexes = from src in sourceModel.Tables.SelectMany(tbl => tbl.Indexes)
+                             join dest in destModel.Tables.SelectMany(tbl => tbl.Indexes) on src equals dest
+                             select new
+                             {
+                                 Source = src,
+                                 Dest = dest
+                             };
+
+            return allIndexes
+                .Where(indexPair => indexPair.Source.IsAltered(indexPair.Dest, out _))
+                .Select(indexPair =>
+                {
+                    indexPair.Source.IsAltered(indexPair.Dest, out string comment);
+                    return new ScriptAction()
+                    {
+                        Type = ActionType.Alter,
+                        Object = indexPair.Source,
+                        Commands = indexPair.Source.RebuildStatements(destModel, comment)
                     };
                 });
         }

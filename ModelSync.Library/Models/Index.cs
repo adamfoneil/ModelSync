@@ -1,4 +1,5 @@
 ﻿using ModelSync.Library.Abstract;
+using ModelSync.Library.Models.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -71,9 +72,9 @@ namespace ModelSync.Library.Models
 
         public override string DropStatement()
         {
-            return
-                (Type == IndexType.UniqueIndex || Type == IndexType.PrimaryKey || Type == IndexType.NonUnique) ? $"DROP INDEX <{Name}> ON <{Parent}>" :
-                (Type == IndexType.UniqueConstraint) ? $"ALTER TABLE <{Parent}> DROP CONSTRAINT <{Name}>" :
+            return                
+                (Type == IndexType.UniqueIndex || Type == IndexType.NonUnique) ? $"DROP INDEX <{Name}> ON <{Parent}>" :
+                (Type == IndexType.UniqueConstraint || Type == IndexType.PrimaryKey) ? $"ALTER TABLE <{Parent}> DROP CONSTRAINT <{Name}>" :
                 throw new Exception($"Unrecognized index type {Type}");
         }
 
@@ -86,7 +87,31 @@ namespace ModelSync.Library.Models
 
         public override bool IsAltered(DbObject @object, out string comment)
         {
-            throw new NotImplementedException();
+            var index = @object as Index;
+            if (index != null)
+            {
+                var sourceCols = this.Columns.Select(col => col.Name).OrderBy(col => col).ToArray();
+                var destCols = index.Columns.Select(col => col.Name).OrderBy(col => col).ToArray();
+                if (!sourceCols.SequenceEqual(destCols))
+                {
+                    comment = string.Empty;
+
+                    var modified = new [] 
+                    {
+                        new { text = "Added", columns = sourceCols.Except(destCols) },
+                        new { text = "Removed", columns = destCols.Except(sourceCols) }
+                    };
+
+                    comment = string.Join(", ", modified
+                        .Where(cols => cols.columns.Any())
+                        .Select(cols => $"{cols.text}: {string.Join(", ", cols.columns)}"));
+
+                    return true;
+                }                
+            }
+
+            comment = null;
+            return false;
         }
 
         public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
