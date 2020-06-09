@@ -8,7 +8,7 @@
     <Copyright>Copyright (c) 2020 Adam O'Neil</Copyright>
     <RepositoryUrl>https://github.com/adamfoneil/ModelSync</RepositoryUrl>
     <PackageProjectUrl>https://github.com/adamfoneil/ModelSync</PackageProjectUrl>
-    <Description>A database schema diff library for .NET assemblies and SQL Server databases using AO.DbSchema.Attributes</Description>
+    <Description>A database schema diff library for .NET assemblies and SQL Server databases using AO.Models</Description>
     <PackageId>AO.ModelSync.Library</PackageId>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReleaseNotes>altered index detection https://github.com/adamfoneil/ModelSync/issues/11</PackageReleaseNotes>
