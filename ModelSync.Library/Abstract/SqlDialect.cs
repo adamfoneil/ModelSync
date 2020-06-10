@@ -43,7 +43,7 @@ namespace ModelSync.Library.Abstract
 
         public string FormatScript(IEnumerable<ScriptAction> scriptActions)
         {
-            return string.Join("\r\n\r\n" + BatchSeparator + "\r\n\r\n", scriptActions.SelectMany(scr => scr.Commands.Select(cmd => FormatStatement(cmd)))) + "\r\n\r\n";
+            return string.Join("\r\n" + BatchSeparator + "\r\n", scriptActions.SelectMany(scr => scr.Commands.Select(cmd => FormatStatement(cmd)))) + "\r\n\r\n";
         }
 
         public void Execute(IDbConnection connection, IEnumerable<ScriptAction> scriptActions)
@@ -67,7 +67,7 @@ namespace ModelSync.Library.Abstract
                 .Where(s => !s.Trim().StartsWith(CommentStart)));
 
             string[] commands = commentsRemoved
-                .Split(new string[] { $"{BatchSeparator}\r\n" }, StringSplitOptions.RemoveEmptyEntries)                
+                .Split(new string[] { $"{BatchSeparator}" }, StringSplitOptions.RemoveEmptyEntries)                
                 .ToArray();
 
             using (var txn = connection.BeginTransaction())

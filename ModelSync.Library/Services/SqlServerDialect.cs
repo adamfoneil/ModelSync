@@ -8,7 +8,7 @@ namespace ModelSync.Library.Services
 
         public override char EndDelimiter => ']';
 
-        public override string BatchSeparator => "GO";
+        public override string BatchSeparator => "\r\nGO\r\n";
 
         public override string CommentStart => "--";
     }
