@@ -37,8 +37,7 @@ namespace ModelSync.Library.Services
 					[sys].[tables] [t]
 					LEFT JOIN [clusteredIndexes] [c] ON [t].[object_id]=[c].[object_id]
 					LEFT JOIN [identityColumns] [i] ON [t].[object_id]=[i].[object_id]
-				WHERE
-					([t].[name] NOT LIKE 'AspNet%' OR [t].[name] LIKE 'AspNetUsers') AND
+				WHERE					
 					[t].[name] NOT IN ('__MigrationHistory', '__EFMigrationsHistory')");
 
             var columns = await connection.QueryAsync<Column>(
@@ -178,10 +177,7 @@ namespace ModelSync.Library.Services
 				FROM
 					[sys].[foreign_keys] [fk]
 					INNER JOIN [sys].[tables] [ref_t] ON [fk].[referenced_object_id]=[ref_t].[object_id]
-					INNER JOIN [sys].[tables] [child_t] ON [fk].[parent_object_id]=[child_t].[object_id]
-				WHERE
-					[fk].[name] NOT LIKE '%AspNetUser%' AND
-					[fk].[name] NOT LIKE '%AspNetRole%'");
+					INNER JOIN [sys].[tables] [child_t] ON [fk].[parent_object_id]=[child_t].[object_id]");
 
             var columns = await connection.QueryAsync<ForeignKeyColumnsResult>(
                 @"SELECT
