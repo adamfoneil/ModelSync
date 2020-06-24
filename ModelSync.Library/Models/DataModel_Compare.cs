@@ -34,27 +34,27 @@ namespace ModelSync.Library.Models
             return results;
         }
 
-        private static IEnumerable<ScriptAction> CreateSchemas(DataModel sourceModel, DataModel destModel)
+        private static ScriptAction[] CreateSchemas(DataModel sourceModel, DataModel destModel)
         {
             return sourceModel.Schemas.Except(destModel.Schemas).Select(sch => new ScriptAction()
             {
                 Type = ActionType.Create,
                 Object = sch,
                 Commands = sch.CreateStatements()
-            });
+            }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> CreateTables(DataModel sourceModel, DataModel destModel)
+        private static ScriptAction[] CreateTables(DataModel sourceModel, DataModel destModel)
         {
             return sourceModel.Tables.Except(destModel.Tables).Select(tbl => new ScriptAction()
             {
                 Type = ActionType.Create,
                 Object = tbl,
                 Commands = tbl.CreateStatements()
-            });
+            }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> AddColumns(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptCreatedTables)
+        private static ScriptAction[] AddColumns(DataModel sourceModel, DataModel destModel, ScriptAction[] exceptCreatedTables)
         {
             var exceptTables = exceptCreatedTables.Select(scr => scr.Object).OfType<Table>();
 
@@ -72,10 +72,10 @@ namespace ModelSync.Library.Models
                     Object = col,
                     Commands = col.CreateStatements()
                 };
-            });
+            }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> DropTables(DataModel sourceModel, DataModel destModel)
+        private static ScriptAction[] DropTables(DataModel sourceModel, DataModel destModel)
         {
             return destModel.Tables.Except(sourceModel.Tables).Select(tbl =>
                 new ScriptAction()
@@ -83,10 +83,10 @@ namespace ModelSync.Library.Models
                     Type = ActionType.Drop,
                     Object = tbl,
                     Commands = tbl.DropStatements(destModel)
-                });
+                }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> DropColumns(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
+        private static ScriptAction[] DropColumns(DataModel sourceModel, DataModel destModel, ScriptAction[] exceptDroppedTables)
         {
             var exceptTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
 
@@ -100,20 +100,20 @@ namespace ModelSync.Library.Models
                     Type = ActionType.Drop,
                     Object = col,
                     Commands = col.DropStatements(destModel)
-                });
+                }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> CreateForeignKeys(DataModel sourceModel, DataModel destModel)
+        private static ScriptAction[] CreateForeignKeys(DataModel sourceModel, DataModel destModel)
         {
             return sourceModel.ForeignKeys.Except(destModel.ForeignKeys).Select(fk => new ScriptAction()
             {
                 Type = ActionType.Create,
                 Object = fk,
                 Commands = fk.CreateStatements()
-            });
+            }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> DropForeignKeys(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
+        private static ScriptAction[] DropForeignKeys(DataModel sourceModel, DataModel destModel, ScriptAction[] exceptDroppedTables)
         {
             var droppedTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
             var alreadyDroppedFKs = destModel.ForeignKeys.Where(fk => droppedTables.Contains(fk.Parent));
@@ -123,10 +123,10 @@ namespace ModelSync.Library.Models
                 Type = ActionType.Drop,
                 Object = fk,
                 Commands = fk.DropStatements(destModel)
-            });
+            }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> DropIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptDroppedTables)
+        private static ScriptAction[] DropIndexes(DataModel sourceModel, DataModel destModel, ScriptAction[] exceptDroppedTables)
         {
             var droppedTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
             var alreadyDroppedIndexes = droppedTables.SelectMany(tbl => tbl.Indexes);
@@ -142,10 +142,10 @@ namespace ModelSync.Library.Models
                     Type = ActionType.Drop,
                     Object = ndx,
                     Commands = ndx.DropStatements(destModel)
-                });
+                }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> AddIndexes(DataModel sourceModel, DataModel destModel, IEnumerable<ScriptAction> exceptCreatedTables)
+        private static ScriptAction[] AddIndexes(DataModel sourceModel, DataModel destModel, ScriptAction[] exceptCreatedTables)
         {
             var exceptTables = exceptCreatedTables.Select(scr => scr.Object).OfType<Table>();
 
@@ -158,10 +158,10 @@ namespace ModelSync.Library.Models
                     Type = ActionType.Create,
                     Object = ndx,
                     Commands = ndx.CreateStatements()
-                });
+                }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> AlterColumns(DataModel sourceModel, DataModel destModel)
+        private static ScriptAction[] AlterColumns(DataModel sourceModel, DataModel destModel)
         {
             var allColumns = from src in sourceModel.Tables.SelectMany(tbl => tbl.Columns)
                              join dest in destModel.Tables.SelectMany(tbl => tbl.Columns) on src equals dest
@@ -182,10 +182,10 @@ namespace ModelSync.Library.Models
                         Object = columnPair.Source,
                         Commands = columnPair.Source.AlterStatements(comment)
                     };
-                });
+                }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> AlterIndexes(DataModel sourceModel, DataModel destModel)
+        private static ScriptAction[] AlterIndexes(DataModel sourceModel, DataModel destModel)
         {
             var allIndexes = from src in sourceModel.Tables.SelectMany(tbl => tbl.Indexes)
                              join dest in destModel.Tables.SelectMany(tbl => tbl.Indexes) on src equals dest
@@ -206,7 +206,7 @@ namespace ModelSync.Library.Models
                         Object = indexPair.Source,
                         Commands = indexPair.Source.RebuildStatements(destModel, comment)
                     };
-                });
+                }).ToArray();
         }
     }
 }
