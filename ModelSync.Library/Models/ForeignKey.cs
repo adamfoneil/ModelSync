@@ -38,9 +38,53 @@ namespace ModelSync.Library.Models
             return Enumerable.Empty<DbObject>();
         }
 
+        public string GetAlterComment(DbObject @object)
+        {
+            IsAltered(@object, out string comment);
+            return comment;
+        }
+
         public override bool IsAltered(DbObject @object, out string comment)
         {
-            throw new System.NotImplementedException();
+            var fk = @object as ForeignKey;
+            if (fk == null)
+            {
+                comment = null;
+                return false;
+            }
+
+            if (CascadeDelete != fk.CascadeDelete)
+            {
+                comment = $"{Name} cascade delete: {fk.CascadeDelete} -> {CascadeDelete}";
+                return true;
+            }
+
+            if (CascadeUpdate != fk.CascadeUpdate)
+            {
+                comment = $"{Name} cascade update: {fk.CascadeUpdate} -> {CascadeUpdate}";
+                return true;
+            }
+
+            if (!Columns.OrderBy(col => col.ReferencingName).SequenceEqual(fk.Columns.OrderBy(col => col.ReferencingName)))
+            {
+                var added = Columns.Except(fk.Columns).Select(col => col.ReferencingName);
+                var removed = fk.Columns.Except(Columns).Select(col => col.ReferencingName);
+
+                var modified = new[]
+                {
+                    new { text = "Added", columns = added },
+                    new { text = "Removed", columns = removed }
+                };
+
+                comment = string.Join(", ", modified
+                    .Where(cols => cols.columns.Any())
+                    .Select(cols => $"{cols.text}: {string.Join(", ", cols.columns)}"));
+
+                return true;
+            }
+
+            comment = null;
+            return false;
         }
 
         public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
@@ -58,6 +102,19 @@ namespace ModelSync.Library.Models
         {
             public string ReferencedName { get; set; }
             public string ReferencingName { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                var col = obj as Column;
+                return (col != null) ?
+                    ReferencedName.ToLower().Equals(col.ReferencedName.ToLower()) && ReferencingName.ToLower().Equals(col.ReferencingName.ToLower()) :
+                    false;
+            }
+
+            public override int GetHashCode()
+            {
+                return $"{ReferencingName.ToLower()}.{ReferencedName.ToLower()}".GetHashCode();
+            }
         }
     }
 }

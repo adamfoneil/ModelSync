@@ -22,6 +22,7 @@ namespace ModelSync.Library.Models
             results.AddRange(AlterColumns(sourceModel, destModel));
             results.AddRange(AlterIndexes(sourceModel, destModel));
             results.AddRange(CreateForeignKeys(sourceModel, destModel));
+            results.AddRange(AlterForeignKeys(sourceModel, destModel));
 
             var dropTables = DropTables(sourceModel, destModel);
             results.AddRange(dropTables);
@@ -32,6 +33,25 @@ namespace ModelSync.Library.Models
             results.AddRange(DropColumns(sourceModel, destModel, dropTables));
 
             return results;
+        }
+
+        private static IEnumerable<ScriptAction> AlterForeignKeys(DataModel sourceModel, DataModel destModel)
+        {
+            var alteredKFs = from src in sourceModel.ForeignKeys
+                             join dest in destModel.ForeignKeys on src equals dest
+                             where (src.IsAltered(dest, out _))
+                             select new 
+                             { 
+                                 @object = src, 
+                                 comment = src.GetAlterComment(dest)
+                             };
+
+            return alteredKFs.Select(fk => new ScriptAction()
+            {
+                Type = ActionType.Alter,
+                Object = fk.@object,
+                Commands = fk.@object.RebuildStatements(destModel, fk.comment)
+            });                
         }
 
         private static ScriptAction[] CreateSchemas(DataModel sourceModel, DataModel destModel)
