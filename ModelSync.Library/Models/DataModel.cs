@@ -1,4 +1,5 @@
 ﻿using ModelSync.Library.Services;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace ModelSync.Library.Models
         public IEnumerable<Schema> Schemas { get; set; }
         public IEnumerable<Table> Tables { get; set; }
         public IEnumerable<ForeignKey> ForeignKeys { get; set; }
+
+        public Dictionary<Type, string> Errors { get; set; }
 
         public static async Task<DataModel> FromSqlServerAsync(IDbConnection connection)
         {

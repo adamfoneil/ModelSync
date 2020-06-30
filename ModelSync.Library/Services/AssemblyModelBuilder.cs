@@ -1,5 +1,4 @@
 ﻿using AO.Models;
-using Dapper;
 using ModelSync.Library.Extensions;
 using ModelSync.Library.Interfaces;
 using ModelSync.Library.Models;
@@ -22,8 +21,9 @@ namespace ModelSync.Library.Services
         public DataModel GetDataModel(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {
             var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
-            var typeTableMap = GetTypeTableMap(types, defaultSchema, defaultIdentityColumn);
-            DataModel result = GetDataModelInner(typeTableMap, defaultSchema, defaultIdentityColumn);
+            var typeInfo = GetTypeTableMap(types, defaultSchema, defaultIdentityColumn);
+            var result = GetDataModelInner(typeInfo.Tables, defaultSchema, defaultIdentityColumn);
+            result.Errors = typeInfo.Errors;
             return result;
         }
 
@@ -34,8 +34,10 @@ namespace ModelSync.Library.Services
 
         public static DataModel GetDataModelFromTypes(IEnumerable<Type> modelTypes, string defaultSchema, string defaultIdentityColumn)
         {
-            var typeTableMap = GetTypeTableMap(modelTypes, defaultSchema, defaultIdentityColumn);
-            return GetDataModelInner(typeTableMap, defaultSchema, defaultIdentityColumn);
+            var typeInfo = GetTypeTableMap(modelTypes, defaultSchema, defaultIdentityColumn);
+            var result = GetDataModelInner(typeInfo.Tables, defaultSchema, defaultIdentityColumn);
+            result.Errors = typeInfo.Errors;
+            return result;
         }
 
         private static Dictionary<Type, string> DataTypes => GetSupportedTypes();
@@ -156,21 +158,46 @@ namespace ModelSync.Library.Services
             };
         }
 
-        private static Dictionary<Type, Table> GetTypeTableMap(IEnumerable<Type> modelTypes, string defaultSchema, string defaultIdentityColumn)
+        private static TypeInfo GetTypeTableMap(IEnumerable<Type> modelTypes, string defaultSchema, string defaultIdentityColumn)
         {
-            var source = modelTypes.Select(t => new
+            var errors = new Dictionary<Type, string>();
+
+            var source = modelTypes.Select(t =>
             {
-                Type = t,
-                Table = GetTableFromType(t, defaultSchema, defaultIdentityColumn)
+                try
+                {
+                    return new
+                    {
+                        Type = t,
+                        Table = GetTableFromType(t, defaultSchema, defaultIdentityColumn),
+                        Success = true
+                    };
+                }
+                catch (Exception exc)
+                {
+                    errors.Add(t, exc.Message);
+                    return new
+                    {
+                        Type = t,
+                        Table = new Table(),
+                        Success = false
+                    };
+                }
             });
 
-            foreach (var item in source)
+            var successItems = source.Where(i => i.Success).ToArray();
+
+            foreach (var item in successItems)
             {
                 foreach (var col in item.Table.Columns) col.Parent = item.Table;
                 foreach (var ndx in item.Table.Indexes) ndx.Parent = item.Table;
             }
 
-            return source.ToDictionary(item => item.Type, item => item.Table);
+            return new TypeInfo()
+            {
+                Tables = successItems.ToDictionary(item => item.Type, item => item.Table),
+                Errors = errors
+            };
         }
 
         private static ObjectName GetObjectName(Type type, string defaultSchema)
@@ -379,6 +406,12 @@ namespace ModelSync.Library.Services
             return
                 (propertyInfo.DeclaringType.HasAttribute(out IdentityAttribute idAttr) && idAttr.PropertyName.Equals(propertyInfo.Name)) ||
                 (propertyInfo.Name.Equals(defaultIdentityColumn));
+        }
+
+        private class TypeInfo
+        {
+            public Dictionary<Type, Table> Tables { get; set; }
+            public Dictionary<Type, string> Errors { get; set; }
         }
     }
 }
