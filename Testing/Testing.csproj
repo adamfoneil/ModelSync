@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <None Remove="TestCases\Hs5-sample1.zip" />
+    <None Remove="TestCases\PKAdded.zip" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="TestCases\Hs5-sample1.zip" />
+    <EmbeddedResource Include="TestCases\PKAdded.zip" />
   </ItemGroup>
 
   <ItemGroup>
