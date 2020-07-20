@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelSync.Library.Models;
 using ModelSync.Library.Services;
 using System;
+using System.Linq;
 using Testing.Models;
 using Index = ModelSync.Library.Models.Index;
 
@@ -54,6 +55,38 @@ namespace Testing
                 typeof(Employee),
                 typeof(ActionItem)
             }, "dbo", "Id");
+        }
+
+        [TestMethod]
+        public void ScriptParse()
+        {
+            var input =
+                @"-- nullable True -> False
+ALTER TABLE [dbo].[Widget] ALTER COLUMN [Name] nvarchar(50) NOT NULL
+
+GO
+
+-- Added: Name, Removed: Id
+
+GO
+
+ALTER TABLE [dbo].[Widget] DROP CONSTRAINT [PK_Widget]
+
+GO
+
+ALTER TABLE [dbo].[Widget] ADD CONSTRAINT [PK_Widget] PRIMARY KEY ([Name] ASC)
+
+";
+
+            var output = new SqlServerDialect().ParseScript(input);
+
+            Assert.IsTrue(output.SequenceEqual(new string[]
+            {
+                "\r\nALTER TABLE [dbo].[Widget] ALTER COLUMN [Name] nvarchar(50) NOT NULL",
+                "ALTER TABLE [dbo].[Widget] DROP CONSTRAINT [PK_Widget]",
+                "ALTER TABLE [dbo].[Widget] ADD CONSTRAINT [PK_Widget] PRIMARY KEY ([Name] ASC)"
+            }));
+
         }
     }
 }

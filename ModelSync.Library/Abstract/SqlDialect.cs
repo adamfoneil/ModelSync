@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -58,17 +59,28 @@ namespace ModelSync.Library.Abstract
             await ExecuteAsync(connection, script);
         }
 
+        public IEnumerable<string> ParseScript(string rawScript)
+        {
+            var commentsRemoved = string.Join("\r\n", rawScript
+                .Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(line => removeComment(line)));
+
+            return commentsRemoved
+                .Split(new string[] { BatchSeparator }, StringSplitOptions.RemoveEmptyEntries)
+                .ToArray();
+
+            string removeComment(string input)
+            {
+                int index = input.IndexOf(CommentStart);
+                return (index > -1) ? input.Substring(0, index) : input;
+            }
+        }
+
         public void Execute(IDbConnection connection, string script)
         {
             if (connection.State == ConnectionState.Closed) connection.Open();
 
-            var commentsRemoved = string.Join(BatchSeparator, script
-                .Split(new string[] { BatchSeparator }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(s => !s.Trim().StartsWith(CommentStart)));
-
-            string[] commands = commentsRemoved
-                .Split(new string[] { BatchSeparator }, StringSplitOptions.RemoveEmptyEntries)                
-                .ToArray();
+            var commands = ParseScript(script);
 
             using (var txn = connection.BeginTransaction())
             {
