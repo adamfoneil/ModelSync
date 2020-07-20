@@ -321,7 +321,7 @@ namespace Testing
             {
                 Type = ActionType.Alter,
                 Object = srcTable.ColumnDictionary["this"],
-                Commands = srcTable.ColumnDictionary["this"].CreateStatements()
+                Commands = srcTable.ColumnDictionary["this"].AlterStatements("data type nvarchar(20) -> int")
             }));
         }
 
@@ -393,6 +393,7 @@ namespace Testing
                 {
                     Parent = parentTable,
                     Name = "U_table1_ThisThat",
+                    Type = IndexType.UniqueConstraint,
                     Columns = new ModelSync.Library.Models.Index.Column[]
                     {
                         new ModelSync.Library.Models.Index.Column() { Name = "this"},
@@ -416,7 +417,7 @@ namespace Testing
                 Object = destTable.ColumnDictionary["this"],
                 Commands = new string[]
                 {
-                    "ALTER TABLE <table1> DROP INDEX <U_table1_ThisThat>",
+                    "ALTER TABLE <table1> DROP CONSTRAINT <U_table1_ThisThat>",
                     "ALTER TABLE <table1> DROP COLUMN <this>"
                 }
             }));
