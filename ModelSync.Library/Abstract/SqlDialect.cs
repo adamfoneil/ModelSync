@@ -62,12 +62,12 @@ namespace ModelSync.Library.Abstract
         {
             if (connection.State == ConnectionState.Closed) connection.Open();
 
-            var commentsRemoved = string.Join("\r\n", script
-                .Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+            var commentsRemoved = string.Join(BatchSeparator, script
+                .Split(new string[] { BatchSeparator }, StringSplitOptions.RemoveEmptyEntries)
                 .Where(s => !s.Trim().StartsWith(CommentStart)));
 
             string[] commands = commentsRemoved
-                .Split(new string[] { $"{BatchSeparator}" }, StringSplitOptions.RemoveEmptyEntries)                
+                .Split(new string[] { BatchSeparator }, StringSplitOptions.RemoveEmptyEntries)                
                 .ToArray();
 
             using (var txn = connection.BeginTransaction())
