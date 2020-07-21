@@ -2,6 +2,7 @@
 using ModelSync.Library.Models;
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace Testing
                 var testCase = Extract<TestCase>(resourceName, "TestCase.json");
 
                 var diff = DataModel.Compare(sourceModel, destModel);
-                var commands = diff.SelectMany(scr => scr.Commands);
+                var commands = diff.SelectMany(scr => scr.Commands).Where(line => !line.StartsWith("--"));
                 Assert.IsTrue(commands.SequenceEqual(testCase.SqlCommands));
             }
         }
