@@ -1,5 +1,6 @@
 ﻿using ModelSync.Library.Abstract;
 using ModelSync.Library.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,6 +18,7 @@ namespace ModelSync.Library.Models
         public ActionType Type { get; set; }
         public DbObject Object { get; set; }
         public IEnumerable<string> Commands { get; set; }
+        public IEnumerable<string> CommandsWithoutComments() => Commands.SelectMany(cmd => cmd.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)).Where(line => !line.StartsWith("--"));
 
         public string ObjectName => Object.ToString();
         public ObjectType ObjectType => Object.ObjectType;

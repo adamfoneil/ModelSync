@@ -94,14 +94,13 @@ namespace ModelSync.Library.Abstract
                         cmd.Transaction = txn;
                         cmd.ExecuteNonQuery();
                     }
+                    txn.Commit();
                 }
                 catch
                 {
                     txn.Rollback();
                     throw;
-                }
-
-                txn.Commit();
+                }                
             }
         }
 
