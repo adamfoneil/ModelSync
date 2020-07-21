@@ -81,9 +81,28 @@ namespace ModelSync.Library.Models
             return result;
         }
 
-        public IEnumerable<string> AlterStatements(string comment)
-        {
+        public IEnumerable<string> AlterStatements(string comment, DataModel destModel)
+        {                     
+            if (partOfIndex(destModel))
+            {
+                foreach (var obj in GetDropDependencies(destModel))
+                {
+                    yield return obj.DropStatement();                                        
+                }
+            }
+
             yield return $"-- {comment}\r\nALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition()}";
+
+            bool partOfIndex(DataModel dataModel)
+            {
+                if (dataModel.TableDictionary.ContainsKey(this.Parent.Name))
+                {
+                    var table = dataModel.TableDictionary[this.Parent.Name];
+                    return table.Indexes.Any(ndx => ndx.Columns.Any(col => col.Name.Equals(Name)));
+                }
+
+                return false;
+            }
         }
 
         public override string DropStatement()
@@ -96,10 +115,16 @@ namespace ModelSync.Library.Models
             var table = Parent as Table;
             if (table != null)
             {
-                return table.Indexes.Where(ndx => ndx.Columns.Any(col => col.Name.Equals(Name)));
-            }
+                foreach (var ndx in getIndexes(table)) yield return ndx;
+                
+                if (dataModel.TableDictionary.ContainsKey(table.Name))
+                {
+                    var destTable = dataModel.TableDictionary[table.Name];
+                    foreach (var ndx in getIndexes(destTable)) yield return ndx;
+                }                
+            }                       
 
-            return Enumerable.Empty<DbObject>();
+            IEnumerable<DbObject> getIndexes(Table checkTable) => checkTable.Indexes.Where(ndx => ndx.Columns.Any(col => col.Name.Equals(Name)));
         }
 
         public override bool IsAltered(DbObject @object, out string comment)

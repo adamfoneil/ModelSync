@@ -21,6 +21,7 @@ namespace ModelSync.Library.Models
 
             results.AddRange(AlterColumns(sourceModel, destModel));
             results.AddRange(AlterIndexes(sourceModel, destModel));
+
             results.AddRange(CreateForeignKeys(sourceModel, destModel));
             results.AddRange(AlterForeignKeys(sourceModel, destModel));
 
@@ -200,7 +201,7 @@ namespace ModelSync.Library.Models
                     {
                         Type = ActionType.Alter,
                         Object = columnPair.Source,
-                        Commands = columnPair.Source.AlterStatements(comment)
+                        Commands = columnPair.Source.AlterStatements(comment, destModel)
                     };
                 }).ToArray();
         }
