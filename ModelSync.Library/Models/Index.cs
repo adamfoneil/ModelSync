@@ -1,5 +1,4 @@
 ﻿using ModelSync.Library.Abstract;
-using ModelSync.Library.Models.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -102,7 +101,7 @@ namespace ModelSync.Library.Models
                         new { text = "Removed", columns = destCols.Except(sourceCols) }
                     };
 
-                    comment = string.Join(", ", modified
+                    comment = $"{index.Name}: " + string.Join(", ", modified
                         .Where(cols => cols.columns.Any())
                         .Select(cols => $"{cols.text}: {string.Join(", ", cols.columns)}"));
 
@@ -124,6 +123,14 @@ namespace ModelSync.Library.Models
             public string Name { get; set; }
             public int Order { get; set; }
             public SortDirection SortDirection { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                var col = obj as Index.Column;
+                return (col != null) ? col.Name.Equals(this.Name) : false;
+            }
+
+            public override int GetHashCode() => Name.GetHashCode();            
         }
     }
 }
