@@ -19,9 +19,9 @@ namespace ModelSync.Library.Models
             results.AddRange(AddColumns(sourceModel, destModel, createTables));
             results.AddRange(AddIndexes(sourceModel, destModel, createTables));
 
-            results.AddRange(AlterColumns(sourceModel, destModel));
             results.AddRange(AlterIndexes(sourceModel, destModel));
-
+            results.AddRange(AlterColumns(sourceModel, destModel));
+            
             results.AddRange(CreateForeignKeys(sourceModel, destModel));
             results.AddRange(AlterForeignKeys(sourceModel, destModel));
 

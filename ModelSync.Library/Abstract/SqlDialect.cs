@@ -76,7 +76,7 @@ namespace ModelSync.Library.Abstract
             }
         }
 
-        public void Execute(IDbConnection connection, string script)
+        public void Execute(IDbConnection connection, string script, bool commit = true)
         {
             if (connection.State == ConnectionState.Closed) connection.Open();
 
@@ -94,7 +94,14 @@ namespace ModelSync.Library.Abstract
                         cmd.Transaction = txn;
                         cmd.ExecuteNonQuery();
                     }
-                    txn.Commit();
+                    if (commit)
+                    {
+                        txn.Commit();
+                    }
+                    else
+                    {
+                        txn.Rollback();
+                    }
                 }
                 catch
                 {
@@ -104,11 +111,11 @@ namespace ModelSync.Library.Abstract
             }
         }
 
-        public async Task ExecuteAsync(IDbConnection connection, string script)
+        public async Task ExecuteAsync(IDbConnection connection, string script, bool commit = true)
         {
             await Task.Run(() =>
             {
-                Execute(connection, script);
+                Execute(connection, script, commit);
             });
         }
     }

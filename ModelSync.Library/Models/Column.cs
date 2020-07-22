@@ -82,14 +82,12 @@ namespace ModelSync.Library.Models
         }
 
         public IEnumerable<string> AlterStatements(string comment, DataModel destModel)
-        {                     
+        {
+            /*
             if (partOfIndex(destModel))
             {
-                foreach (var obj in GetDropDependencies(destModel))
-                {
-                    yield return obj.DropStatement();                                        
-                }
-            }
+                foreach (var obj in GetDropDependencies(destModel)) yield return obj.DropStatement();
+            }*/
 
             yield return $"-- {comment}\r\nALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition()}";
 
