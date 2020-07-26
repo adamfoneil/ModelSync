@@ -82,12 +82,12 @@ namespace ModelSync.Library.Models
         }
 
         public IEnumerable<string> AlterStatements(string comment, DataModel destModel)
-        {
-            /*
+        {            
             if (partOfIndex(destModel))
             {
-                foreach (var obj in GetDropDependencies(destModel)) yield return obj.DropStatement();
-            }*/
+                var deps = GetDropDependencies(destModel).ToArray();
+                foreach (var obj in deps) yield return obj.DropStatement();
+            }
 
             yield return $"-- {comment}\r\nALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition()}";
 
@@ -108,21 +108,25 @@ namespace ModelSync.Library.Models
             return $"ALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
         }
 
+        private IEnumerable<Index> GetIndexes(Table table) => table.Indexes.Where(ndx => ndx.Columns.Any(col => col.Name.Equals(Name)));
+
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
+            HashSet<Index> results = new HashSet<Index>();
+
             var table = Parent as Table;
             if (table != null)
             {
-                foreach (var ndx in getIndexes(table)) yield return ndx;
+                foreach (var ndx in GetIndexes(table)) results.Add(ndx);
                 
                 if (dataModel.TableDictionary.ContainsKey(table.Name))
                 {
                     var destTable = dataModel.TableDictionary[table.Name];
-                    foreach (var ndx in getIndexes(destTable)) yield return ndx;
+                    foreach (var ndx in GetIndexes(destTable)) results.Add(ndx);
                 }                
-            }                       
+            }
 
-            IEnumerable<DbObject> getIndexes(Table checkTable) => checkTable.Indexes.Where(ndx => ndx.Columns.Any(col => col.Name.Equals(Name)));
+            return results;
         }
 
         public override bool IsAltered(DbObject @object, out string comment)
