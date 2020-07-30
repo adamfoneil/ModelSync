@@ -276,11 +276,11 @@ namespace ModelSync.Library.Services
                 var explicitIdentity = modelType.GetCustomAttribute<IdentityAttribute>();
                 
                 string identityIndexName =                     
-                    (explicitIdentity != null) ? $"U_{constraintName}_{idProperty.Name}" :
+                    (explicitIdentity != null && keyColumns.Any()) ? $"U_{constraintName}_{idProperty.Name}" :
                     (!keyColumns.Any()) ? $"PK_{constraintName}" :
                     $"U_{constraintName}_{idProperty.Name}";
 
-                if (explicitIdentity != null) identityType = IndexType.UniqueConstraint;
+                if (explicitIdentity != null && keyColumns.Any()) identityType = IndexType.UniqueConstraint;
 
                 yield return new Index()
                 {
