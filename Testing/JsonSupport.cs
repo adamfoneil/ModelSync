@@ -2,7 +2,9 @@
 using ModelSync.Models;
 using ModelSync.Services;
 using System;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Testing.Helpers;
 using Testing.Models;
 
@@ -21,7 +23,7 @@ namespace Testing
 
             Assert.IsTrue(model.ForeignKeys.Count() == 1);
 
-            string fileName = @"C:\users\adam\desktop\DataModels\sampleModel.json";
+            string fileName = GetFilename("sampleModel.json");
             model.SaveJson(fileName);
             var load = DataModel.FromJsonFile(fileName);
 
@@ -40,10 +42,14 @@ namespace Testing
                     new ModelBuilder.TableSignature("PointCapacity", "Id", "CalendarId:int", "Sex", "SpeciesId", "Maximum")
                 );
 
-            model.SaveJson(@"c:\users\adam\desktop\DataModels\miniHsModel.json");
+            string fileName = GetFilename("miniHsModel.json");
 
-            var load = DataModel.FromJsonFile(@"c:\users\adam\desktop\DataModels\miniHsModel.json");
+            model.SaveJson(fileName);
+
+            var load = DataModel.FromJsonFile(fileName);
         }
 
+
+        private static string GetFilename(string name) => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ModelBuilder", name);
     }
 }
