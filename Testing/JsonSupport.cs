@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ModelSync.Library.Models;
-using ModelSync.Library.Services;
+using ModelSync.Models;
+using ModelSync.Services;
 using System;
 using System.Linq;
 using Testing.Helpers;

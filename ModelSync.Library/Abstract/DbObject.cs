@@ -1,10 +1,10 @@
-﻿using ModelSync.Library.Models;
+﻿using ModelSync.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
-namespace ModelSync.Library.Abstract
+namespace ModelSync.Abstract
 {
     public enum ObjectType
     {

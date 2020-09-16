@@ -1,7 +1,7 @@
-﻿using ModelSync.Library.Abstract;
-using ModelSync.Library.Models;
+﻿using ModelSync.Abstract;
+using ModelSync.Models;
 
-namespace ModelSync.Library.Interfaces
+namespace ModelSync.Interfaces
 {
     public interface IActionable
     {

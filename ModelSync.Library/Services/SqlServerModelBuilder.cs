@@ -1,13 +1,13 @@
 ﻿using Dapper;
-using ModelSync.Library.Interfaces;
-using ModelSync.Library.Models;
-using ModelSync.Library.Models.Internal;
+using ModelSync.Interfaces;
+using ModelSync.Models;
+using ModelSync.Models.Internal;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ModelSync.Library.Services
+namespace ModelSync.Services
 {
     public partial class SqlServerModelBuilder : IConnectionModelBuilder
     {

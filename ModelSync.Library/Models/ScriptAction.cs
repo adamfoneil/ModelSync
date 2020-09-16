@@ -1,10 +1,10 @@
-﻿using ModelSync.Library.Abstract;
-using ModelSync.Library.Interfaces;
+﻿using ModelSync.Abstract;
+using ModelSync.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ModelSync.Library.Models
+namespace ModelSync.Models
 {
     public enum ActionType
     {

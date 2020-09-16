@@ -1,10 +1,10 @@
-﻿using ModelSync.Library.Services;
+﻿using ModelSync.Services;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ModelSync.Library.Models
+namespace ModelSync.Models
 {
     public partial class DataModel
     {

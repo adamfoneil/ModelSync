@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ModelSync.Library.Models.Internal
+namespace ModelSync.Models.Internal
 {
     internal class ForeignKeyProperty
     {

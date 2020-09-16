@@ -1,8 +1,8 @@
-﻿using ModelSync.Library.Models;
+﻿using ModelSync.Models;
 using Newtonsoft.Json;
 using System;
 
-namespace ModelSync.Library.Services
+namespace ModelSync.Services
 {
     public class DataModelConverter : JsonConverter
     {

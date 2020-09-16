@@ -1,6 +1,6 @@
-﻿using ModelSync.Library.Abstract;
-using ModelSync.Library.Extensions;
-using ModelSync.Library.Services;
+﻿using ModelSync.Abstract;
+using ModelSync.Extensions;
+using ModelSync.Services;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ModelSync.Library.Models
+namespace ModelSync.Models
 {
     public class Table : DbObject
     {

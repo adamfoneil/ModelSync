@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ModelSync.Library.Models;
-using ModelSync.Library.Services;
+using ModelSync.Models;
+using ModelSync.Services;
 using SqlServer.LocalDb;
 using System;
 using System.Diagnostics;
@@ -220,18 +220,18 @@ namespace Testing
         {
             var table1 = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
 
-            var index = new ModelSync.Library.Models.Index()
+            var index = new ModelSync.Models.Index()
             {
                 Name = "U_table1_this_that",
                 Type = IndexType.UniqueConstraint,
-                Columns = new ModelSync.Library.Models.Index.Column[]
+                Columns = new ModelSync.Models.Index.Column[]
                 {
-                    new ModelSync.Library.Models.Index.Column() { Name = "this"},
-                    new ModelSync.Library.Models.Index.Column() { Name = "that" }
+                    new ModelSync.Models.Index.Column() { Name = "this"},
+                    new ModelSync.Models.Index.Column() { Name = "that" }
                 }
             };
 
-            table1.Indexes = new ModelSync.Library.Models.Index[] { index };
+            table1.Indexes = new ModelSync.Models.Index[] { index };
 
             var srcModel = new DataModel();
             var destModel = new DataModel() { Tables = new Table[] { table1 } };
@@ -252,19 +252,19 @@ namespace Testing
             var srcTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
             var destTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
 
-            var index = new ModelSync.Library.Models.Index()
+            var index = new ModelSync.Models.Index()
             {
                 Parent = destTable,
                 Name = "U_table1_this_that",
                 Type = IndexType.UniqueConstraint,
-                Columns = new ModelSync.Library.Models.Index.Column[]
+                Columns = new ModelSync.Models.Index.Column[]
                 {
-                    new ModelSync.Library.Models.Index.Column() { Name = "this"},
-                    new ModelSync.Library.Models.Index.Column() { Name = "that" }
+                    new ModelSync.Models.Index.Column() { Name = "this"},
+                    new ModelSync.Models.Index.Column() { Name = "that" }
                 }
             };
 
-            destTable.Indexes = new ModelSync.Library.Models.Index[] { index };
+            destTable.Indexes = new ModelSync.Models.Index[] { index };
 
             var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
             var destModel = new DataModel() { Tables = new Table[] { destTable } };
@@ -283,19 +283,19 @@ namespace Testing
             var srcTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
             var destTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "Id");
 
-            var index = new ModelSync.Library.Models.Index()
+            var index = new ModelSync.Models.Index()
             {
                 Parent = destTable,
                 Name = "U_table1_this_that",
                 Type = IndexType.UniqueConstraint,
-                Columns = new ModelSync.Library.Models.Index.Column[]
+                Columns = new ModelSync.Models.Index.Column[]
                 {
-                    new ModelSync.Library.Models.Index.Column() { Name = "this"},
-                    new ModelSync.Library.Models.Index.Column() { Name = "that" }
+                    new ModelSync.Models.Index.Column() { Name = "this"},
+                    new ModelSync.Models.Index.Column() { Name = "that" }
                 }
             };
 
-            srcTable.Indexes = new ModelSync.Library.Models.Index[] { index };
+            srcTable.Indexes = new ModelSync.Models.Index[] { index };
 
             var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
             var destModel = new DataModel() { Tables = new Table[] { destTable } };
@@ -321,7 +321,7 @@ namespace Testing
             {
                 Type = ActionType.Alter,
                 Object = srcTable.ColumnDictionary["this"],
-                Commands = srcTable.ColumnDictionary["this"].AlterStatements("data type nvarchar(20) -> int")
+                Commands = srcTable.ColumnDictionary["this"].AlterStatements("data type nvarchar(20) -> int", destModel)
             }));
         }
 
@@ -387,26 +387,26 @@ namespace Testing
         [TestMethod]
         public void DropColumnShouldDropContainingIndex()
         {
-            ModelSync.Library.Models.Index getIndex(Table parentTable)
+            ModelSync.Models.Index getIndex(Table parentTable)
             {
-                return new ModelSync.Library.Models.Index()
+                return new ModelSync.Models.Index()
                 {
                     Parent = parentTable,
                     Name = "U_table1_ThisThat",
                     Type = IndexType.UniqueConstraint,
-                    Columns = new ModelSync.Library.Models.Index.Column[]
+                    Columns = new ModelSync.Models.Index.Column[]
                     {
-                        new ModelSync.Library.Models.Index.Column() { Name = "this"},
-                        new ModelSync.Library.Models.Index.Column() { Name = "that"}
+                        new ModelSync.Models.Index.Column() { Name = "this"},
+                        new ModelSync.Models.Index.Column() { Name = "that"}
                     }
                 };
             };
 
             var srcTable = ModelBuilder.BuildTable("table1", "that", "other", "hello", "goodbye");
-            srcTable.Indexes = new ModelSync.Library.Models.Index[] { getIndex(srcTable) };
+            srcTable.Indexes = new ModelSync.Models.Index[] { getIndex(srcTable) };
 
             var destTable = ModelBuilder.BuildTable("table1", "this", "that", "other", "hello", "goodbye");
-            destTable.Indexes = new ModelSync.Library.Models.Index[] { getIndex(destTable) };
+            destTable.Indexes = new ModelSync.Models.Index[] { getIndex(destTable) };
 
             var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
             var destModel = new DataModel() { Tables = new Table[] { destTable } };

@@ -1,7 +1,7 @@
-﻿using ModelSync.Library.Abstract;
-using ModelSync.Library.Interfaces;
+﻿using ModelSync.Abstract;
+using ModelSync.Interfaces;
 
-namespace ModelSync.Library.Models
+namespace ModelSync.Models
 {
     public class ExcludeAction : IActionable
     {

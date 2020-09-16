@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace ModelSync.Library.Extensions
+namespace ModelSync.Extensions
 {
     public static class AttributeExtensions
     {

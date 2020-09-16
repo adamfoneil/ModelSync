@@ -1,11 +1,11 @@
-﻿using ModelSync.Library.Abstract;
-using ModelSync.Library.Services;
+﻿using ModelSync.Abstract;
+using ModelSync.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
-namespace ModelSync.Library.Models
+namespace ModelSync.Models
 {
     public partial class DataModel
     {

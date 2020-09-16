@@ -1,4 +1,5 @@
-﻿using ModelSync.Library.Services;
+﻿using ModelSync.Interfaces;
+using ModelSync.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,9 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace ModelSync.Library.Models
+namespace ModelSync.Models
 {
-    public partial class DataModel
+    public partial class DataModel : IDataModel
     {
         public DataModel()
         {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ModelSync.Library.Models
+namespace ModelSync.Models
 {
     public partial class DataModel
     {

@@ -1,4 +1,4 @@
-﻿namespace ModelSync.Library.Models.Internal
+﻿namespace ModelSync.Models.Internal
 {
     internal class ForeignKeysResult
     {

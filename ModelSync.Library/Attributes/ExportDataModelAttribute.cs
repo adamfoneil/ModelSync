@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ModelSync.Library.Attributes
+namespace ModelSync.Attributes
 {
     /// <summary>
     /// indicates that you'd like to export this assembly's data model to json during app startup

@@ -1,11 +1,11 @@
-﻿using ModelSync.Library.Abstract;
-using ModelSync.Library.Models;
+﻿using ModelSync.Abstract;
+using ModelSync.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
-namespace ModelSync.Library.Services
+namespace ModelSync.Services
 {
     public class DbObjectConverter : JsonConverter
     {

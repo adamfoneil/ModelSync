@@ -1,8 +1,8 @@
-﻿using System;
-using System.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelSync.App.Helpers;
-using ModelSync.Library.Services;
+using ModelSync.Services;
+using System;
+using System.Reflection;
 
 namespace TestingFramework
 {

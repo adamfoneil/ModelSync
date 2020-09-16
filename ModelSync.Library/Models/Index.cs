@@ -1,11 +1,11 @@
-﻿using ModelSync.Library.Abstract;
+﻿using ModelSync.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ModelSync.Library.Models
+namespace ModelSync.Models
 {
     public enum SortDirection
     {

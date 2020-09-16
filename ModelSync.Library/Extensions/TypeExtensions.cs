@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ModelSync.Library.Extensions
+namespace ModelSync.Extensions
 {
     public static class TypeExtensions
     {

@@ -1,8 +1,8 @@
 ﻿using AO.Models;
-using ModelSync.Library.Extensions;
-using ModelSync.Library.Interfaces;
-using ModelSync.Library.Models;
-using ModelSync.Library.Models.Internal;
+using ModelSync.Extensions;
+using ModelSync.Interfaces;
+using ModelSync.Models;
+using ModelSync.Models.Internal;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 
-namespace ModelSync.Library.Services
+namespace ModelSync.Services
 {
     /// <summary>
     /// look back to https://github.com/adamosoftware/SchemaSync/blob/master/SchemaSync.Postulate/PostulateDbProvider.cs

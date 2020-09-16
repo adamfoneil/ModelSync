@@ -1,7 +1,7 @@
-﻿using ModelSync.Library.Models;
+﻿using ModelSync.Models;
 using System.Reflection;
 
-namespace ModelSync.Library.Interfaces
+namespace ModelSync.Interfaces
 {
     public interface IAssemblyModelBuilder
     {

@@ -1,6 +1,6 @@
-﻿using ModelSync.Library.Abstract;
+﻿using ModelSync.Abstract;
 
-namespace ModelSync.Library.Services
+namespace ModelSync.Services
 {
     public class SqlServerDialect : SqlDialect
     {

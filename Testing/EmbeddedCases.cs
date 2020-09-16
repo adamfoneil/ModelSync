@@ -1,8 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ModelSync.Library.Models;
+using ModelSync.Models;
 using Newtonsoft.Json;
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;

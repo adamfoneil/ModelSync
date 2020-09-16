@@ -2,7 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 
-namespace ModelSync.Library.Extensions
+namespace ModelSync.Extensions
 {
     internal static class ConnectionExtensions
     {

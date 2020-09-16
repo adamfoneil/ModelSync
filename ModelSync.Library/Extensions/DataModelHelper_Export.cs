@@ -1,12 +1,12 @@
-﻿using ModelSync.Library.Attributes;
-using ModelSync.Library.Services;
+﻿using ModelSync.Attributes;
+using ModelSync.Services;
 using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
-namespace ModelSync.Library.Extensions
+namespace ModelSync.Extensions
 {
     public static partial class DataModelHelper
     {
