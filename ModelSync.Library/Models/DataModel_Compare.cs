@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace ModelSync.Models
@@ -21,7 +20,7 @@ namespace ModelSync.Models
 
             results.AddRange(AlterIndexes(sourceModel, destModel));
             results.AddRange(AlterColumns(sourceModel, destModel));
-            
+
             results.AddRange(CreateForeignKeys(sourceModel, destModel));
             results.AddRange(AlterForeignKeys(sourceModel, destModel));
 
@@ -41,9 +40,9 @@ namespace ModelSync.Models
             var alteredKFs = from src in sourceModel.ForeignKeys
                              join dest in destModel.ForeignKeys on src equals dest
                              where (src.IsAltered(dest, out _))
-                             select new 
-                             { 
-                                 @object = src, 
+                             select new
+                             {
+                                 @object = src,
                                  comment = src.GetAlterComment(dest)
                              };
 
@@ -52,7 +51,7 @@ namespace ModelSync.Models
                 Type = ActionType.Alter,
                 Object = fk.@object,
                 Commands = fk.@object.RebuildStatements(destModel, fk.comment)
-            });                
+            });
         }
 
         private static ScriptAction[] CreateSchemas(DataModel sourceModel, DataModel destModel)

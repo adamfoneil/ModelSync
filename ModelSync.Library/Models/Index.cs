@@ -71,7 +71,7 @@ namespace ModelSync.Models
 
         public override string DropStatement()
         {
-            return                
+            return
                 (Type == IndexType.UniqueIndex || Type == IndexType.NonUnique) ? $"DROP INDEX <{Name}> ON <{Parent}>" :
                 (Type == IndexType.UniqueConstraint || Type == IndexType.PrimaryKey) ? $"ALTER TABLE <{Parent}> DROP CONSTRAINT <{Name}>" :
                 throw new Exception($"Unrecognized index type {Type}");
@@ -95,7 +95,7 @@ namespace ModelSync.Models
                 {
                     comment = string.Empty;
 
-                    var modified = new [] 
+                    var modified = new[]
                     {
                         new { text = "Added", columns = sourceCols.Except(destCols) },
                         new { text = "Removed", columns = destCols.Except(sourceCols) }
@@ -106,7 +106,7 @@ namespace ModelSync.Models
                         .Select(cols => $"{cols.text}: {string.Join(", ", cols.columns)}"));
 
                     return true;
-                }                
+                }
             }
 
             comment = null;
@@ -130,7 +130,7 @@ namespace ModelSync.Models
                 return (col != null) ? col.Name.Equals(this.Name) : false;
             }
 
-            public override int GetHashCode() => Name.GetHashCode();            
+            public override int GetHashCode() => Name.GetHashCode();
         }
     }
 }

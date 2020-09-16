@@ -82,7 +82,7 @@ namespace ModelSync.Models
         }
 
         public IEnumerable<string> AlterStatements(string comment, DataModel destModel)
-        {            
+        {
             if (partOfIndex(destModel))
             {
                 var deps = GetDropDependencies(destModel).ToArray();
@@ -118,12 +118,12 @@ namespace ModelSync.Models
             if (table != null)
             {
                 foreach (var ndx in GetIndexes(table)) results.Add(ndx);
-                
+
                 if (dataModel.TableDictionary.ContainsKey(table.Name))
                 {
                     var destTable = dataModel.TableDictionary[table.Name];
                     foreach (var ndx in GetIndexes(destTable)) results.Add(ndx);
-                }                
+                }
             }
 
             return results;

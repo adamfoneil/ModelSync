@@ -11,7 +11,7 @@ namespace ModelSync.Interfaces
     {
         Dictionary<Type, string> Errors { get; set; }
         IEnumerable<ForeignKey> ForeignKeys { get; set; }
-        IEnumerable<Schema> Schemas { get; set; }        
+        IEnumerable<Schema> Schemas { get; set; }
         IEnumerable<Table> Tables { get; set; }
 
         Task<IEnumerable<ScriptAction>> CreateIfNotExistsAsync(IDbConnection connection, SqlDialect dialect);

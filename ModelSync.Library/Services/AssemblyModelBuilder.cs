@@ -274,8 +274,8 @@ namespace ModelSync.Services
                 }
 
                 var explicitIdentity = modelType.GetCustomAttribute<IdentityAttribute>();
-                
-                string identityIndexName =                     
+
+                string identityIndexName =
                     (explicitIdentity != null && keyColumns.Any()) ? $"U_{constraintName}_{idProperty.Name}" :
                     (!keyColumns.Any()) ? $"PK_{constraintName}" :
                     $"U_{constraintName}_{idProperty.Name}";

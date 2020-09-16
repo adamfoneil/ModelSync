@@ -106,7 +106,7 @@ namespace ModelSync.Models
                 string identityCol = GetIdentityColumn(defaultIdentityColumn);
                 return name.ToLower().Equals(identityCol.ToLower());
             }
-            catch 
+            catch
             {
                 return false;
             }
