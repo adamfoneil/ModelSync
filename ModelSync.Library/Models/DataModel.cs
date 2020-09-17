@@ -1,4 +1,5 @@
-﻿using ModelSync.Interfaces;
+﻿using ModelSync.Abstract;
+using ModelSync.Interfaces;
 using ModelSync.Services;
 using System;
 using System.Collections.Generic;

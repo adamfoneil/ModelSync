@@ -18,13 +18,18 @@ namespace ModelSync.Services
     /// </summary>
     public class AssemblyModelBuilder : IAssemblyModelBuilder
     {
-        public DataModel GetDataModel(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
+        public DataModel GetDataModel(IEnumerable<Type> types, string defaultSchema, string defaultIdentityColumn)
         {
-            var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
             var typeInfo = GetTypeTableMap(types, defaultSchema, defaultIdentityColumn);
             var result = GetDataModelInner(typeInfo.Tables, defaultSchema, defaultIdentityColumn);
             result.Errors = typeInfo.Errors;
             return result;
+        }
+
+        public DataModel GetDataModel(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
+        {
+            var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
+            return GetDataModel(types, defaultSchema, defaultIdentityColumn);
         }
 
         public static Table GetTableFromType<T>(string defaultSchema, string defaultIdentityColumn)

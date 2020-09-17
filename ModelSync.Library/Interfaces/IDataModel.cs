@@ -3,6 +3,7 @@ using ModelSync.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace ModelSync.Interfaces
@@ -14,7 +15,10 @@ namespace ModelSync.Interfaces
         IEnumerable<Schema> Schemas { get; set; }
         IEnumerable<Table> Tables { get; set; }
 
-        Task<IEnumerable<ScriptAction>> CreateIfNotExistsAsync(IDbConnection connection, SqlDialect dialect);
+        void ImportTypes(IEnumerable<Type> types, string defaultSchema = "dbo", string defaultIdentityColumn = "Id");
+        void ImportTypes(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id");
+        Task DeployAsync(IDbConnection connection, SqlDialect dialect);
+        
         void SaveJson(string fileName);
         string ToJson();
     }

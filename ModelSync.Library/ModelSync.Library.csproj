@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.1.17</Version>
+    <Version>2.2.0</Version>
     <Authors>Adam O'Neil</Authors>
     <Copyright>Copyright (c) 2020 Adam O'Neil</Copyright>
     <RepositoryUrl>https://github.com/adamfoneil/ModelSync</RepositoryUrl>
@@ -11,7 +11,7 @@
     <Description>A database schema diff library for .NET assemblies and SQL Server databases using AO.Models</Description>
     <PackageId>AO.ModelSync.Library</PackageId>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>fixed PK naming when class has no explicit [Key] columns</PackageReleaseNotes>
+    <PackageReleaseNotes>new interface IDataModel (breaking change)</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
