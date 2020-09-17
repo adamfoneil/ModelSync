@@ -45,8 +45,11 @@ namespace ModelSync.Models
         public async Task<IEnumerable<string>> GetStatementsAsync(IDbConnection connection, IEnumerable<Type> types)
         {
             ImportTypes(types);
-            var createObjects = await ScriptCreateTablesAsync(connection, new SqlServerDialect());
-            return createObjects.SelectMany(scriptAction => scriptAction.Commands);
+            var dialect = new SqlServerDialect();
+            var createObjects = await ScriptCreateTablesAsync(connection, dialect);
+            return createObjects
+                .SelectMany(scriptAction => scriptAction.Commands)
+                .Select(statement => dialect.FormatStatement(statement));
         }
     }
 }
