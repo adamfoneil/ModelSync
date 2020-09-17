@@ -44,6 +44,7 @@ namespace ModelSync.Models
 
         public async Task<IEnumerable<string>> GetStatementsAsync(IDbConnection connection, IEnumerable<Type> types)
         {
+            ImportTypes(types);
             var createObjects = await ScriptCreateTablesAsync(connection, new SqlServerDialect());
             return createObjects.SelectMany(scriptAction => scriptAction.Commands);
         }
