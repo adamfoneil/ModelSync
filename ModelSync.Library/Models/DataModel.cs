@@ -1,4 +1,4 @@
-﻿using ModelSync.Abstract;
+﻿using AO.Models.Interfaces;
 using ModelSync.Interfaces;
 using ModelSync.Services;
 using System;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ModelSync.Models
 {
-    public partial class DataModel : IDataModel
+    public partial class DataModel : IDataModel, ISqlObjectCreator
     {
         public DataModel()
         {
@@ -40,6 +40,12 @@ namespace ModelSync.Models
         {
             var assembly = Assembly.LoadFrom(fileName);
             return FromAssembly(assembly, defaultSchema, defaultIdentityColumn);
+        }
+
+        public async Task<IEnumerable<string>> GetStatementsAsync(IDbConnection connection, IEnumerable<Type> types)
+        {
+            var createObjects = await ScriptCreateTablesAsync(connection, new SqlServerDialect());
+            return createObjects.SelectMany(scriptAction => scriptAction.Commands);
         }
     }
 }
