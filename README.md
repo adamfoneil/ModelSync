@@ -4,12 +4,12 @@ This is a library for generating and executing SQL diff merge scripts. There are
 
 - Generate diff script by comparing an assembly or database with another database using [DataModel.Compare](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Compare.cs#L8). This functionality powers my [ModelSync](http://www.aosoftware.net/modelSync.html) app.
 
-- Create empty tables from C# model classes with [DataModel.CreateTablesAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Create.cs#L21). 
+- Create empty tables from C# model classes with [DataModel.CreateTablesAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Create.cs#L39). 
 
 Nuget package: **AO.ModelSync.Library**
 
 # DataModel.Compare
-Use `DataModel.Compare` to generate a diff script from an assembly or database to another database. This example is adapted from this [test](https://github.com/adamosoftware/ModelSync/blob/master/Testing/ModelComparison.cs#L325):
+Use `DataModel.Compare` to generate a diff script from an assembly or database to another database. This example is adapted from this [test](https://github.com/adamosoftware/ModelSync/blob/master/Testing/ModelComparison.cs#L429):
 ```csharp
 using (var cn = GetConnection())
 {
@@ -28,7 +28,7 @@ ALTER TABLE [child2] DROP CONSTRAINT [FK_child2_parentId]
 GO
 DROP TABLE [parent]
 ```
-Source links: [DataModel.FromAssembly](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L34), [DataModel.FromSqlServerAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L23)
+Source links: [DataModel.FromAssembly](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L34), [DataModel.FromSqlServerAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel.cs#L28)
 
 # DataModel.CreateTablesAsync
 Use `DataModel.CreateTablesAsync` to create empty tables as part of a component initialization. For example in my [WorkTracker](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/JobTracker.cs#L32) project, I create tables from a couple model classes [Job](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/Models/Job.cs) and [Error](https://github.com/adamosoftware/WorkTracker/blob/master/WorkTracker.Library/Models/Error.cs). This `CreateTableAsync` overload accepts a `Func<IDbConnection>` through which your database connection is opened.
@@ -40,7 +40,7 @@ await DataModel.CreateTablesAsync(new[]
     typeof(Error)
 }, GetConnection);
 ```
-I have another example along these lines in my Dapper.CX [Change Tracking](https://github.com/adamosoftware/Dapper.CX/wiki/Using-ChangeTracker) stuff, which [creates a couple tables](https://github.com/adamosoftware/Dapper.CX/blob/master/Dapper.CX.ChangeTracking/LoggedChangeTracker.cs#L119-L123) from some model classes.
+I have another example along these lines in my Dapper.CX [Change Tracking](https://github.com/adamosoftware/Dapper.CX/wiki/Using-ChangeTracker) stuff, which [creates a couple tables](https://github.com/adamfoneil/Dapper.CX/blob/master/Dapper.CX.ChangeTracking/LoggedChangeTracker.cs#L121-L125) from some model classes.
 
 
 # Background
