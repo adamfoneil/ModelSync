@@ -402,15 +402,15 @@ namespace ModelSync.Services
         }
 
         private static PropertyInfo FindIdentityProperty(Type type, string defaultIdentityColumn)
-        {
+        {           
             return type.GetProperties().Where(pi => IsIdentity(pi, defaultIdentityColumn)).FirstOrDefault();
         }
 
         private static bool IsIdentity(PropertyInfo propertyInfo, string defaultIdentityColumn)
-        {
+        {            
             return
                 (propertyInfo.DeclaringType.HasAttribute(out IdentityAttribute idAttr) && idAttr.PropertyName.Equals(propertyInfo.Name)) ||
-                (propertyInfo.Name.Equals(defaultIdentityColumn));
+                (propertyInfo.Name.Equals(defaultIdentityColumn) && !propertyInfo.HasAttribute<KeyAttribute>(out _));
         }
 
         private class TypeInfo
