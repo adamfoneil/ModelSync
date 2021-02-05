@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.2.4</Version>
+    <Version>2.2.5</Version>
     <Authors>Adam O'Neil</Authors>
     <Copyright>Copyright (c) 2020 Adam O'Neil</Copyright>
     <RepositoryUrl>https://github.com/adamfoneil/ModelSync</RepositoryUrl>
@@ -11,13 +11,13 @@
     <Description>A database schema diff library for .NET assemblies and SQL Server databases using AO.Models</Description>
     <PackageId>AO.ModelSync.Library</PackageId>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>implemented ISqlObjectCreator for Dapper.CX</PackageReleaseNotes>
+    <PackageReleaseNotes>calculated column DDL fix</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AO.Models" Version="1.1.17" />
+    <PackageReference Include="AO.Models" Version="1.1.22" />
     <PackageReference Include="Dapper" Version="2.0.35" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="1.1.3" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
   </ItemGroup>

@@ -31,7 +31,7 @@ namespace ModelSync.Models
             string result = $"<{Name}>";
             if (IsCalculated)
             {
-                return $"{result} {Expression}";
+                return $"{result} AS ({Expression})";
             }
             else
             {
