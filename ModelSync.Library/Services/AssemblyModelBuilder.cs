@@ -26,6 +26,12 @@ namespace ModelSync.Services
             return result;
         }
 
+        public DataModel GetDataModel(Assembly assembly, string modelClassNamespace, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
+        {
+            var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract && t.Namespace.StartsWith(modelClassNamespace));
+            return GetDataModel(types, defaultSchema, defaultIdentityColumn);
+        }
+
         public DataModel GetDataModel(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {
             var types = assembly.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract);
