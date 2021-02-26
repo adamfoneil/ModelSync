@@ -40,7 +40,7 @@ namespace ModelSync.Models
             return FromAssembly(assembly, defaultSchema, defaultIdentityColumn);
         }
 
-        public static DataModel FromAssembly(Assembly assembly, string modelClassNamespace, string defaultSchema = "dbo", string defaultIdentityColumn = "Id") =>
+        public static DataModel FromTypesInAssembly(Assembly assembly, string modelClassNamespace, string defaultSchema = "dbo", string defaultIdentityColumn = "Id") =>
             new AssemblyModelBuilder().GetDataModel(assembly, modelClassNamespace, defaultSchema, defaultIdentityColumn);
 
         public async Task<IEnumerable<string>> GetStatementsAsync(IDbConnection connection, IEnumerable<Type> types)
