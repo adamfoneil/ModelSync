@@ -1,10 +1,10 @@
 ﻿using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelSync.Abstract;
 using ModelSync.Models;
 using ModelSync.Services;
 using SqlServer.LocalDb;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Testing.Models;
 
