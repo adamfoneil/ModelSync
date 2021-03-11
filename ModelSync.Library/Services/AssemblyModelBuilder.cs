@@ -1,4 +1,5 @@
 ﻿using AO.Models;
+using AO.Models.Attributes;
 using ModelSync.Extensions;
 using ModelSync.Interfaces;
 using ModelSync.Models;
@@ -390,6 +391,11 @@ namespace ModelSync.Services
             {
                 column.IsCalculated = true;
                 column.Expression = calcAttr.Expression;
+            }
+
+            if (propertyInfo.HasAttribute(out DefaultAttribute defaultAttr))
+            {
+                column.DefaultValue = defaultAttr.Expression;
             }
 
             if (IsIdentity(propertyInfo, defaultIdentityColumn))

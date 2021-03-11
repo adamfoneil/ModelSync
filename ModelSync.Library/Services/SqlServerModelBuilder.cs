@@ -49,7 +49,7 @@ namespace ModelSync.Services
 						[col].[name] AS [Name],
 						TYPE_NAME([col].[system_type_id]) AS [DataType],
 						[col].[is_nullable] AS [IsNullable],
-						[def].[definition]  AS [Default],
+						[def].[definition]  AS [DefaultValue],
 						[col].[collation_name] AS [Collation],
 						CASE
 							WHEN TYPE_NAME([col].[system_type_id]) LIKE 'nvar%' AND [col].[max_length]>0 THEN ([col].[max_length]/2)
@@ -84,7 +84,7 @@ namespace ModelSync.Services
 						ELSE [DataType] + '(' + CONVERT(varchar, [MaxLength]) + ')'
 					END AS [DataType],
 					[IsNullable],
-					[Default],
+					[DefaultValue],
 					[Collation],
 					[Precision],
 					[InternalId],

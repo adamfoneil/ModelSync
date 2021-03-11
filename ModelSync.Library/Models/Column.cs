@@ -36,7 +36,8 @@ namespace ModelSync.Models
             else
             {
                 string nullable = (isNullable.Value) ? "NULL" : "NOT NULL";
-                return $"{result} {DataType} {nullable}";
+                string defaultExp = (!string.IsNullOrEmpty(DefaultValue)) ? $" DEFAULT {SqlLiteral(DefaultValue)}" : string.Empty;
+                return $"{result} {DataType} {nullable}{defaultExp}";
             }
         }
 
@@ -44,9 +45,7 @@ namespace ModelSync.Models
         {
             if (DefaultValueRequired && !string.IsNullOrEmpty(DefaultValue))
             {
-                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isNullable: true)}";
-                yield return $"UPDATE <{Parent}> SET <{Name}> = {SqlLiteral(DefaultValue)}";
-                yield return $"ALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition()}";
+                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition()}";
             }
             else
             {

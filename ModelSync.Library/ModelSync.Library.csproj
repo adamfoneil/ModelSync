@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.2.7</Version>
+    <Version>2.2.8</Version>
     <Authors>Adam O'Neil</Authors>
     <Copyright>Copyright (c) 2020 Adam O'Neil</Copyright>
     <RepositoryUrl>https://github.com/adamfoneil/ModelSync</RepositoryUrl>
@@ -11,11 +11,11 @@
     <Description>A database schema diff library for .NET assemblies and SQL Server databases using AO.Models</Description>
     <PackageId>AO.ModelSync.Library</PackageId>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>new DataModel.FromAssembly overload accepting namespace prefix</PackageReleaseNotes>
+    <PackageReleaseNotes>better handling of column defaults</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AO.Models" Version="1.1.28" />
+    <PackageReference Include="AO.Models" Version="1.1.29" />
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
