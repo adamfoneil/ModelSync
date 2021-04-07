@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ModelSync.Library.Extensions;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ModelSync.Models
@@ -97,13 +98,33 @@ namespace ModelSync.Models
 
         private static ScriptAction[] DropTables(DataModel sourceModel, DataModel destModel)
         {
-            return destModel.Tables.Except(sourceModel.Tables).Select(tbl =>
+            var results = destModel.Tables.Except(sourceModel.Tables).Select(tbl =>
                 new ScriptAction()
                 {
                     Type = ActionType.Drop,
                     Object = tbl,
                     Commands = tbl.DropStatements(destModel)
                 }).ToArray();
+
+            var ordered = results.ToDependencyOrder(dropTable =>
+            {
+                var childTables = (dropTable.Object as Table)
+                    .GetReferencedTables(destModel)
+                    .ToArray();
+
+                var droppedTables = childTables
+                    .Where(tbl => results.Any(sa => sa.Object.Equals(tbl)))
+                    .ToArray();
+
+                return droppedTables.Select(tbl => new ScriptAction()
+                {
+                    Type = ActionType.Drop,
+                    Object = tbl,
+                    Commands = tbl.DropStatements(destModel)
+                });                   
+            });
+
+            return ordered.ToArray();
         }
 
         private static ScriptAction[] DropColumns(DataModel sourceModel, DataModel destModel, ScriptAction[] exceptDroppedTables)
@@ -138,7 +159,9 @@ namespace ModelSync.Models
             var droppedTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
             var alreadyDroppedFKs = destModel.ForeignKeys.Where(fk => droppedTables.Contains(fk.Parent));
 
-            return destModel.ForeignKeys.Except(alreadyDroppedFKs).Except(sourceModel.ForeignKeys).Select(fk => new ScriptAction()
+            var deletableFKs = destModel.ForeignKeys.Except(alreadyDroppedFKs).Except(sourceModel.ForeignKeys).ToArray();
+
+            return deletableFKs.Select(fk => new ScriptAction()
             {
                 Type = ActionType.Drop,
                 Object = fk,
