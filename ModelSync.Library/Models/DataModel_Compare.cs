@@ -108,14 +108,18 @@ namespace ModelSync.Models
 
             var ordered = results.ToDependencyOrder(dropTable =>
             {
-                var childTables = (dropTable.Object as Table)
+                // all tables I (the table being dropped) reference 
+                var parentTables = (dropTable.Object as Table)
                     .GetReferencedTables(destModel)
                     .ToArray();
 
-                var droppedTables = childTables
+                // filtered to this particular diff
+                var droppedTables = parentTables
                     .Where(tbl => results.Any(sa => sa.Object.Equals(tbl)))
                     .ToArray();
 
+                // give me the result as list of script actions because this is the T
+                // expected by ToDependencyOrder<T>
                 return droppedTables.Select(tbl => new ScriptAction()
                 {
                     Type = ActionType.Drop,
