@@ -409,7 +409,7 @@ namespace ModelSync.Services
 
                 if (!idTypes.ContainsKey(propertyInfo.PropertyType)) throw new Exception($"Property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name} uses unsupported identity type {propertyInfo.PropertyType.Name}");
 
-                column.DataType += " " + idTypes[propertyInfo.PropertyType];
+                column.TypeModifier = idTypes[propertyInfo.PropertyType];                
             }
         }
 

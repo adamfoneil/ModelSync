@@ -16,6 +16,7 @@ namespace ModelSync.Models
         public bool IsCalculated { get; set; }
         public string Expression { get; set; }
         public string DefaultValue { get; set; }
+        public string TypeModifier { get; set; }
 
         /// <summary>
         /// true when you're merging a non-nullable column into a non-empty table
@@ -37,7 +38,7 @@ namespace ModelSync.Models
             {
                 string nullable = (isNullable.Value) ? "NULL" : "NOT NULL";
                 string defaultExp = (!string.IsNullOrEmpty(DefaultValue)) ? $" DEFAULT {SqlLiteral(DefaultValue)}" : string.Empty;
-                return $"{result} {DataType} {nullable}{defaultExp}";
+                return $"{result} {DataType} {TypeModifier}{nullable}{defaultExp}";
             }
         }
 

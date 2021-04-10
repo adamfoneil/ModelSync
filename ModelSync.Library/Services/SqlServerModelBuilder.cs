@@ -41,7 +41,7 @@ namespace ModelSync.Services
 					[t].[name] NOT IN ('__MigrationHistory', '__EFMigrationsHistory')");
 
             var columns = await connection.QueryAsync<Column>(
-                @"WITH [identityColumns] AS (
+				@"WITH [identityColumns] AS (
 					SELECT [object_id], [name] FROM [sys].[columns] WHERE [is_identity]=1
 				), [source] AS (
 					SELECT
@@ -77,8 +77,7 @@ namespace ModelSync.Services
 					[ObjectId],
 					[Name],
 					CASE
-						WHEN [system_type_id]=106 THEN [DataType] + '(' + CONVERT(varchar, [Precision]) + ',' + CONVERT(varchar, [Scale]) + ')'
-						WHEN [IsIdentity]=1 THEN [DataType] + ' identity(1,1)'
+						WHEN [system_type_id]=106 THEN [DataType] + '(' + CONVERT(varchar, [Precision]) + ',' + CONVERT(varchar, [Scale]) + ')'						
 						WHEN [MaxLength]=-1 THEN [DataType] + '(max)'
 						WHEN [MaxLength] IS NULL THEN [DataType]
 						ELSE [DataType] + '(' + CONVERT(varchar, [MaxLength]) + ')'
@@ -92,7 +91,11 @@ namespace ModelSync.Services
 					CASE
 						WHEN [Expression] IS NOT NULL THEN 1
 						ELSE 0
-					END AS [IsCalculated]
+					END AS [IsCalculated],
+					CASE
+						WHEN [IsIdentity]=1 THEN ' identity(1,1)'
+						ELSE NULL
+					END AS [TypeModifier]
 				FROM
 					[source]");
 
