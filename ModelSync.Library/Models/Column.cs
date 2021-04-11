@@ -38,7 +38,7 @@ namespace ModelSync.Models
             {
                 string nullable = (isNullable.Value) ? "NULL" : "NOT NULL";
                 string defaultExp = (!string.IsNullOrEmpty(DefaultValue)) ? $" DEFAULT {SqlLiteral(DefaultValue)}" : string.Empty;
-                return $"{result} {DataType} {TypeModifier}{nullable}{defaultExp}";
+                return $"{result} {DataType} {TypeModifier} {nullable}{defaultExp}";
             }
         }
 
