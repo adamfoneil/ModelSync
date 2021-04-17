@@ -1,4 +1,5 @@
-﻿using ModelSync.Library.Extensions;
+﻿using ModelSync.Abstract;
+using ModelSync.Library.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -29,9 +30,11 @@ namespace ModelSync.Models
             results.AddRange(dropTables);
 
             // nested object drops need to exclude tables that were already dropped
-            results.AddRange(DropIndexes(sourceModel, destModel, dropTables));
+            var dropIndexes = DropIndexes(sourceModel, destModel, dropTables);
+            results.AddRange(dropIndexes);
             results.AddRange(DropForeignKeys(sourceModel, destModel, dropTables));
-            results.AddRange(DropColumns(sourceModel, destModel, dropTables));
+            // column drop should also not drop parent indexes if they've already been dropped
+            results.AddRange(DropColumns(sourceModel, destModel, dropTables, dropIndexes));
 
             return results;
         }
@@ -131,21 +134,33 @@ namespace ModelSync.Models
             return ordered.ToArray();
         }
 
-        private static ScriptAction[] DropColumns(DataModel sourceModel, DataModel destModel, ScriptAction[] exceptDroppedTables)
+        private static ScriptAction[] DropColumns(
+            DataModel sourceModel, DataModel destModel, 
+            ScriptAction[] exceptDroppedTables, ScriptAction[] exceptDroppedIndexes)
         {
             var exceptTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
 
             var sourceColumns = sourceModel.Tables.SelectMany(tbl => tbl.Columns).ToArray();
             var destColumns = destModel.Tables.Except(exceptTables).SelectMany(tbl => tbl.Columns).ToArray();
 
-            return
+            var results = 
                 destColumns.Except(sourceColumns)
-                .Select(col => new ScriptAction()
+                .Select(col =>
                 {
-                    Type = ActionType.Drop,
-                    Object = col,
-                    Commands = col.DropStatements(destModel)
+                    // don't re-drop indexes you've already dropped
+                    var commands = col.DropStatements(destModel).Except(exceptDroppedIndexes.SelectMany(scr => scr.Commands)).ToArray();
+
+                    var result = new ScriptAction()
+                    {
+                        Type = ActionType.Drop,
+                        Object = col,
+                        Commands = commands
+                    };
+
+                    return result;
                 }).ToArray();
+
+            return results;
         }
 
         private static ScriptAction[] CreateForeignKeys(DataModel sourceModel, DataModel destModel)

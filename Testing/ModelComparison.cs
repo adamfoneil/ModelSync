@@ -449,7 +449,13 @@ namespace Testing
            
             var diff = DataModel.Compare(srcModel, destModel);
 
-            var commands = diff.SelectMany(scr => scr.Commands).ToArray();            
+            var commands = diff.SelectMany(scr => scr.Commands).ToArray();
+
+            Assert.IsTrue(commands.SequenceEqual(new string[]
+            {
+                "ALTER TABLE <dbo.Plan> DROP CONSTRAINT <U_Plan_ItemNumber>",
+                "ALTER TABLE <dbo.Plan> DROP COLUMN <ItemNumber>"
+            }));
         }
 
         [TestMethod]
