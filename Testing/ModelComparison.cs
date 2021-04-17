@@ -426,6 +426,33 @@ namespace Testing
         }
 
         [TestMethod]
+        public void DropUniqueConstraintAndColumn()
+        {
+            // should drop the constraint just once, addressing WinForms issue #20
+            // https://github.com/adamfoneil/ModelSync.WinForms/issues/20
+
+            var srcTable = ModelBuilder.BuildTable("dbo.Plan", "Id", "Name", "DateAddInterval", "Price");
+            var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
+
+            var destTable = ModelBuilder.BuildTable("dbo.Plan", "Id", "Name", "DateAddInterval", "Price", "ItemNumber");
+            destTable.Indexes = new ModelSync.Models.Index[] 
+            {
+                new ModelSync.Models.Index()
+                {
+                    Parent = destTable,
+                    Name = "U_Plan_ItemNumber",
+                    Type = IndexType.UniqueConstraint,
+                    Columns = new ModelSync.Models.Index.Column[] { new ModelSync.Models.Index.Column() {  Name = "ItemNumber" } }
+                }
+            };
+            var destModel = new DataModel() { Tables = new Table[] { destTable } };
+           
+            var diff = DataModel.Compare(srcModel, destModel);
+
+            var commands = diff.SelectMany(scr => scr.Commands).ToArray();            
+        }
+
+        [TestMethod]
         public void SampleModelCompare()
         {
             using (var cn = LocalDb.GetConnection("Hs5"))
