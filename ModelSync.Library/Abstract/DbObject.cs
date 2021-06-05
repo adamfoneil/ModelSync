@@ -89,7 +89,12 @@ namespace ModelSync.Abstract
             try
             {
                 var parts = Name.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-                return (parts.Length > 1) ? parts[1] : Name;
+                return 
+                    (parts.Length > 1) ? 
+                        (parts[0].Equals("dbo") ? 
+                            parts[1] : 
+                            string.Join(string.Empty, parts)) :
+                        Name;
             }
             catch
             {
