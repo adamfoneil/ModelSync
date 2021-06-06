@@ -275,19 +275,70 @@ namespace ModelSync.Models
                 }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> AddChecks(DataModel sourceModel, DataModel destModel, ScriptAction[] createTables)
+        private static IEnumerable<ScriptAction> AddChecks(DataModel sourceModel, DataModel destModel, ScriptAction[] exceptCreatedTables)
         {
-            throw new NotImplementedException();
+            var exceptTables = exceptCreatedTables.Select(scr => scr.Object).OfType<Table>();
+
+            var srcChecks = sourceModel.Tables.Except(exceptTables).SelectMany(tbl => tbl.CheckConstraints);
+            var destChecks = destModel.Tables.SelectMany(tbl => tbl.CheckConstraints);
+
+            return srcChecks.Except(destChecks).Select(chk =>
+            {
+                return new ScriptAction()
+                {
+                    Type = ActionType.Create,
+                    Object = chk,
+                    Commands = chk.CreateStatements()
+                };
+            }).ToArray();
         }
 
         private static IEnumerable<ScriptAction> AlterChecks(DataModel sourceModel, DataModel destModel)
         {
-            throw new NotImplementedException();
+            var allChecks = from src in sourceModel.Tables.SelectMany(tbl => tbl.CheckConstraints)
+                             join dest in destModel.Tables.SelectMany(tbl => tbl.CheckConstraints) on src equals dest
+                             select new
+                             {
+                                 Source = src,
+                                 Dest = dest
+                             };
+
+            return allChecks
+                .Where(chkPair => chkPair.Source.IsAltered(chkPair.Dest, out _))
+                .Select(chkPair =>
+                {
+                    chkPair.Source.IsAltered(chkPair.Dest, out string comment);
+                    return new ScriptAction()
+                    {
+                        Type = ActionType.Alter,
+                        Object = chkPair.Source,
+                        Commands = chkPair.Source.RebuildStatements(destModel, comment)
+                    };
+                }).ToArray();
         }
 
-        private static IEnumerable<ScriptAction> DropChecks(DataModel sourceModel, DataModel destModel, ScriptAction[] dropTables)
+        private static IEnumerable<ScriptAction> DropChecks(DataModel sourceModel, DataModel destModel, ScriptAction[] exceptDroppedTables)
         {
-            throw new NotImplementedException();
+            var exceptTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
+
+            var sourceChecks = sourceModel.Tables.SelectMany(tbl => tbl.CheckConstraints).ToArray();
+            var destChecks = destModel.Tables.Except(exceptTables).SelectMany(tbl => tbl.CheckConstraints).ToArray();
+
+            var results =
+               destChecks.Except(sourceChecks)
+               .Select(chk =>
+               {
+                   var result = new ScriptAction()
+                   {
+                       Type = ActionType.Drop,
+                       Object = chk,
+                       Commands = chk.DropStatements(destModel)
+                   };
+
+                   return result;
+               }).ToArray();
+
+            return results;
         }
     }
 }
