@@ -99,6 +99,16 @@ namespace ModelSync.Services
 				FROM
 					[source]");
 
+			var checks = await connection.QueryAsync<CheckConstraint>(
+				@"SELECT
+					[ck].[object_id] AS [ObjectId],
+					[ck].[name] AS [Name],
+					[ck].[definition] AS [Expression]
+				FROM
+					[sys].[check_constraints] [ck]
+				WHERE
+					[ck].[type]='C'");
+
             var indexes = await connection.QueryAsync<Index>(
                 @"SELECT
 					[x].[object_id] AS [ObjectId],
@@ -137,6 +147,7 @@ namespace ModelSync.Services
 					[t].[type_desc]='USER_TABLE'");
 
             var columnLookup = columns.ToLookup(row => row.ObjectId);
+			var checkLookup = checks.ToLookup(row => row.ObjectId);
             var indexLookup = indexes.ToLookup(row => row.ObjectId);
             var indexColLookup = indexCols.ToLookup(row => new IndexKey() { object_id = row.object_id, index_id = row.index_id });
 
@@ -158,6 +169,9 @@ namespace ModelSync.Services
 
                 t.Indexes = indexLookup[t.ObjectId].ToArray();
                 foreach (var x in t.Indexes) x.Parent = t;
+
+				t.CheckConstraints = checkLookup[t.ObjectId].ToArray();
+				foreach (var c in t.CheckConstraints) c.Parent = t;
             }
 
             return tables;

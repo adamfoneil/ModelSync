@@ -16,17 +16,20 @@ namespace ModelSync.Models
         {
             Columns = Enumerable.Empty<Column>();
             Indexes = Enumerable.Empty<Index>();
+            CheckConstraints = Enumerable.Empty<CheckConstraint>();
         }
 
         public override ObjectType ObjectType => ObjectType.Table;
         public IEnumerable<Column> Columns { get; set; }
         public IEnumerable<Index> Indexes { get; set; }
+        public IEnumerable<CheckConstraint> CheckConstraints { get; set; }
         public long RowCount { get; set; }
 
         public override IEnumerable<string> CreateStatements()
         {
             List<string> members = new List<string>();
             members.AddRange(Columns.Select(col => col.GetDefinition()));
+            members.AddRange(CheckConstraints.Select(chk => chk.GetDefinition()));
             members.AddRange((Indexes ?? Enumerable.Empty<Index>()).Select(ndx => ndx.GetDefinition()));
 
             string createMembers = string.Join(",\r\n", members.Select(member => "\t" + member));

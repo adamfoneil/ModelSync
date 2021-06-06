@@ -12,7 +12,8 @@ namespace ModelSync.Abstract
         Table,
         Column,
         Index,
-        ForeignKey
+        ForeignKey,
+        CheckConstraint
     }
 
     public abstract class DbObject

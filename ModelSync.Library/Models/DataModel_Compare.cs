@@ -1,5 +1,6 @@
 ﻿using ModelSync.Abstract;
 using ModelSync.Library.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,9 +19,11 @@ namespace ModelSync.Models
 
             // nested object creates need to omit tables already created
             results.AddRange(AddColumns(sourceModel, destModel, createTables));
+            results.AddRange(AddChecks(sourceModel, destModel, createTables));
             results.AddRange(AddIndexes(sourceModel, destModel, createTables));
 
             results.AddRange(AlterIndexes(sourceModel, destModel));
+            results.AddRange(AlterChecks(sourceModel, destModel));
             results.AddRange(AlterColumns(sourceModel, destModel));
 
             results.AddRange(CreateForeignKeys(sourceModel, destModel));
@@ -35,6 +38,7 @@ namespace ModelSync.Models
             results.AddRange(DropForeignKeys(sourceModel, destModel, dropTables));
             // column drop should also not drop parent indexes if they've already been dropped
             results.AddRange(DropColumns(sourceModel, destModel, dropTables, dropIndexes));
+            results.AddRange(DropChecks(sourceModel, destModel, dropTables));
 
             return results;
         }
@@ -269,6 +273,21 @@ namespace ModelSync.Models
                         Commands = indexPair.Source.RebuildStatements(destModel, comment)
                     };
                 }).ToArray();
+        }
+
+        private static IEnumerable<ScriptAction> AddChecks(DataModel sourceModel, DataModel destModel, ScriptAction[] createTables)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static IEnumerable<ScriptAction> AlterChecks(DataModel sourceModel, DataModel destModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static IEnumerable<ScriptAction> DropChecks(DataModel sourceModel, DataModel destModel, ScriptAction[] dropTables)
+        {
+            throw new NotImplementedException();
         }
     }
 }
