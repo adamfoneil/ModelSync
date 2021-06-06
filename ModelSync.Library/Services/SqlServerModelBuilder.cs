@@ -101,7 +101,7 @@ namespace ModelSync.Services
 
 			var checks = await connection.QueryAsync<CheckConstraint>(
 				@"SELECT
-					[ck].[object_id] AS [ObjectId],
+					[ck].[parent_object_id] AS [ObjectId],
 					[ck].[name] AS [Name],
 					[ck].[definition] AS [Expression]
 				FROM

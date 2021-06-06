@@ -243,6 +243,20 @@ namespace ModelSync.Services
             var idProperty = FindIdentityProperty(modelType, defaultIdentityColumn);
             if (idProperty == null) throw new Exception($"No 'Id` or [Identity] property found on class {modelType.Name}");
 
+            var result = new Table()
+            {
+                Name = GetTableName(modelType, defaultSchema),
+                Columns = getColumns(modelType).ToArray(),
+                Indexes = getIndexes(modelType).ToArray(),
+                CheckConstraints = getChecks(modelType).ToArray()
+            };
+
+            foreach (var col in result.Columns) col.Parent = result;
+            foreach (var ndx in result.Indexes) ndx.Parent = result;
+            foreach (var chk in result.CheckConstraints) chk.Parent = result;
+
+            return result;
+
             IEnumerable<Index> getIndexes(Type type)
             {
                 IndexType identityType = IndexType.PrimaryKey;
@@ -321,19 +335,21 @@ namespace ModelSync.Services
                 results.AddRange(properties);
 
                 return results;
-            };
+            }
 
-            var result = new Table()
+            IEnumerable<CheckConstraint> getChecks(Type type)
             {
-                Name = GetTableName(modelType, defaultSchema),
-                Columns = getColumns(modelType).ToArray(),
-                Indexes = getIndexes(modelType).ToArray()
-            };
+                List<CheckConstraint> results = new List<CheckConstraint>();
 
-            foreach (var col in result.Columns) col.Parent = result;
-            foreach (var ndx in result.Indexes) ndx.Parent = result;
+                var checks = type.GetCustomAttributes<CheckConstraintAttribute>();
+                results.AddRange(checks.Select(attr => new CheckConstraint()
+                {
+                    Name = attr.ConstraintName,
+                    Expression = attr.Expression
+                }));
 
-            return result;
+                return results;
+            }
         }
 
         private static Column GetColumnFromProperty(PropertyInfo propertyInfo, string defaultIdentityColumn)
