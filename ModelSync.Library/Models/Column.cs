@@ -89,7 +89,15 @@ namespace ModelSync.Models
                 foreach (var obj in deps) yield return obj.DropStatement();
             }
 
-            yield return $"-- {comment}\r\nALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition()}";
+            if (!IsCalculated)
+            {
+                yield return $"-- {comment}\r\nALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition()}";
+            }
+            else
+            {
+                yield return $"-- {comment}\r\nALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
+                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(false)}";
+            }            
 
             bool partOfIndex(DataModel dataModel)
             {
@@ -131,19 +139,6 @@ namespace ModelSync.Models
 
         public override bool IsAltered(DbObject @object, out string comment)
         {
-            string prepDataType(string input)
-            {
-                return input.Replace(" ", string.Empty).ToLower();
-            };
-
-            string prepExpression(string input)
-            {
-                string result = input;
-                if (result?.StartsWith("(") ?? false) result = result.Substring(1);
-                if (result?.EndsWith(")") ?? false) result = result.Substring(0, result.Length - 1);
-                return result;
-            }
-
             var column = @object as Column;
             if (column != null)
             {
@@ -187,6 +182,16 @@ namespace ModelSync.Models
 
             comment = null;
             return false;
+
+            string prepDataType(string input) => input.Replace(" ", string.Empty).ToLower();
+
+            string prepExpression(string input)
+            {
+                string result = input;
+                if (result?.StartsWith("(") ?? false) result = result.Substring(1);
+                if (result?.EndsWith(")") ?? false) result = result.Substring(0, result.Length - 1);
+                return result;
+            }
         }
 
         public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
