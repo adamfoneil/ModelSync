@@ -41,7 +41,7 @@ namespace ModelSync.Services
 					[t].[name] NOT IN ('__MigrationHistory', '__EFMigrationsHistory')");
 
             var columns = await connection.QueryAsync<Column>(
-				@"WITH [identityColumns] AS (
+                @"WITH [identityColumns] AS (
 					SELECT [object_id], [name] FROM [sys].[columns] WHERE [is_identity]=1
 				), [source] AS (
 					SELECT
@@ -99,8 +99,8 @@ namespace ModelSync.Services
 				FROM
 					[source]");
 
-			var checks = await connection.QueryAsync<CheckConstraint>(
-				@"SELECT
+            var checks = await connection.QueryAsync<CheckConstraint>(
+                @"SELECT
 					[ck].[parent_object_id] AS [ObjectId],
 					[ck].[name] AS [Name],
 					[ck].[definition] AS [Expression]
@@ -147,7 +147,7 @@ namespace ModelSync.Services
 					[t].[type_desc]='USER_TABLE'");
 
             var columnLookup = columns.ToLookup(row => row.ObjectId);
-			var checkLookup = checks.ToLookup(row => row.ObjectId);
+            var checkLookup = checks.ToLookup(row => row.ObjectId);
             var indexLookup = indexes.ToLookup(row => row.ObjectId);
             var indexColLookup = indexCols.ToLookup(row => new IndexKey() { object_id = row.object_id, index_id = row.index_id });
 
@@ -170,8 +170,8 @@ namespace ModelSync.Services
                 t.Indexes = indexLookup[t.ObjectId].ToArray();
                 foreach (var x in t.Indexes) x.Parent = t;
 
-				t.CheckConstraints = checkLookup[t.ObjectId].ToArray();
-				foreach (var c in t.CheckConstraints) c.Parent = t;
+                t.CheckConstraints = checkLookup[t.ObjectId].ToArray();
+                foreach (var c in t.CheckConstraints) c.Parent = t;
             }
 
             return tables;
