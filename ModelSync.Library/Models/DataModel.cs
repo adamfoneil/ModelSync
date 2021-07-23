@@ -22,6 +22,10 @@ namespace ModelSync.Models
         public IEnumerable<Schema> Schemas { get; set; }
         public IEnumerable<Table> Tables { get; set; }
         public IEnumerable<ForeignKey> ForeignKeys { get; set; }
+        //public IEnumerable<View> Views { get; set; }
+        //public IEnumerable<Procedure> Procedures { get; set; }
+        //public IEnumerable<CustomType> Types { get; set; }
+        //public IEnumerable<Sequence> Sequences { get; set; }
 
         public Dictionary<Type, string> Errors { get; set; }
 
