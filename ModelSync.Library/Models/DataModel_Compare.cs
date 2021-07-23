@@ -1,5 +1,4 @@
 ﻿using ModelSync.Library.Extensions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -43,7 +42,7 @@ namespace ModelSync.Models
             results.AddRange(SyncViews(sourceModel, destModel));
             results.AddRange(SyncFunctions(sourceModel, destModel));
             results.AddRange(SyncTypes(sourceModel, destModel));
-            results.AddRange(SyncSequences(sourceModel, destModel));            
+            results.AddRange(SyncSequences(sourceModel, destModel));
 
             return results;
         }

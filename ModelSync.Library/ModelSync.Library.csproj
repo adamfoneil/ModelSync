@@ -12,6 +12,7 @@
     <PackageId>AO.ModelSync.Library</PackageId>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReleaseNotes>issue with calculated column alters</PackageReleaseNotes>
+    <RootNamespace>ModelSync</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
