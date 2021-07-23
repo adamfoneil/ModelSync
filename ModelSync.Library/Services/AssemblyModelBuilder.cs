@@ -425,17 +425,17 @@ namespace ModelSync.Services
 
                 if (!idTypes.ContainsKey(propertyInfo.PropertyType)) throw new Exception($"Property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name} uses unsupported identity type {propertyInfo.PropertyType.Name}");
 
-                column.TypeModifier = idTypes[propertyInfo.PropertyType];                
+                column.TypeModifier = idTypes[propertyInfo.PropertyType];
             }
         }
 
         private static PropertyInfo FindIdentityProperty(Type type, string defaultIdentityColumn)
-        {           
+        {
             return type.GetProperties().Where(pi => IsIdentity(pi, defaultIdentityColumn)).FirstOrDefault();
         }
 
         private static bool IsIdentity(PropertyInfo propertyInfo, string defaultIdentityColumn)
-        {            
+        {
             return
                 (propertyInfo.DeclaringType.HasAttribute(out IdentityAttribute idAttr) && idAttr.PropertyName.Equals(propertyInfo.Name)) ||
                 (propertyInfo.Name.Equals(defaultIdentityColumn) && !propertyInfo.HasAttribute<KeyAttribute>(out _));

@@ -97,7 +97,7 @@ namespace ModelSync.Models
             {
                 yield return $"-- {comment}\r\nALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
                 yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(false)}";
-            }            
+            }
 
             bool partOfIndex(DataModel dataModel)
             {

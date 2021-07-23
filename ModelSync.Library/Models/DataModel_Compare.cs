@@ -1,6 +1,4 @@
-﻿using ModelSync.Abstract;
-using ModelSync.Library.Extensions;
-using System;
+﻿using ModelSync.Library.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -132,14 +130,14 @@ namespace ModelSync.Models
                     Type = ActionType.Drop,
                     Object = tbl,
                     Commands = tbl.DropStatements(destModel)
-                });                   
+                });
             });
 
             return ordered.ToArray();
         }
 
         private static ScriptAction[] DropColumns(
-            DataModel sourceModel, DataModel destModel, 
+            DataModel sourceModel, DataModel destModel,
             ScriptAction[] exceptDroppedTables, ScriptAction[] exceptDroppedIndexes)
         {
             var exceptTables = exceptDroppedTables.Select(scr => scr.Object).OfType<Table>();
@@ -147,7 +145,7 @@ namespace ModelSync.Models
             var sourceColumns = sourceModel.Tables.SelectMany(tbl => tbl.Columns).ToArray();
             var destColumns = destModel.Tables.Except(exceptTables).SelectMany(tbl => tbl.Columns).ToArray();
 
-            var results = 
+            var results =
                 destColumns.Except(sourceColumns)
                 .Select(col =>
                 {
@@ -296,12 +294,12 @@ namespace ModelSync.Models
         private static IEnumerable<ScriptAction> AlterChecks(DataModel sourceModel, DataModel destModel)
         {
             var allChecks = from src in sourceModel.Tables.SelectMany(tbl => tbl.CheckConstraints)
-                             join dest in destModel.Tables.SelectMany(tbl => tbl.CheckConstraints) on src equals dest
-                             select new
-                             {
-                                 Source = src,
-                                 Dest = dest
-                             };
+                            join dest in destModel.Tables.SelectMany(tbl => tbl.CheckConstraints) on src equals dest
+                            select new
+                            {
+                                Source = src,
+                                Dest = dest
+                            };
 
             return allChecks
                 .Where(chkPair => chkPair.Source.IsAltered(chkPair.Dest, out _))
