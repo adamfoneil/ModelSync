@@ -37,6 +37,11 @@ namespace ModelSync.Models
                 Commands = obj.CreateStatements()
             }));
 
+            var alter = collection.Invoke(sourceModel).Join(collection.Invoke(destModel), source => source, dest => dest, (source, dest) => new
+            {
+                sourceObj = source,
+                destObj = dest
+            }).Where(pair => pair.sourceObj.IsAltered(pair.destObj, out _));
 
             return results;
         }
