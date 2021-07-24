@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ModelSync.Abstract;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ModelSync.Models
 {
@@ -8,29 +10,35 @@ namespace ModelSync.Models
     /// </summary>
     public partial class DataModel
     {
-        private static IEnumerable<ScriptAction> SyncProcs(DataModel sourceModel, DataModel destModel)
-        {
-            throw new NotImplementedException();
-        }
+        private static IEnumerable<ScriptAction> SyncProcs(DataModel sourceModel, DataModel destModel) =>
+            SyncObjects(sourceModel, destModel, (model) => model.Procedures);
 
-        private static IEnumerable<ScriptAction> SyncViews(DataModel sourceModel, DataModel destModel)
-        {
-            throw new NotImplementedException();
-        }
+        private static IEnumerable<ScriptAction> SyncViews(DataModel sourceModel, DataModel destModel) =>
+            SyncObjects(sourceModel, destModel, (model) => model.Views);
 
-        private static IEnumerable<ScriptAction> SyncFunctions(DataModel sourceModel, DataModel destModel)
-        {
-            throw new NotImplementedException();
-        }
+        private static IEnumerable<ScriptAction> SyncFunctions(DataModel sourceModel, DataModel destModel) =>
+            SyncObjects(sourceModel, destModel, (model) => model.Functions);
 
-        private static IEnumerable<ScriptAction> SyncTypes(DataModel sourceModel, DataModel destModel)
-        {
-            throw new NotImplementedException();
-        }
+        private static IEnumerable<ScriptAction> SyncTypes(DataModel sourceModel, DataModel destModel) =>
+            SyncObjects(sourceModel, destModel, (model) => model.TableTypes);
 
-        private static IEnumerable<ScriptAction> SyncSequences(DataModel sourceModel, DataModel destModel)
+        private static IEnumerable<ScriptAction> SyncSequences(DataModel sourceModel, DataModel destModel) =>
+            SyncObjects(sourceModel, destModel, (model) => model.Sequences);
+
+        private static IEnumerable<ScriptAction> SyncObjects<TObject>(DataModel sourceModel, DataModel destModel, Func<DataModel, IEnumerable<TObject>> collection) where TObject : DbObject
         {
-            throw new NotImplementedException();
+            var results = new List<ScriptAction>();
+
+            var add = collection.Invoke(sourceModel).Except(collection.Invoke(destModel));
+            results.AddRange(add.Select(obj => new ScriptAction()
+            {
+                Type = ActionType.Create,
+                Object = obj,
+                Commands = obj.CreateStatements()
+            }));
+
+
+            return results;
         }
     }
 }

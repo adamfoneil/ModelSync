@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace ModelSync.Models
 {
-    public class Sequence : DbObject
+    public class Function : DbObject
     {
-        public override ObjectType ObjectType => ObjectType.Sequence;
-
-        public int SeedValue { get; set; }
-        public int Increment { get; set; }
+        public override ObjectType ObjectType => ObjectType.Function;
 
         public override IEnumerable<string> CreateStatements()
         {
