@@ -16,9 +16,11 @@ namespace ModelSync.Abstract
         CheckConstraint,
         View,
         Procedure,
-        Function,
+        TableFunction,
+        ScalarFunction,
         Type,
-        Sequence
+        Sequence,
+        Trigger
     }
 
     public abstract class DbObject

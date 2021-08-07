@@ -1,5 +1,4 @@
 ﻿using ModelSync.Abstract;
-using ModelSync.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace ModelSync.Models
 {
-    public class View : DbObject, IDefinable
+    public class Trigger : DbObject
     {
-        public override ObjectType ObjectType => ObjectType.View;
-
-        public string Definition { get; set; }
+        public override ObjectType ObjectType => ObjectType.Trigger;
 
         public override IEnumerable<string> CreateStatements()
         {

@@ -2,6 +2,7 @@
 using ModelSync.Interfaces;
 using ModelSync.Models;
 using ModelSync.Models.Internal;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -235,6 +236,11 @@ namespace ModelSync.Services
             result.Schemas = await GetSchemasAsync(connection);
             result.Tables = await GetTablesAsync(connection);
             result.ForeignKeys = await GetForeignKeysAsync(connection, result.Tables);
+			result.Views = await GetViewsAsync(connection);
+			result.Procedures = await GetProceduresAsync(connection);
+			result.Functions = await GetFunctionsAsync(connection);
+			result.TableTypes = await GetTableTypesAsync(connection);
+			result.Sequences = await GetSequencesAsync(connection);
             return result;
         }
     }

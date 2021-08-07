@@ -25,6 +25,9 @@ namespace ModelSync.Models
         private static IEnumerable<ScriptAction> SyncSequences(DataModel sourceModel, DataModel destModel) =>
             SyncObjects(sourceModel, destModel, (model) => model.Sequences);
 
+        private static IEnumerable<ScriptAction> SyncTriggers(DataModel sourceModel, DataModel destModels) =>
+            SyncObjects(sourceModel, destModels, (model) => model.Triggers);
+
         private static IEnumerable<ScriptAction> SyncObjects<TObject>(DataModel sourceModel, DataModel destModel, Func<DataModel, IEnumerable<TObject>> collection) where TObject : DbObject
         {
             var results = new List<ScriptAction>();
