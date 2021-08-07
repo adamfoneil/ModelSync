@@ -84,7 +84,7 @@ namespace ModelSync.Models
                 Enumerable.Empty<DbObject>();
         }
 
-        public override bool IsAltered(DbObject @object, out string comment)
+        public override (bool result, string comment) IsAltered(DbObject @object)
         {
             var index = @object as Index;
             if (index != null)
@@ -93,7 +93,7 @@ namespace ModelSync.Models
                 var destCols = index.Columns.Select(col => col.Name).OrderBy(col => col).ToArray();
                 if (!sourceCols.SequenceEqual(destCols))
                 {
-                    comment = string.Empty;
+                    var comment = string.Empty;
 
                     var modified = new[]
                     {
@@ -105,12 +105,11 @@ namespace ModelSync.Models
                         .Where(cols => cols.columns.Any())
                         .Select(cols => $"{cols.text}: {string.Join(", ", cols.columns)}"));
 
-                    return true;
+                    return (true, comment);
                 }
             }
-
-            comment = null;
-            return false;
+            
+            return (false, null);
         }
 
         public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)

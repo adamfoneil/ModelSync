@@ -137,7 +137,7 @@ namespace ModelSync.Models
             return results;
         }
 
-        public override bool IsAltered(DbObject @object, out string comment)
+        public override (bool result, string comment) IsAltered(DbObject @object)
         {
             var column = @object as Column;
             if (column != null)
@@ -150,8 +150,8 @@ namespace ModelSync.Models
                     // for calculated columns, we care only about the expression diff
                     if (!thisExpr?.Equals(thatExpr) ?? false)
                     {
-                        comment = $"expression {column.Expression} -> {Expression}";
-                        return true;
+                        var comment = $"expression {column.Expression} -> {Expression}";
+                        return (true, comment);
                     }
                 }
                 else
@@ -161,27 +161,26 @@ namespace ModelSync.Models
 
                     if (!thisDataType.Equals(thatDataType))
                     {
-                        comment = $"data type {column.DataType} -> {DataType}";
-                        return true;
+                        var comment = $"data type {column.DataType} -> {DataType}";
+                        return (true, comment);
                     }
 
                     if (IsNullable != column.IsNullable)
                     {
-                        comment = $"nullable {column.IsNullable} -> {IsNullable}";
-                        return true;
+                        var comment = $"nullable {column.IsNullable} -> {IsNullable}";
+                        return (true, comment);
                     }
                 }
 
                 // changes in calc status I think would be pretty uncommon
                 if (IsCalculated != column.IsCalculated)
                 {
-                    comment = $"calculated {column.IsCalculated} -> {IsCalculated}";
-                    return true;
+                    var comment = $"calculated {column.IsCalculated} -> {IsCalculated}";
+                    return (true, comment);
                 }
             }
 
-            comment = null;
-            return false;
+            return (false, null);
 
             string prepDataType(string input) => input.Replace(" ", string.Empty).ToLower();
 

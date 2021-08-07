@@ -31,7 +31,7 @@ namespace ModelSync.Abstract
         public abstract IEnumerable<string> CreateStatements();
         public abstract string DropStatement();
         public abstract IEnumerable<DbObject> GetDropDependencies(DataModel dataModel);
-        public abstract bool IsAltered(DbObject @object, out string comment);
+        public abstract (bool result, string comment) IsAltered(DbObject @object);
         public abstract Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect);
 
         public override string ToString()
@@ -134,5 +134,7 @@ namespace ModelSync.Abstract
         }
 
         public string CreateStatement() => string.Join("\r\n", CreateStatements());
+
+        public string GetAlterComment(DbObject @object) => IsAltered(@object).comment;
     }
 }

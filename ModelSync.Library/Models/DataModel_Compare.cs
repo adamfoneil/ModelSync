@@ -51,7 +51,7 @@ namespace ModelSync.Models
         {
             var alteredKFs = from src in sourceModel.ForeignKeys
                              join dest in destModel.ForeignKeys on src equals dest
-                             where (src.IsAltered(dest, out _))
+                             where (src.IsAltered(dest).result)
                              select new
                              {
                                  @object = src,
@@ -242,10 +242,10 @@ namespace ModelSync.Models
                              };
 
             return allColumns
-                .Where(columnPair => columnPair.Source.IsAltered(columnPair.Dest, out _))
+                .Where(columnPair => columnPair.Source.IsAltered(columnPair.Dest).result)
                 .Select(columnPair =>
                 {
-                    columnPair.Source.IsAltered(columnPair.Dest, out string comment);
+                    var comment = columnPair.Source.IsAltered(columnPair.Dest).comment;
                     return new ScriptAction()
                     {
                         Type = ActionType.Alter,
@@ -266,10 +266,10 @@ namespace ModelSync.Models
                              };
 
             return allIndexes
-                .Where(indexPair => indexPair.Source.IsAltered(indexPair.Dest, out _))
+                .Where(indexPair => indexPair.Source.IsAltered(indexPair.Dest).result)
                 .Select(indexPair =>
                 {
-                    indexPair.Source.IsAltered(indexPair.Dest, out string comment);
+                    var comment = indexPair.Source.IsAltered(indexPair.Dest).comment;
                     return new ScriptAction()
                     {
                         Type = ActionType.Alter,
@@ -308,10 +308,10 @@ namespace ModelSync.Models
                             };
 
             return allChecks
-                .Where(chkPair => chkPair.Source.IsAltered(chkPair.Dest, out _))
+                .Where(chkPair => chkPair.Source.IsAltered(chkPair.Dest).result)
                 .Select(chkPair =>
                 {
-                    chkPair.Source.IsAltered(chkPair.Dest, out string comment);
+                    var comment = chkPair.Source.IsAltered(chkPair.Dest).comment;                    
                     return new ScriptAction()
                     {
                         Type = ActionType.Alter,

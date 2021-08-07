@@ -33,7 +33,7 @@ namespace ModelSync.Models
             throw new NotImplementedException();
         }
 
-        public override bool IsAltered(DbObject @object, out string comment)
+        public override (bool result, string comment) IsAltered(DbObject @object)
         {
             throw new NotImplementedException();
         }

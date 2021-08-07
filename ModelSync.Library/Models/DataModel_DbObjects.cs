@@ -30,6 +30,7 @@ namespace ModelSync.Models
             var results = new List<ScriptAction>();
 
             var add = collection.Invoke(sourceModel).Except(collection.Invoke(destModel));
+
             results.AddRange(add.Select(obj => new ScriptAction()
             {
                 Type = ActionType.Create,
@@ -41,7 +42,21 @@ namespace ModelSync.Models
             {
                 sourceObj = source,
                 destObj = dest
-            }).Where(pair => pair.sourceObj.IsAltered(pair.destObj, out _));
+            }).Where(pair => pair.sourceObj.IsAltered(pair.destObj).result);
+
+            results.AddRange(alter.Select(pair =>
+            {
+                var comment = pair.sourceObj.IsAltered(pair.destObj).comment;
+                return new ScriptAction()
+                {
+                    Type = ActionType.Alter,
+                    Object = pair.sourceObj,
+                    Commands = pair.sourceObj.RebuildStatements(destModel, comment)
+                };
+            }));
+
+
+            // todo: drops
 
             return results;
         }

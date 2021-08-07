@@ -33,16 +33,15 @@ namespace ModelSync.Models
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel) => Enumerable.Empty<DbObject>();
 
-        public override bool IsAltered(DbObject @object, out string comment)
+        public override (bool result, string comment) IsAltered(DbObject @object)
         {
             if (@object is CheckConstraint check)
             {
-                comment = $"check rule changed from {Expression} to {check.Expression}";
-                return check.Name.ToLower().Equals(Name.ToLower()) && !Expression.ToLower().Equals(check.Expression.ToLower());
+                var comment = $"check rule changed from {Expression} to {check.Expression}";
+                return (check.Name.ToLower().Equals(Name.ToLower()) && !Expression.ToLower().Equals(check.Expression.ToLower()), comment);
             }
 
-            comment = null;
-            return false;
+            return (false, null);
         }
     }
 }

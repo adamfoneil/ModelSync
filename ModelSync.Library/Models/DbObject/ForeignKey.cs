@@ -36,33 +36,26 @@ namespace ModelSync.Models
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
             return Enumerable.Empty<DbObject>();
-        }
+        }        
 
-        public string GetAlterComment(DbObject @object)
-        {
-            IsAltered(@object, out string comment);
-            return comment;
-        }
-
-        public override bool IsAltered(DbObject @object, out string comment)
+        public override (bool result, string comment) IsAltered(DbObject @object)
         {
             var fk = @object as ForeignKey;
             if (fk == null)
-            {
-                comment = null;
-                return false;
+            {                
+                return (false, null);
             }
 
             if (CascadeDelete != fk.CascadeDelete)
             {
-                comment = $"{Name} cascade delete: {fk.CascadeDelete} -> {CascadeDelete}";
-                return true;
+                var comment = $"{Name} cascade delete: {fk.CascadeDelete} -> {CascadeDelete}";
+                return (true, comment);
             }
 
             if (CascadeUpdate != fk.CascadeUpdate)
             {
-                comment = $"{Name} cascade update: {fk.CascadeUpdate} -> {CascadeUpdate}";
-                return true;
+                var comment  = $"{Name} cascade update: {fk.CascadeUpdate} -> {CascadeUpdate}";
+                return (true, comment);
             }
 
             if (!Columns.OrderBy(col => col.ReferencingName).SequenceEqual(fk.Columns.OrderBy(col => col.ReferencingName)))
@@ -76,15 +69,14 @@ namespace ModelSync.Models
                     new { text = "Removed", columns = removed }
                 };
 
-                comment = string.Join(", ", modified
+                var comment = string.Join(", ", modified
                     .Where(cols => cols.columns.Any())
                     .Select(cols => $"{cols.text}: {string.Join(", ", cols.columns)}"));
 
-                return true;
+                return (true, comment);
             }
 
-            comment = null;
-            return false;
+            return (false, null);
         }
 
         public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
