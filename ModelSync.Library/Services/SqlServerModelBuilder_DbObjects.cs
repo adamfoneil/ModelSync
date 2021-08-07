@@ -4,6 +4,7 @@ using ModelSync.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ModelSync.Services
@@ -11,7 +12,7 @@ namespace ModelSync.Services
     public partial class SqlServerModelBuilder : IConnectionModelBuilder
     {
         private static async Task<IEnumerable<View>> GetViewsAsync(IDbConnection connection) =>
-            await GetObjectsAsync<View>(connection,
+            await connection.QueryAsync<View>(
                 @"SELECT
                     SCHEMA_NAME([v].[schema_id]) + '.' + [v].[name] AS [Name],                    
                     [v].[object_id] AS [ObjectId],
@@ -21,9 +22,9 @@ namespace ModelSync.Services
                     INNER JOIN [sys].[sql_modules] [m] ON [v].[object_id]=[m].[object_id]");
 
         private static async Task<IEnumerable<Procedure>> GetProceduresAsync(IDbConnection connection) =>
-            await GetObjectsAsync<Procedure>(connection,
+            await connection.QueryAsync<Procedure>(
                 @"SELECT
-                    SCHEMA_NAME([p].[schema_id]) '.' + [p].[name] AS [Name],
+                    SCHEMA_NAME([p].[schema_id]) + '.' + [p].[name] AS [Name],
                     [p].[object_id] AS [ObjectId],
                     [m].[definition] AS [Definition]
                 FROM 
@@ -31,8 +32,8 @@ namespace ModelSync.Services
                     INNER JOIN [sys].[sql_modules] [m] ON [p].[object_id]=[m].[object_id]");
 
         // help from https://stackoverflow.com/a/468780/2023653
-        private static async Task<IEnumerable<TableFunction>> GetFunctionsAsync(IDbConnection connection) =>
-            await GetObjectsAsync<TableFunction>(connection,
+        private static async Task<IEnumerable<TableFunction>> GetTableFunctionsAsync(IDbConnection connection) =>
+            await connection.QueryAsync<TableFunction>(
                 @"SELECT
                     SCHEMA_NAME([o].[schema_id]) + '.' + [o].[name] AS [Name],                    
                     [o].[object_id] AS [ObjectId],
@@ -43,18 +44,29 @@ namespace ModelSync.Services
                 WHERE
                     [o].[type]='TF'");
         
-
-        private static Task<IEnumerable<TableType>> GetTableTypesAsync(IDbConnection connection)
+        private static async Task<IEnumerable<TableType>> GetTableTypesAsync(IDbConnection connection)
         {
-            throw new NotImplementedException();
+            var types = await connection.QueryAsync<TableType>(
+                @"SELECT 
+                    [t].[name] + '.' + SCHEMA_NAME([t].[schema_id]) AS [Name],
+                    [t].[type_table_object_id] AS [ObjectId]
+                FROM 
+                    [sys].[table_types] [t]
+                WHERE
+                    [t].[is_table_type]=1");
+
+            var objectIds = types.Select(row => row.ObjectId).ToArray();
+
+            var columns = (await connection.QueryAsync<Column>(GetColumnsQuery(tableTypes: true), new { objectIds })).ToLookup(row => row.ObjectId);
+
+            foreach (var t in types) t.Columns = columns[t.ObjectId];
+
+            return types;
         }
 
         private static Task<IEnumerable<Sequence>> GetSequencesAsync(IDbConnection connection)
         {
             throw new NotImplementedException();
         }
-
-        private static async Task<IEnumerable<T>> GetObjectsAsync<T>(IDbConnection connection, string query) where T : IDefinable => 
-            await connection.QueryAsync<T>(query);        
     }
 }

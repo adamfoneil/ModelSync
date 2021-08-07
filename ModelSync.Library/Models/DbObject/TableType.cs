@@ -8,7 +8,9 @@ namespace ModelSync.Models
 {
     public class TableType : DbObject
     {
-        public override ObjectType ObjectType => ObjectType.Type;
+        public override ObjectType ObjectType => ObjectType.TableType;
+
+        public IEnumerable<Column> Columns { get; set; }
 
         public override IEnumerable<string> CreateStatements()
         {

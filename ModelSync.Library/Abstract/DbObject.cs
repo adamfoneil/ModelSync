@@ -18,7 +18,7 @@ namespace ModelSync.Abstract
         Procedure,
         TableFunction,
         ScalarFunction,
-        Type,
+        TableType,
         Sequence,
         Trigger
     }

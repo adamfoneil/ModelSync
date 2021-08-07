@@ -12,6 +12,65 @@ namespace ModelSync.Services
 {
     public partial class SqlServerModelBuilder : IConnectionModelBuilder
     {
+		private static string GetColumnsQuery(bool tableTypes = false) =>
+			$@"WITH [identityColumns] AS (
+				SELECT [object_id], [name] FROM [sys].[columns] WHERE [is_identity]=1
+			), [source] AS (
+				SELECT
+					[col].[object_id] AS [ObjectId],
+					[col].[name] AS [Name],
+					TYPE_NAME([col].[system_type_id]) AS [DataType],
+					[col].[is_nullable] AS [IsNullable],
+					[def].[definition]  AS [DefaultValue],
+					[col].[collation_name] AS [Collation],
+					CASE
+						WHEN TYPE_NAME([col].[system_type_id]) LIKE 'nvar%' AND [col].[max_length]>0 THEN ([col].[max_length]/2)
+						WHEN TYPE_NAME([col].[system_type_id]) LIKE 'nvar%' AND [col].[max_length]=-1 THEN -1
+						ELSE NULL
+					END AS [MaxLength],
+					[col].[precision] AS [Precision],
+					[col].[scale] AS [Scale],
+					[col].[column_id] AS [InternalId],
+					[calc].[definition] AS [Expression],
+					CASE
+						WHEN [ic].[name] IS NOT NULL THEN 1
+						ELSE 0
+					END AS [IsIdentity],
+					[col].[system_type_id]
+				FROM
+					[sys].[columns] [col]
+					{((!tableTypes) ? "INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]" : "")}
+					LEFT JOIN [sys].[default_constraints] [def] ON [col].[default_object_id]=[def].[object_id]
+					LEFT JOIN [sys].[computed_columns] [calc] ON [col].[object_id]=[calc].[object_id] AND [col].[column_id]=[calc].[column_id]
+					LEFT JOIN [identityColumns] [ic] ON [ic].[object_id]=[col].[object_id] AND [ic].[name]=[col].[name]
+				WHERE
+					{((tableTypes) ? "[col].[object_id] IN @objectIds" : "[t].[type_desc]='USER_TABLE'")}
+			) SELECT
+				[ObjectId],
+				[Name],
+				CASE
+					WHEN [system_type_id]=106 THEN [DataType] + '(' + CONVERT(varchar, [Precision]) + ',' + CONVERT(varchar, [Scale]) + ')'						
+					WHEN [MaxLength]=-1 THEN [DataType] + '(max)'
+					WHEN [MaxLength] IS NULL THEN [DataType]
+					ELSE [DataType] + '(' + CONVERT(varchar, [MaxLength]) + ')'
+				END AS [DataType],
+				[IsNullable],
+				[DefaultValue],
+				[Collation],
+				[Precision],
+				[InternalId],
+				[Expression],
+				CASE
+					WHEN [Expression] IS NOT NULL THEN 1
+					ELSE 0
+				END AS [IsCalculated],
+				CASE
+					WHEN [IsIdentity]=1 THEN ' identity(1,1)'
+					ELSE NULL
+				END AS [TypeModifier]
+			FROM
+				[source]";       
+
         protected static async Task<IEnumerable<Schema>> GetSchemasAsync(IDbConnection connection)
         {
             var schemas = await connection.QueryAsync<string>(
@@ -41,64 +100,7 @@ namespace ModelSync.Services
 				WHERE					
 					[t].[name] NOT IN ('__MigrationHistory', '__EFMigrationsHistory')");
 
-            var columns = await connection.QueryAsync<Column>(
-                @"WITH [identityColumns] AS (
-					SELECT [object_id], [name] FROM [sys].[columns] WHERE [is_identity]=1
-				), [source] AS (
-					SELECT
-						[col].[object_id] AS [ObjectId],
-						[col].[name] AS [Name],
-						TYPE_NAME([col].[system_type_id]) AS [DataType],
-						[col].[is_nullable] AS [IsNullable],
-						[def].[definition]  AS [DefaultValue],
-						[col].[collation_name] AS [Collation],
-						CASE
-							WHEN TYPE_NAME([col].[system_type_id]) LIKE 'nvar%' AND [col].[max_length]>0 THEN ([col].[max_length]/2)
-							WHEN TYPE_NAME([col].[system_type_id]) LIKE 'nvar%' AND [col].[max_length]=-1 THEN -1
-							ELSE NULL
-						END AS [MaxLength],
-						[col].[precision] AS [Precision],
-						[col].[scale] AS [Scale],
-						[col].[column_id] AS [InternalId],
-						[calc].[definition] AS [Expression],
-						CASE
-							WHEN [ic].[name] IS NOT NULL THEN 1
-							ELSE 0
-						END AS [IsIdentity],
-						[col].[system_type_id]
-					FROM
-						[sys].[columns] [col]
-						INNER JOIN [sys].[tables] [t] ON [col].[object_id]=[t].[object_id]
-						LEFT JOIN [sys].[default_constraints] [def] ON [col].[default_object_id]=[def].[object_id]
-						LEFT JOIN [sys].[computed_columns] [calc] ON [col].[object_id]=[calc].[object_id] AND [col].[column_id]=[calc].[column_id]
-						LEFT JOIN [identityColumns] [ic] ON [ic].[object_id]=[col].[object_id] AND [ic].[name]=[col].[name]
-					WHERE
-						[t].[type_desc]='USER_TABLE'
-				) SELECT
-					[ObjectId],
-					[Name],
-					CASE
-						WHEN [system_type_id]=106 THEN [DataType] + '(' + CONVERT(varchar, [Precision]) + ',' + CONVERT(varchar, [Scale]) + ')'						
-						WHEN [MaxLength]=-1 THEN [DataType] + '(max)'
-						WHEN [MaxLength] IS NULL THEN [DataType]
-						ELSE [DataType] + '(' + CONVERT(varchar, [MaxLength]) + ')'
-					END AS [DataType],
-					[IsNullable],
-					[DefaultValue],
-					[Collation],
-					[Precision],
-					[InternalId],
-					[Expression],
-					CASE
-						WHEN [Expression] IS NOT NULL THEN 1
-						ELSE 0
-					END AS [IsCalculated],
-					CASE
-						WHEN [IsIdentity]=1 THEN ' identity(1,1)'
-						ELSE NULL
-					END AS [TypeModifier]
-				FROM
-					[source]");
+            var columns = await connection.QueryAsync<Column>(GetColumnsQuery(tableTypes: false));
 
             var checks = await connection.QueryAsync<CheckConstraint>(
                 @"SELECT
@@ -238,7 +240,7 @@ namespace ModelSync.Services
             result.ForeignKeys = await GetForeignKeysAsync(connection, result.Tables);
 			result.Views = await GetViewsAsync(connection);
 			result.Procedures = await GetProceduresAsync(connection);
-			result.Functions = await GetFunctionsAsync(connection);
+			result.Functions = await GetTableFunctionsAsync(connection);
 			result.TableTypes = await GetTableTypesAsync(connection);
 			result.Sequences = await GetSequencesAsync(connection);
             return result;
