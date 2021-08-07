@@ -25,7 +25,7 @@ namespace ModelSync.Models
 
         public override ObjectType ObjectType => ObjectType.Column;
 
-        public string GetDefinition(bool? isNullable = null)
+        public string GetDefinition(bool isCreating = true, bool? isNullable = null)
         {
             if (!isNullable.HasValue) isNullable = IsNullable;
 
@@ -36,9 +36,10 @@ namespace ModelSync.Models
             }
             else
             {
-                string nullable = (isNullable.Value) ? "NULL" : "NOT NULL";
+                string nullable = (isNullable.Value) ? " NULL" : " NOT NULL";
                 string defaultExp = (!string.IsNullOrEmpty(DefaultValue)) ? $" DEFAULT {SqlLiteral(DefaultValue)}" : string.Empty;
-                return $"{result} {DataType} {TypeModifier} {nullable}{defaultExp}";
+                string modifier = (isCreating) ? $" {TypeModifier} " : string.Empty;
+                return $"{result} {DataType}{modifier}{nullable}{defaultExp}";
             }
         }
 
@@ -46,7 +47,7 @@ namespace ModelSync.Models
         {
             if (DefaultValueRequired && !string.IsNullOrEmpty(DefaultValue))
             {
-                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition()}";
+                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isCreating: false)}";
             }
             else
             {
@@ -54,7 +55,7 @@ namespace ModelSync.Models
                 {
                     yield return "-- adding non-nullable column to table with rows requires a default";
                 }
-                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition()}";
+                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isCreating: false)}";
             }
         }
 
@@ -91,13 +92,13 @@ namespace ModelSync.Models
 
             if (!IsCalculated)
             {
-                yield return $"-- {comment}\r\nALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition()}";
+                yield return $"-- {comment}\r\nALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition(isCreating: false)}";
             }
             else
             {
                 yield return $"-- {comment}\r\nALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
-                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(false)}";
-            }
+                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isNullable: false)}";
+            }            
 
             bool partOfIndex(DataModel dataModel)
             {
@@ -137,10 +138,9 @@ namespace ModelSync.Models
             return results;
         }
 
-        public override (bool result, string comment) IsAltered(DbObject @object)
-        {
-            var column = @object as Column;
-            if (column != null)
+        public override bool IsAltered(DbObject @object, out string comment)
+        {            
+            if (@object is Column column)
             {
                 if (IsCalculated && column.IsCalculated)
                 {
