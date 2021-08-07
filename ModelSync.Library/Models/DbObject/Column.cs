@@ -138,7 +138,7 @@ namespace ModelSync.Models
             return results;
         }
 
-        public override bool IsAltered(DbObject @object, out string comment)
+        public override (bool result, string comment) IsAltered(DbObject @object)
         {            
             if (@object is Column column)
             {
