@@ -1,8 +1,11 @@
 ﻿using ModelSync.Abstract;
+using ModelSync.Extensions;
 using ModelSync.Interfaces;
+using ModelSync.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ModelSync.Models
@@ -15,27 +18,34 @@ namespace ModelSync.Models
 
         public override IEnumerable<string> CreateStatements()
         {
-            throw new NotImplementedException();
+            yield return Definition;
         }
 
-        public override string DropStatement()
+        public override string DropStatement() => $"DROP VIEW <{Name}>";
+        
+        public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
         {
-            throw new NotImplementedException();
+            var sqlServer = dialect as SqlServerDialect;
+            if (sqlServer != null)
+            {
+                return await connection.RowExistsAsync(
+                    "[sys].[views] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name",
+                    new { schema = GetSchema("dbo"), name = GetBaseName() });
+            }
+
+            throw new NotImplementedException();                
         }
 
-        public override Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
-        {
-            throw new NotImplementedException();
-        }
-
+        public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel) => Enumerable.Empty<DbObject>();
+        
         public override (bool result, string comment) IsAltered(DbObject @object)
         {
-            throw new NotImplementedException();
+            if (@object is View view)
+            {
+                return (!view.Definition.Equals(Definition), null);
+            }
+
+            return (false, null);
         }
     }
 }
