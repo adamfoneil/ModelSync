@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using ModelSync.Interfaces;
 using ModelSync.Models;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -48,7 +47,7 @@ namespace ModelSync.Services
         {
             var types = await connection.QueryAsync<TableType>(
                 @"SELECT 
-                    [t].[name] + '.' + SCHEMA_NAME([t].[schema_id]) AS [Name],
+                    SCHEMA_NAME([t].[schema_id]) + '.' + [t].[name] AS [Name],
                     [t].[type_table_object_id] AS [ObjectId]
                 FROM 
                     [sys].[table_types] [t]
@@ -64,9 +63,14 @@ namespace ModelSync.Services
             return types;
         }
 
-        private static Task<IEnumerable<Sequence>> GetSequencesAsync(IDbConnection connection)
-        {
-            throw new NotImplementedException();
-        }
+        private static async Task<IEnumerable<Sequence>> GetSequencesAsync(IDbConnection connection) =>
+            await connection.QueryAsync<Sequence>(
+                @"SELECT 
+                    SCHEMA_NAME([seq].[schema_id]) + '.' + [seq].[name] AS [Name],
+                    [object_id] AS [ObjectId],
+                    [start_value] AS [SeedValue],
+                    [increment] AS [Increment]
+                FROM 
+                    [sys].[sequences] [seq]");
     }
 }
