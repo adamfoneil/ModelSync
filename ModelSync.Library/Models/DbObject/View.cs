@@ -25,8 +25,7 @@ namespace ModelSync.Models
         
         public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
         {
-            var sqlServer = dialect as SqlServerDialect;
-            if (sqlServer != null)
+            if (dialect is SqlServerDialect);            
             {
                 return await connection.RowExistsAsync(
                     "[sys].[views] WHERE SCHEMA_NAME([schema_id])=@schema AND [name]=@name",
