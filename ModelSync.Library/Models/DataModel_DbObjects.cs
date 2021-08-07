@@ -46,7 +46,7 @@ namespace ModelSync.Models
 
             results.AddRange(alter.Select(pair =>
             {
-                var comment = pair.sourceObj.IsAltered(pair.destObj).comment;
+                var comment = pair.sourceObj.GetAlterComment(pair.destObj);
                 return new ScriptAction()
                 {
                     Type = ActionType.Alter,
@@ -55,8 +55,14 @@ namespace ModelSync.Models
                 };
             }));
 
+            var drop = collection.Invoke(destModel).Except(collection.Invoke(sourceModel));
 
-            // todo: drops
+            results.AddRange(drop.Select(obj => new ScriptAction()
+            {
+                Type = ActionType.Drop,
+                Object = obj,
+                Commands = obj.DropStatements(destModel)
+            }));
 
             return results;
         }
