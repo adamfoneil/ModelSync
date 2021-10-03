@@ -58,6 +58,12 @@ namespace ModelSync.Models
                 return (true, comment);
             }
 
+            if (!ReferencedTable.Equals(fk.ReferencedTable))
+            {
+                var comment = $"{ReferencedTable} changed to {fk.ReferencedTable}";
+                return (true, comment);
+            }
+
             if (!Columns.OrderBy(col => col.ReferencingName).SequenceEqual(fk.Columns.OrderBy(col => col.ReferencingName)))
             {
                 var added = Columns.Except(fk.Columns).Select(col => col.ReferencingName);
