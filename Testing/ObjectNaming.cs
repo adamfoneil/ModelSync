@@ -17,11 +17,13 @@ namespace Testing
             {
                 typeof(Employee),
                 typeof(LogTable),
-                typeof(UserProfile)
+                typeof(UserProfile), // "simpler" table
+                typeof(UserProfile2)
             }, "dbo", "Id");
 
             Assert.IsTrue(dataModel.Tables.Contains(new Table() { Name = "dbo.Employee" }));
             Assert.IsTrue(dataModel.Tables.Contains(new Table() { Name = "log.LogTable" }));
+            Assert.IsTrue(dataModel.Tables.Contains(new Table() { Name = "dbo.AspNetUsers-simpler" }));
             Assert.IsTrue(dataModel.Tables.Contains(new Table() { Name = "dbo.AspNetUsers" }));
         }
     }

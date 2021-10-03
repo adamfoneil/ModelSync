@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Testing.Models
 {
-    [Table("AspNetUsers")]
+    [Table("AspNetUsers-simpler")]
     [Identity(nameof(UserId))]
     public class UserProfile
     {
