@@ -4,6 +4,7 @@ using ModelSync.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,6 +18,7 @@ namespace ModelSync.Models
         public string Expression { get; set; }
         public string DefaultValue { get; set; }
         public string TypeModifier { get; set; }
+        public string DefaultConstraint { get; set; }
 
         /// <summary>
         /// true when you're merging a non-nullable column into a non-empty table
@@ -83,7 +85,12 @@ namespace ModelSync.Models
         }
 
         public IEnumerable<string> AlterStatements(string comment, DataModel destModel)
-        {
+        {        
+            if (!string.IsNullOrEmpty(DefaultConstraint))
+            {                
+                yield return $"ALTER TABLE <{Parent}> DROP CONSTRAINT <{DefaultConstraint}>";
+            }
+
             if (partOfIndex(destModel))
             {
                 var deps = GetDropDependencies(destModel).ToArray();
@@ -98,7 +105,7 @@ namespace ModelSync.Models
             {
                 yield return $"-- {comment}\r\nALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
                 yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isNullable: false)}";
-            }            
+            }   
 
             bool partOfIndex(DataModel dataModel)
             {
@@ -121,7 +128,7 @@ namespace ModelSync.Models
 
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
-            HashSet<Index> results = new HashSet<Index>();
+            HashSet<DbObject> results = new HashSet<DbObject>();
 
             var table = Parent as Table;
             if (table != null)
@@ -133,6 +140,11 @@ namespace ModelSync.Models
                     var destTable = dataModel.TableDictionary[table.Name];
                     foreach (var ndx in GetIndexes(destTable)) results.Add(ndx);
                 }
+            }
+
+            if (!string.IsNullOrEmpty(DefaultConstraint))
+            {
+                Debugger.Break();
             }
 
             return results;

@@ -69,5 +69,47 @@ namespace ModelSync.Models
                 .SelectMany(scriptAction => scriptAction.Commands)
                 .Select(statement => dialect.FormatStatement(statement));
         }
+
+        public static void CopyDatabaseSpecificObjects(DataModel fromModel, DataModel toModel)
+        {
+            // copy default constraints from one model to another (for #26)
+
+            var defaults = 
+                fromModel.Tables
+                .SelectMany(t => t.Columns, (t, col) => new
+                {
+                    Table = t,
+                    Column = col,
+                    Key = $"{t}.{col.Name}",
+                    Constraint = col.DefaultConstraint,
+                    DefaultValue = col.DefaultValue
+                })
+                .Where(tableCol => !string.IsNullOrEmpty(tableCol.Column.DefaultConstraint))
+                .ToArray();
+
+            var matching =
+                toModel.Tables
+                .SelectMany(t => t.Columns, (t, col) => new
+                {
+                    Table = t,
+                    Column = col,
+                    Key = $"{t}.{col.Name}"
+                }).Join(defaults, outer => outer.Key, inner => inner.Key, (outer, inner) => new
+                {
+                    inner.Constraint,
+                    inner.DefaultValue,
+                    outer.Table,
+                    outer.Column
+                })
+                .ToArray();
+
+            foreach (var col in matching)
+            {
+                var toCol = toModel.TableDictionary[col.Table.Name].ColumnDictionary[col.Column.Name];
+                toCol.DefaultConstraint = col.Constraint;
+                toCol.DefaultValue = col.DefaultValue;
+            }
+            //col.Column.DefaultConstraint = col.Constraint;
+        }
     }
 }

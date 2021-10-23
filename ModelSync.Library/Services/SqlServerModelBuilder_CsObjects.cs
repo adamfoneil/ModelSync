@@ -22,6 +22,7 @@ namespace ModelSync.Services
 					TYPE_NAME([col].[system_type_id]) AS [DataType],
 					[col].[is_nullable] AS [IsNullable],
 					[def].[definition]  AS [DefaultValue],
+					[def].[name] AS [DefaultConstraint],
 					[col].[collation_name] AS [Collation],
 					CASE
 						WHEN TYPE_NAME([col].[system_type_id]) LIKE 'nvar%' AND [col].[max_length]>0 THEN ([col].[max_length]/2)
@@ -60,6 +61,7 @@ namespace ModelSync.Services
 				[Precision],
 				[InternalId],
 				[Expression],
+				[DefaultConstraint],
 				CASE
 					WHEN [Expression] IS NOT NULL THEN 1
 					ELSE 0
