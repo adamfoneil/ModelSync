@@ -38,11 +38,14 @@ namespace ModelSync.Models
             results.AddRange(DropColumns(sourceModel, destModel, dropTables, dropIndexes));
             results.AddRange(DropChecks(sourceModel, destModel, dropTables));
 
+            /*
+             * because WinForms #127
             results.AddRange(SyncProcs(sourceModel, destModel));
             results.AddRange(SyncViews(sourceModel, destModel));
             results.AddRange(SyncFunctions(sourceModel, destModel));
             results.AddRange(SyncTypes(sourceModel, destModel));
             results.AddRange(SyncSequences(sourceModel, destModel));
+            */
 
             return results;
         }
