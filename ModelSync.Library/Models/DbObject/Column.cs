@@ -17,7 +17,7 @@ namespace ModelSync.Models
         public bool IsCalculated { get; set; }
         public string Expression { get; set; }
         public string DefaultValue { get; set; }
-        public string TypeModifier { get; set; }
+        public string TypeModifier { get; set; } // either identity(1,1) or default NewId()
         public string DefaultConstraint { get; set; }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace ModelSync.Models
 
         public override ObjectType ObjectType => ObjectType.Column;
 
-        public string GetDefinition(bool isCreating = true, bool? isNullable = null)
+        public string GetDefinition(bool creatingTable = true, bool? isNullable = null)
         {
             if (!isNullable.HasValue) isNullable = IsNullable;
 
@@ -40,25 +40,28 @@ namespace ModelSync.Models
             {
                 string nullable = (isNullable.Value) ? " NULL" : " NOT NULL";
                 string defaultExp = (!string.IsNullOrEmpty(DefaultValue)) ? $" DEFAULT {SqlLiteral(DefaultValue)}" : string.Empty;
-                string modifier = (isCreating) ? $" {TypeModifier} " : string.Empty;
+                string modifier = (creatingTable) ? $" {TypeModifier} " : string.Empty;
                 return $"{result} {DataType}{modifier}{nullable}{defaultExp}";
             }
         }
 
         public override IEnumerable<string> CreateStatements()
         {
-            if (DefaultValueRequired && !string.IsNullOrEmpty(DefaultValue))
+            // if table is empty or (it's not empty and a default is provided)
+            if (!DefaultValueRequired || (DefaultValueRequired && !string.IsNullOrEmpty(DefaultValue)))
             {
-                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isCreating: false)}";
+                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(creatingTable: false)}";
+                yield break;
             }
-            else
-            {
-                if (DefaultValueRequired && string.IsNullOrEmpty(DefaultValue))
-                {
-                    yield return "-- adding non-nullable column to table with rows requires a default";
-                }
-                yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isCreating: false)}";
-            }
+
+            // first, add column allowing nulls
+            yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(creatingTable: false, isNullable: true)}";
+
+            // user must fill in an appropriate update statement
+            yield return $"UPDATE <{Parent}> SET <{Name}> = /* default value */";
+
+            // set intended non-nullable property
+            yield return $"ALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition(creatingTable: false)}";
         }
 
         private string SqlLiteral(string input)
@@ -99,7 +102,7 @@ namespace ModelSync.Models
 
             if (!IsCalculated)
             {
-                yield return $"-- {comment}\r\nALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition(isCreating: false)}";
+                yield return $"-- {comment}\r\nALTER TABLE <{Parent}> ALTER COLUMN {GetDefinition(creatingTable: false)}";
             }
             else
             {
@@ -119,10 +122,7 @@ namespace ModelSync.Models
             }
         }
 
-        public override string DropStatement()
-        {
-            return $"ALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
-        }
+        public override string DropStatement() => $"ALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
 
         private IEnumerable<Index> GetIndexes(Table table) => table.Indexes.Where(ndx => ndx.Columns.Any(col => col.Name.Equals(Name)));
 
@@ -220,9 +220,6 @@ namespace ModelSync.Models
             throw new NotImplementedException();
         }
 
-        public override string ToString()
-        {
-            return $"{Parent}.{Name}";
-        }
+        public override string ToString() => $"{Parent}.{Name}";
     }
 }
