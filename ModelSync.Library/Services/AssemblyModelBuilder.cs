@@ -66,7 +66,9 @@ namespace ModelSync.Services
                 { typeof(decimal), "decimal" },
                 { typeof(bool), "bit" },
                 { typeof(TimeSpan), "time" },
-                { typeof(Guid), "uniqueidentifier" }
+                { typeof(Guid), "uniqueidentifier" },
+                { typeof(double), "float" },
+                { typeof(Single), "float" }
             };
 
             // help from https://stackoverflow.com/a/23402195/2023653

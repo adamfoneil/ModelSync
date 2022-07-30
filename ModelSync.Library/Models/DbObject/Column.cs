@@ -142,11 +142,6 @@ namespace ModelSync.Models
                 }
             }
 
-            if (!string.IsNullOrEmpty(DefaultConstraint))
-            {
-                Debugger.Break();
-            }
-
             return results;
         }
 
