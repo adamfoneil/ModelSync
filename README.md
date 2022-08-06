@@ -2,7 +2,7 @@
 
 This is a library for generating and executing SQL diff merge scripts. There are two use cases:
 
-- Generate diff script by comparing an assembly or database with another database using [DataModel.Compare](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Compare.cs#L8). This functionality powers my [ModelSync](https://aosoftware.net/modelsync/) app.
+- Generate diff script by comparing an assembly or database with another database using [DataModel.Compare](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Compare.cs#L8). This functionality powers my [ModelSync](https://aosoftware.net/modelsync/) app, which is itself open source: [ModelSync.WinForms](https://github.com/adamfoneil/ModelSync.WinForms).
 
 - Create empty tables from C# model classes with [DataModel.CreateTablesAsync](https://github.com/adamosoftware/ModelSync/blob/master/ModelSync.Library/Models/DataModel_Create.cs#L39). 
 
