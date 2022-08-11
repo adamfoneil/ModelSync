@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ModelSync.Library\Abstract\DbObject.cs" Link="Abstract\DbObject.cs" />
+    <Compile Include="..\ModelSync.Library\Abstract\SqlDialect.cs" Link="Abstract\SqlDialect.cs" />
+    <Compile Include="..\ModelSync.Library\Extensions\AttributeExtensions.cs" Link="Extensions\AttributeExtensions.cs" />
+    <Compile Include="..\ModelSync.Library\Extensions\ConnectionExtensions.cs" Link="Extensions\ConnectionExtensions.cs" />
+    <Compile Include="..\ModelSync.Library\Extensions\DataModelHelpers.cs" Link="Extensions\DataModelHelpers.cs" />
+    <Compile Include="..\ModelSync.Library\Extensions\DataModelHelper_Export.cs" Link="Extensions\DataModelHelper_Export.cs" />
+    <Compile Include="..\ModelSync.Library\Extensions\OrderHelper.cs" Link="Extensions\OrderHelper.cs" />
+    <Compile Include="..\ModelSync.Library\Extensions\TypeExtensions.cs" Link="Extensions\TypeExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Abstract\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
+</Project>
