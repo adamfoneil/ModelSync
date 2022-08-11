@@ -39,7 +39,7 @@ namespace ModelSync.Models
             results.AddRange(DropChecks(sourceModel, destModel, dropTables));
 
             /*
-             * because WinForms #127
+             * because WinForms #27
             results.AddRange(SyncProcs(sourceModel, destModel));
             results.AddRange(SyncViews(sourceModel, destModel));
             results.AddRange(SyncFunctions(sourceModel, destModel));
