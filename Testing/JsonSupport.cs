@@ -16,7 +16,7 @@ namespace Testing
         [TestMethod]
         public void WriteJson()
         {
-            var model = AssemblyModelBuilder.GetDataModelFromTypes(new Type[]
+            var model = AOModelBuilder.GetDataModelFromTypes(new Type[]
             {
                 typeof(Employee), typeof(ActionItem2)
             }, "dbo", "Id");

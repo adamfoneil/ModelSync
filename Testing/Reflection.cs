@@ -11,7 +11,7 @@ namespace Testing
         public void LoadSampleModel()
         {
             var asm = Assembly.LoadFile(@"C:\Users\Adam\Source\Repos\ModelSync.WinForms\SampleModel\bin\Debug\netstandard2.0\SampleModel.dll");
-            var model = new AssemblyModelBuilder().GetDataModel(asm);
+            var model = new AOModelBuilder().GetDataModel(asm);
         }
     }
 }

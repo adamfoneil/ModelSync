@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace ModelSync.Interfaces
 {
-    public interface IAssemblyModelBuilder
+    public interface IAssemblySource
     {
         DataModel GetDataModel(Assembly assembly, string defaultSchema, string defaultIdentityColumn);
         DataModel GetDataModel(IEnumerable<Type> types, string defaultSchema, string defaultIdentityColumn);

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ModelSync.Services
 {
-    public partial class SqlServerModelBuilder : IConnectionModelBuilder
+    public partial class SqlServerModelBuilder : IConnectionSource
     {
         protected static async Task<IEnumerable<Schema>> GetSchemasAsync(IDbConnection connection)
         {

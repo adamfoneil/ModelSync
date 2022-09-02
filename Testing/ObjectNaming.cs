@@ -13,7 +13,7 @@ namespace Testing
         [TestMethod]
         public void VerifyTableNaming()
         {
-            var dataModel = AssemblyModelBuilder.GetDataModelFromTypes(new Type[]
+            var dataModel = AOModelBuilder.GetDataModelFromTypes(new Type[]
             {
                 typeof(Employee),
                 typeof(LogTable),

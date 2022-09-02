@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace ModelSync.Interfaces
 {
-    public interface IConnectionModelBuilder
+    public interface IConnectionSource
     {
         Task<DataModel> GetDataModelAsync(IDbConnection connection);
     }

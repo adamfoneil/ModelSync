@@ -464,7 +464,7 @@ namespace Testing
             using (var cn = LocalDb.GetConnection("Hs5"))
             {
                 var asm = Assembly.LoadFile(@"C:\Users\Adam\Source\Repos\ModelSync.WinForms\SampleModel\bin\Debug\netstandard2.0\SampleModel.dll");
-                var srcModel = new AssemblyModelBuilder().GetDataModel(asm);
+                var srcModel = new AOModelBuilder().GetDataModel(asm);
                 var destModel = new SqlServerModelBuilder().GetDataModelAsync(cn).Result;
                 var diff = DataModel.Compare(srcModel, destModel);
             }
@@ -473,7 +473,7 @@ namespace Testing
         [TestMethod]
         public void InferFKWithoutReferencesAttr()
         {
-            var model = AssemblyModelBuilder.GetDataModelFromTypes(new Type[]
+            var model = AOModelBuilder.GetDataModelFromTypes(new Type[]
             {
                 typeof(Employee), typeof(ActionItem2)
             }, "dbo", "Id");

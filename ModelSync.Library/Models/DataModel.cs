@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace ModelSync.Models
@@ -29,19 +28,7 @@ namespace ModelSync.Models
         {
             var sqlServer = new SqlServerModelBuilder();
             return await sqlServer.GetDataModelAsync(connection);
-        }
-
-        public static DataModel FromAssembly(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id") =>
-            new AssemblyModelBuilder().GetDataModel(assembly, defaultSchema, defaultIdentityColumn);
-
-        public static DataModel FromAssembly(string fileName, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
-        {
-            var assembly = Assembly.LoadFrom(fileName);
-            return FromAssembly(assembly, defaultSchema, defaultIdentityColumn);
-        }
-
-        public static DataModel FromTypesInAssembly(Assembly assembly, string modelClassNamespace, string defaultSchema = "dbo", string defaultIdentityColumn = "Id") =>
-            new AssemblyModelBuilder().GetDataModel(assembly, modelClassNamespace, defaultSchema, defaultIdentityColumn);
+        }        
 
         public async Task<IEnumerable<string>> GetStatementsAsync(IDbConnection connection, IEnumerable<Type> types)
         {

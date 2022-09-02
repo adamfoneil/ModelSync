@@ -42,7 +42,7 @@ namespace Testing
         [TestMethod]
         public void CreateTableFromClass()
         {
-            var table = AssemblyModelBuilder.GetTableFromType<Employee>("dbo", "Id");
+            var table = AOModelBuilder.GetTableFromType<Employee>("dbo", "Id");
             var sql = table.CreateStatement();
             var output = new SqlServerDialect().FormatStatement(sql);
         }
@@ -50,7 +50,7 @@ namespace Testing
         [TestMethod]
         public void CreateDataModelFromTypes()
         {
-            var model = AssemblyModelBuilder.GetDataModelFromTypes(new Type[]
+            var model = AOModelBuilder.GetDataModelFromTypes(new Type[]
             {
                 typeof(Employee),
                 typeof(ActionItem)

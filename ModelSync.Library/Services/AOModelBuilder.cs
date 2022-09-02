@@ -17,7 +17,7 @@ namespace ModelSync.Services
     /// look back to https://github.com/adamosoftware/SchemaSync/blob/master/SchemaSync.Postulate/PostulateDbProvider.cs
     /// for example/inspiration
     /// </summary>
-    public class AssemblyModelBuilder : IAssemblyModelBuilder
+    public class AOModelBuilder : IAssemblySource
     {
         public DataModel GetDataModel(IEnumerable<Type> types, string defaultSchema, string defaultIdentityColumn)
         {

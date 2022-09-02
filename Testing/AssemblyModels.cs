@@ -13,7 +13,7 @@ namespace Testing
         [TestMethod]
         public void UserProfileModel()
         {
-            var model = new AssemblyModelBuilder().GetDataModel(new Type[]
+            var model = new AOModelBuilder().GetDataModel(new Type[]
             {
                 typeof(UserProfile)
             }, "dbo", "Id");

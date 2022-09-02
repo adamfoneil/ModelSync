@@ -36,7 +36,7 @@ namespace ModelSync.Extensions
 
             try
             {
-                var dataModel = new AssemblyModelBuilder().GetDataModel(assembly, defaultSchema, defaultIdentityColumn);
+                var dataModel = new AOModelBuilder().GetDataModel(assembly, defaultSchema, defaultIdentityColumn);
                 dataModel.SaveJson(buildOutputFile(DataModelFileSuffix));
             }
             catch (Exception exc)

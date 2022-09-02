@@ -12,13 +12,13 @@ namespace ModelSync.Models
     {
         public void ImportTypes(IEnumerable<Type> types, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {
-            var model = new AssemblyModelBuilder().GetDataModel(types, defaultSchema, defaultIdentityColumn);
+            var model = new AOModelBuilder().GetDataModel(types, defaultSchema, defaultIdentityColumn);
             ImportModel(model);
         }
 
         public void ImportTypes(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {
-            var model = new AssemblyModelBuilder().GetDataModel(assembly, defaultSchema, defaultIdentityColumn);
+            var model = new AOModelBuilder().GetDataModel(assembly, defaultSchema, defaultIdentityColumn);
             ImportModel(model);
         }
 
@@ -38,7 +38,7 @@ namespace ModelSync.Models
 
         public static async Task CreateTablesAsync(IEnumerable<Type> modelTypes, IDbConnection connection, SqlDialect dialect = null, string defaultSchema = "dbo", string defaultIdentityColumn = "Id")
         {
-            var dataModel = AssemblyModelBuilder.GetDataModelFromTypes(modelTypes, defaultSchema, defaultIdentityColumn);
+            var dataModel = AOModelBuilder.GetDataModelFromTypes(modelTypes, defaultSchema, defaultIdentityColumn);
 
             if (dialect == null) dialect = new SqlServerDialect();
             var script = await dataModel.ScriptCreateTablesAsync(connection, dialect);
