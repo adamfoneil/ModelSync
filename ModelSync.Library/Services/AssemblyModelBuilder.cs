@@ -39,6 +39,7 @@ namespace ModelSync.Services
             return GetDataModel(types, defaultSchema, defaultIdentityColumn);
         }
 
+
         public static Table GetTableFromType<T>(string defaultSchema, string defaultIdentityColumn)
         {
             return GetTableFromType(typeof(T), defaultSchema, defaultIdentityColumn);
@@ -285,8 +286,9 @@ namespace ModelSync.Services
                         })
                     };
                 }
-
+                //var aa = modelType.HasAttribute<UniqueConstraintAttribute>(out _);
                 var uniqueConstraints = modelType.GetCustomAttributes<UniqueConstraintAttribute>();
+                
                 foreach (var unique in uniqueConstraints)
                 {
                     string columns = string.Join("_", unique.PropertyNames);
@@ -362,9 +364,14 @@ namespace ModelSync.Services
                 IsNullable = propertyInfo.PropertyType.IsNullable() && !propertyInfo.HasAttribute<RequiredAttribute>(out _) && !propertyInfo.HasAttribute<KeyAttribute>(out _)
             };
 
-            if (DataTypes.ContainsKey(propertyInfo.PropertyType))
+            //if (DataTypes.ContainsKey(propertyInfo.PropertyType))
+            //{
+            //    result.DataType = DataTypes[propertyInfo.PropertyType];
+            //}
+
+            if (DataTypes.Any(x => x.Key.AssemblyQualifiedName == propertyInfo.PropertyType.AssemblyQualifiedName))
             {
-                result.DataType = DataTypes[propertyInfo.PropertyType];
+                result.DataType = DataTypes.Where(x => x.Key.AssemblyQualifiedName == propertyInfo.PropertyType.AssemblyQualifiedName).FirstOrDefault().Value;
             }
 
             if (propertyInfo.PropertyType.IsEnum)
@@ -425,9 +432,14 @@ namespace ModelSync.Services
                     { typeof(Guid), "default NewId()" }
                 };
 
-                if (!idTypes.ContainsKey(propertyInfo.PropertyType)) throw new Exception($"Property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name} uses unsupported identity type {propertyInfo.PropertyType.Name}");
+                var knownTypes = idTypes.Any(x => x.Key.Name == propertyInfo.PropertyType.Name);
+                if (!knownTypes)
+                    throw new Exception($"Property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name} uses unsupported identity type {propertyInfo.PropertyType.Name}");
 
-                column.TypeModifier = idTypes[propertyInfo.PropertyType];
+                //if (!idTypes.ContainsKey(propertyInfo.PropertyType)) throw new Exception($"Property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name} uses unsupported identity type {propertyInfo.PropertyType.Name}");
+
+                // column.TypeModifier = idTypes[propertyInfo.PropertyType];
+                column.TypeModifier = idTypes.Where(x => x.Key.Name == propertyInfo.PropertyType.Name).FirstOrDefault().Value;
             }
         }
 
