@@ -432,14 +432,14 @@ namespace ModelSync.Services
                     { typeof(Guid), "default NewId()" }
                 };
 
-                var knownTypes = idTypes.Any(x => x.Key.Name == propertyInfo.PropertyType.Name);
+                var knownTypes = idTypes.Any(x => x.Key.AssemblyQualifiedName == propertyInfo.PropertyType.AssemblyQualifiedName);
                 if (!knownTypes)
                     throw new Exception($"Property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name} uses unsupported identity type {propertyInfo.PropertyType.Name}");
 
                 //if (!idTypes.ContainsKey(propertyInfo.PropertyType)) throw new Exception($"Property {propertyInfo.DeclaringType.Name}.{propertyInfo.Name} uses unsupported identity type {propertyInfo.PropertyType.Name}");
 
                 // column.TypeModifier = idTypes[propertyInfo.PropertyType];
-                column.TypeModifier = idTypes.Where(x => x.Key.Name == propertyInfo.PropertyType.Name).FirstOrDefault().Value;
+                column.TypeModifier = idTypes.Where(x => x.Key.AssemblyQualifiedName == propertyInfo.PropertyType.AssemblyQualifiedName).FirstOrDefault().Value;
             }
         }
 
