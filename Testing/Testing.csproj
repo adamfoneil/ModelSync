@@ -34,6 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="AOAssemblies\Core\" />
+    <Folder Include="AOAssemblies\Framework\" />
+    <Folder Include="AOAssemblies\Netstandard\" />
     <Folder Include="EFAssemblies\Core\" />
     <Folder Include="EFAssemblies\Framework\" />
   </ItemGroup>
