@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="EFAssemblies\Netstanard\Hs5.Database.dll" />
+    <EmbeddedResource Include="EFAssemblies\Netstandard\Hs5.Database.dll" />
     <EmbeddedResource Include="TestCases\Hs5-sample1.zip" />
     <EmbeddedResource Include="TestCases\PKAdded.zip" />
   </ItemGroup>
