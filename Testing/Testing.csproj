@@ -7,13 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assemblies\Hs5.Database.dll" />
+    <None Remove="EFAssemblies\Hs5.Database.dll" />
     <None Remove="TestCases\Hs5-sample1.zip" />
     <None Remove="TestCases\PKAdded.zip" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Assemblies\Netstanard\Hs5.Database.dll" />
+    <EmbeddedResource Include="EFAssemblies\Netstanard\Hs5.Database.dll" />
     <EmbeddedResource Include="TestCases\Hs5-sample1.zip" />
     <EmbeddedResource Include="TestCases\PKAdded.zip" />
   </ItemGroup>
@@ -34,8 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Assemblies\Core\" />
-    <Folder Include="Assemblies\Framework\" />
+    <Folder Include="EFAssemblies\Core\" />
+    <Folder Include="EFAssemblies\Framework\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties assemblies_4netstanard_4hs5model_1json__JsonSchema="{" /></VisualStudio></ProjectExtensions>

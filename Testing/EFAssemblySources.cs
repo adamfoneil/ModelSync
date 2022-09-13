@@ -5,7 +5,7 @@ using ModelSync.Services;
 namespace Testing
 {
     [TestClass]
-    public class AssemblySources
+    public class EFAssemblySources
     {
         [TestMethod]
         public void Netstandard()
