@@ -53,9 +53,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\ModelSync.WinForms\ModelSync.App\Helpers\AssemblyHelper.cs">
-      <Link>AssemblyHelper.cs</Link>
-    </Compile>
+    <Compile Include="AssemblyHelper.cs" />
+    <Compile Include="EFModelBuilder.cs" />
     <Compile Include="Reflection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

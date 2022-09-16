@@ -45,6 +45,11 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -58,6 +63,24 @@
       <Project>{8F6D9433-E395-440F-B16D-7BE57555FF77}</Project>
       <Name>TestingFramework</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EFSampleDB.netcoreapp3.1.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EFSampleDB.netstandard2.0.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EFSampleDB4.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\EFSampleDB6.net6.0.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
