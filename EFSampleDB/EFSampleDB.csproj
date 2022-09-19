@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;net472;netcoreapp3.1;netstandard2.0</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <PackageOutputPath>..\TestConsoleFramework\bin\Debug\$(OutputPath)</PackageOutputPath>
+    <BaseOutputPath></BaseOutputPath>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <Reference Include="System.ComponentModel.DataAnnotations">
+		  <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.ComponentModel.DataAnnotations.dll</HintPath>
+	  </Reference>
+  </ItemGroup>
+
+</Project>

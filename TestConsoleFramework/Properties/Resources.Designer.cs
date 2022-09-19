@@ -59,45 +59,5 @@ namespace TestConsoleFramework.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] EFSampleDB_netcoreapp3_1 {
-            get {
-                object obj = ResourceManager.GetObject("EFSampleDB_netcoreapp3_1", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] EFSampleDB_netstandard2_0 {
-            get {
-                object obj = ResourceManager.GetObject("EFSampleDB_netstandard2_0", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] EFSampleDB4 {
-            get {
-                object obj = ResourceManager.GetObject("EFSampleDB4", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] EFSampleDB6_net6_0 {
-            get {
-                object obj = ResourceManager.GetObject("EFSampleDB6_net6_0", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
     }
 }

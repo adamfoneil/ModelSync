@@ -15,7 +15,13 @@ namespace ModelSync.Abstract
         ForeignKey,
         CheckConstraint
     }
-
+    public enum DatabaseProvider
+    {
+        MSSql,
+        Oracle,
+        MySQL,
+        PostgreSQL
+    }
     public abstract class DbObject
     {
         public string Name { get; set; }

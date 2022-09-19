@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ModelSync.Attributes;
+using ModelSync.Abstract;
+using AO.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ModelSync.Library.Services
 {
@@ -204,17 +207,49 @@ namespace ModelSync.Library.Services
         //        Errors = errors
         //    };
         //}
-
-        //private static ObjectName GetObjectName(Type type, string defaultSchema)
+        //private static ObjectName GetObjectName(Type type, string defaultSchema) //private static ObjectName GetObjectName(Type type, DatabaseProvider databaseProvider)
         //{
-        //    string name = (type.HasAttribute(out TableAttribute tableAttr)) ? tableAttr.Name : type.Name;
+        //    string name = "";
+        //    string schema = "";
 
-        //    string schema =
-        //        (type.HasAttribute(out SchemaAttribute schemaAttr)) ? schemaAttr.Name :
-        //        (tableAttr != null && !string.IsNullOrEmpty(tableAttr.Schema)) ? tableAttr.Schema :
-        //        defaultSchema;
+        //    var tableAttribute = type.GetCustomAttribute<TableAttribute>();
+
+        //    if (tableAttribute != null)
+        //    {
+        //        name = tableAttribute.Name;
+        //        schema = tableAttribute.Schema ?? defaultSchema; //schema = tableAttribute.Schema ?? GetDefaultSchema(databaseProvider);
+        //    }
+        //    else
+        //    {
+        //        name = type.Name;
+        //        schema = defaultSchema; //schema = GetDefaultSchema(databaseProvider);
+        //    }
 
         //    return new ObjectName() { Schema = schema, Name = name };
+        //}
+
+        //private static string GetDefaultSchema(DatabaseProvider databaseProvider)
+        //{
+        //    string result = "";
+        //    switch (databaseProvider)
+        //    {
+        //        case DatabaseProvider.MSSql:
+        //            result = "dbo";
+        //            break;
+        //        case DatabaseProvider.Oracle:
+        //            throw new NotImplementedException();
+        //            break;
+        //        case DatabaseProvider.MySQL:
+        //            throw new NotImplementedException();
+        //            break;
+        //        case DatabaseProvider.PostgreSQL:
+        //            throw new NotImplementedException();
+        //            break;
+        //        default:
+        //            result = "dbo";
+        //            break;
+        //    }
+        //    return result;
         //}
 
         //private static string GetTableName(Type type, string defaultSchema)
@@ -240,8 +275,8 @@ namespace ModelSync.Library.Services
         //    {
         //        Name = GetTableName(modelType, defaultSchema),
         //        Columns = getColumns(modelType).ToArray(),
-        //        Indexes = getIndexes(modelType).ToArray(),
-        //        CheckConstraints = getChecks(modelType).ToArray()
+        //        //Indexes = getIndexes(modelType).ToArray(),
+        //        //CheckConstraints = getChecks(modelType).ToArray()
         //    };
 
         //    foreach (var col in result.Columns) col.Parent = result;
@@ -250,67 +285,67 @@ namespace ModelSync.Library.Services
 
         //    return result;
 
-        //    IEnumerable<Index> getIndexes(Type type)
-        //    {
-        //        IndexType identityType = IndexType.PrimaryKey;
+        //    //IEnumerable<Index> getIndexes(Type type)
+        //    //{
+        //    //    IndexType identityType = IndexType.PrimaryKey;
 
-        //        var keyColumns = type.GetProperties().Where(pi => pi.HasAttribute<KeyAttribute>(out _));
-        //        if (keyColumns.Any())
-        //        {
-        //            if (idProperty != null && keyColumns.Contains(idProperty))
-        //            {
-        //                throw new Exception($"Model property {modelType.Name}.{idProperty.Name} can be either an [Identity] or [Key] property, but not both.");
-        //            }
+        //    //    var keyColumns = type.GetProperties().Where(pi => pi.HasAttribute<KeyAttribute>(out _));
+        //    //    if (keyColumns.Any())
+        //    //    {
+        //    //        if (idProperty != null && keyColumns.Contains(idProperty))
+        //    //        {
+        //    //            throw new Exception($"Model property {modelType.Name}.{idProperty.Name} can be either an [Identity] or [Key] property, but not both.");
+        //    //        }
 
-        //            identityType = IndexType.UniqueConstraint;
+        //    //        identityType = IndexType.UniqueConstraint;
 
-        //            yield return new Index()
-        //            {
-        //                Type = IndexType.PrimaryKey,
-        //                Name = $"PK_{constraintName}",
-        //                Columns = keyColumns.Select((pi, index) => new Index.Column()
-        //                {
-        //                    Name = pi.Name,
-        //                    Order = index,
-        //                    SortDirection = SortDirection.Ascending
-        //                })
-        //            };
-        //        }
+        //    //        yield return new Index()
+        //    //        {
+        //    //            Type = IndexType.PrimaryKey,
+        //    //            Name = $"PK_{constraintName}",
+        //    //            Columns = keyColumns.Select((pi, index) => new Index.Column()
+        //    //            {
+        //    //                Name = pi.Name,
+        //    //                Order = index,
+        //    //                SortDirection = SortDirection.Ascending
+        //    //            })
+        //    //        };
+        //    //    }
 
-        //        var uniqueConstraints = modelType.GetCustomAttributes<UniqueConstraintAttribute>();
-        //        foreach (var unique in uniqueConstraints)
-        //        {
-        //            string columns = string.Join("_", unique.PropertyNames);
+        //    //    var uniqueConstraints = modelType.GetCustomAttributes<UniqueConstraintAttribute>();
+        //    //    foreach (var unique in uniqueConstraints)
+        //    //    {
+        //    //        string columns = string.Join("_", unique.PropertyNames);
 
-        //            yield return new Index()
-        //            {
-        //                Name = $"U_{constraintName}_{columns}",
-        //                Type = IndexType.UniqueConstraint,
-        //                Columns = unique.PropertyNames
-        //                    .Select((name, index) => new Index.Column() { Name = name, SortDirection = SortDirection.Ascending, Order = index })
-        //                    .ToArray()
-        //            };
-        //        }
+        //    //        yield return new Index()
+        //    //        {
+        //    //            Name = $"U_{constraintName}_{columns}",
+        //    //            Type = IndexType.UniqueConstraint,
+        //    //            Columns = unique.PropertyNames
+        //    //                .Select((name, index) => new Index.Column() { Name = name, SortDirection = SortDirection.Ascending, Order = index })
+        //    //                .ToArray()
+        //    //        };
+        //    //    }
 
-        //        var explicitIdentity = modelType.GetCustomAttribute<IdentityAttribute>();
+        //    //    var explicitIdentity = modelType.GetCustomAttribute<IdentityAttribute>();
 
-        //        string identityIndexName =
-        //            (explicitIdentity != null && keyColumns.Any()) ? $"U_{constraintName}_{idProperty.Name}" :
-        //            (!keyColumns.Any()) ? $"PK_{constraintName}" :
-        //            $"U_{constraintName}_{idProperty.Name}";
+        //    //    string identityIndexName =
+        //    //        (explicitIdentity != null && keyColumns.Any()) ? $"U_{constraintName}_{idProperty.Name}" :
+        //    //        (!keyColumns.Any()) ? $"PK_{constraintName}" :
+        //    //        $"U_{constraintName}_{idProperty.Name}";
 
-        //        if (explicitIdentity != null && keyColumns.Any()) identityType = IndexType.UniqueConstraint;
+        //    //    if (explicitIdentity != null && keyColumns.Any()) identityType = IndexType.UniqueConstraint;
 
-        //        yield return new Index()
-        //        {
-        //            Type = identityType,
-        //            Name = identityIndexName,
-        //            Columns = new Index.Column[]
-        //            {
-        //                new Index.Column() { Name = idProperty.Name, Order = 1, SortDirection = SortDirection.Ascending }
-        //            }
-        //        };
-        //    }
+        //    //    yield return new Index()
+        //    //    {
+        //    //        Type = identityType,
+        //    //        Name = identityIndexName,
+        //    //        Columns = new Index.Column[]
+        //    //        {
+        //    //            new Index.Column() { Name = idProperty.Name, Order = 1, SortDirection = SortDirection.Ascending }
+        //    //        }
+        //    //    };
+        //    //}
 
         //    IEnumerable<Column> getColumns(Type type)
         //    {
@@ -330,19 +365,19 @@ namespace ModelSync.Library.Services
         //        return results;
         //    }
 
-        //    IEnumerable<CheckConstraint> getChecks(Type type)
-        //    {
-        //        List<CheckConstraint> results = new List<CheckConstraint>();
+        //    //IEnumerable<CheckConstraint> getChecks(Type type)
+        //    //{
+        //    //    List<CheckConstraint> results = new List<CheckConstraint>();
 
-        //        var checks = type.GetCustomAttributes<CheckConstraintAttribute>();
-        //        results.AddRange(checks.Select(attr => new CheckConstraint()
-        //        {
-        //            Name = attr.ConstraintName,
-        //            Expression = attr.Expression
-        //        }));
+        //    //    var checks = type.GetCustomAttributes<CheckConstraintAttribute>();
+        //    //    results.AddRange(checks.Select(attr => new CheckConstraint()
+        //    //    {
+        //    //        Name = attr.ConstraintName,
+        //    //        Expression = attr.Expression
+        //    //    }));
 
-        //        return results;
-        //    }
+        //    //    return results;
+        //    //}
         //}
 
         //private static Column GetColumnFromProperty(PropertyInfo propertyInfo, string defaultIdentityColumn)
@@ -378,8 +413,9 @@ namespace ModelSync.Library.Services
         //{
         //    if (propertyInfo.PropertyType.Equals(typeof(string)))
         //    {
-        //        if (propertyInfo.HasAttribute(out MaxLengthAttribute maxLength))
-        //        {
+        //        if (propertyInfo.HasAttribute(out StringLengthAttribute maxLength))
+        //        //if (propertyInfo.HasAttribute(out MaxLengthAttribute maxLength))
+        //            {
         //            column.DataType += $"({maxLength.Length})";
         //        }
         //        else
@@ -402,10 +438,10 @@ namespace ModelSync.Library.Services
         //        column.Expression = calcAttr.Expression;
         //    }
 
-        //    if (propertyInfo.HasAttribute(out DefaultAttribute defaultAttr))
-        //    {
-        //        column.DefaultValue = defaultAttr.Expression;
-        //    }
+        //    //if (propertyInfo.HasAttribute(out DefaultAttribute defaultAttr))
+        //    //{
+        //    //    column.DefaultValue = defaultAttr.Expression;
+        //    //}
 
         //    if (IsIdentity(propertyInfo, defaultIdentityColumn))
         //    {

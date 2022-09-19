@@ -1,5 +1,4 @@
 ﻿
-using EFSampleDB6.net6_0;
 using System.Data.Entity;
 
 namespace EFSampleDB.Demo

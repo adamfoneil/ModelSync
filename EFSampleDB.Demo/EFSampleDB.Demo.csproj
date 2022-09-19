@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFSampleDB6.net6.0\EFSampleDB6.net6.0.csproj" />
+    <ProjectReference Include="..\EFSampleDB\EFSampleDB.csproj" />
   </ItemGroup>
 
 </Project>

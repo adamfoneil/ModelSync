@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <LangVersion>8.0</LangVersion>  
     <Version>2.2.16</Version>
     <Authors>Adam O'Neil</Authors>
     <Copyright>Copyright (c) 2020 Adam O'Neil</Copyright>
