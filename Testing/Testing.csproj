@@ -7,13 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="EFAssemblies\Core\UsmanModels.dll" />
+    <None Remove="EFAssemblies\Framework\EFSample.dll" />
     <None Remove="EFAssemblies\Hs5.Database.dll" />
+    <None Remove="EFAssemblies\Netstandard\SampleModel.dll" />
     <None Remove="TestCases\Hs5-sample1.zip" />
     <None Remove="TestCases\PKAdded.zip" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="EFAssemblies\Core\UsmanModels.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EFAssemblies\Framework\EFSample.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="EFAssemblies\Netstandard\Hs5.Database.dll" />
+    <EmbeddedResource Include="EFAssemblies\Netstandard\SampleModel.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="TestCases\Hs5-sample1.zip" />
     <EmbeddedResource Include="TestCases\PKAdded.zip" />
   </ItemGroup>
@@ -37,10 +49,17 @@
     <Folder Include="AOAssemblies\Core\" />
     <Folder Include="AOAssemblies\Framework\" />
     <Folder Include="AOAssemblies\Netstandard\" />
-    <Folder Include="EFAssemblies\Core\" />
-    <Folder Include="EFAssemblies\Framework\" />
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties assemblies_4netstanard_4hs5model_1json__JsonSchema="{" /></VisualStudio></ProjectExtensions>
+  <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\..\..\EFSample\EFSample\bin\Debug\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\..\..\EFSample\EFSample\bin\Debug\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>
