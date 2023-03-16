@@ -9,21 +9,21 @@ using System.Threading.Tasks;
 
 namespace ModelSync.Services
 {
-    public partial class SqlServerModelBuilder : IConnectionModelBuilder
-    {
-        protected static async Task<IEnumerable<Schema>> GetSchemasAsync(IDbConnection connection)
-        {
-            var schemas = await connection.QueryAsync<string>(
-                @"SELECT [name] FROM sys.schemas
+	public partial class SqlServerModelBuilder : IConnectionModelBuilder
+	{
+		protected static async Task<IEnumerable<Schema>> GetSchemasAsync(IDbConnection connection)
+		{
+			var schemas = await connection.QueryAsync<string>(
+				@"SELECT [name] FROM sys.schemas
 				WHERE [name] NOT IN ('guest', 'sys', 'information_schema')");
 
-            return schemas.Select(s => new Schema() { Name = s });
-        }
+			return schemas.Select(s => new Schema() { Name = s });
+		}
 
-        protected static async Task<IEnumerable<Table>> GetTablesAsync(IDbConnection connection)
-		{	
-            var tables = await connection.QueryAsync<Table>(
-                @"WITH [clusteredIndexes] AS (
+		protected static async Task<IEnumerable<Table>> GetTablesAsync(IDbConnection connection)
+		{
+			var tables = await connection.QueryAsync<Table>(
+				@"WITH [clusteredIndexes] AS (
 					SELECT [name], [object_id] FROM [sys].[indexes] WHERE [type_desc]='CLUSTERED'
 				), [identityColumns] AS (
 					SELECT [object_id], [name] FROM [sys].[columns] WHERE [is_identity]=1
@@ -40,8 +40,8 @@ namespace ModelSync.Services
 				WHERE					
 					[t].[name] NOT IN ('__MigrationHistory', '__EFMigrationsHistory')");
 
-            var columns = await connection.QueryAsync<Column>(
-                @"WITH [identityColumns] AS (
+			var columns = await connection.QueryAsync<Column>(
+				@"WITH [identityColumns] AS (
 					SELECT [object_id], [name] FROM [sys].[columns] WHERE [is_identity]=1
 				), [source] AS (
 					SELECT
@@ -99,8 +99,8 @@ namespace ModelSync.Services
 				FROM
 					[source]");
 
-            var checks = await connection.QueryAsync<CheckConstraint>(
-                @"SELECT
+			var checks = await connection.QueryAsync<CheckConstraint>(
+				@"SELECT
 					[ck].[parent_object_id] AS [ObjectId],
 					[ck].[name] AS [Name],
 					[ck].[definition] AS [Expression]
@@ -109,8 +109,8 @@ namespace ModelSync.Services
 				WHERE
 					[ck].[type]='C'");
 
-            var indexes = await connection.QueryAsync<Index>(
-                @"SELECT
+			var indexes = await connection.QueryAsync<Index>(
+				@"SELECT
 					[x].[object_id] AS [ObjectId],
 					[x].[name] AS [Name],
 					CONVERT(bit, CASE
@@ -131,8 +131,8 @@ namespace ModelSync.Services
 					[t].[type_desc]='USER_TABLE' AND
 					[x].[type]<>0");
 
-            var indexCols = await connection.QueryAsync<IndexColumnResult>(
-                @"SELECT
+			var indexCols = await connection.QueryAsync<IndexColumnResult>(
+				@"SELECT
 					[xcol].[object_id],
 					[xcol].[index_id],
 					[col].[name],
@@ -146,43 +146,43 @@ namespace ModelSync.Services
 				WHERE
 					[t].[type_desc]='USER_TABLE'");
 
-            var columnLookup = columns.ToLookup(row => row.ObjectId);
-            var checkLookup = checks.ToLookup(row => row.ObjectId);
-            var indexLookup = indexes.ToLookup(row => row.ObjectId);
-            var indexColLookup = indexCols.ToLookup(row => new IndexKey() { object_id = row.object_id, index_id = row.index_id });
+			var columnLookup = columns.ToLookup(row => row.ObjectId);
+			var checkLookup = checks.ToLookup(row => row.ObjectId);
+			var indexLookup = indexes.ToLookup(row => row.ObjectId);
+			var indexColLookup = indexCols.ToLookup(row => new IndexKey() { object_id = row.object_id, index_id = row.index_id });
 
-            foreach (var x in indexes)
-            {
-                var indexKey = new IndexKey() { object_id = x.ObjectId, index_id = x.InternalId };
-                x.Columns = indexColLookup[indexKey].Select(row => new Index.Column()
-                {
-                    Name = row.name,
-                    Order = row.key_ordinal,
-                    SortDirection = (row.is_descending_key) ? SortDirection.Descending : SortDirection.Ascending
-                });
-            }
+			foreach (var x in indexes)
+			{
+				var indexKey = new IndexKey() { object_id = x.ObjectId, index_id = x.InternalId };
+				x.Columns = indexColLookup[indexKey].Select(row => new Index.Column()
+				{
+					Name = row.name,
+					Order = row.key_ordinal,
+					SortDirection = (row.is_descending_key) ? SortDirection.Descending : SortDirection.Ascending
+				});
+			}
 
-            foreach (var t in tables)
-            {
-                t.Columns = columnLookup[t.ObjectId].ToArray();
-                foreach (var col in t.Columns) col.Parent = t;
+			foreach (var t in tables)
+			{
+				t.Columns = columnLookup[t.ObjectId].ToArray();
+				foreach (var col in t.Columns) col.Parent = t;
 
-                t.Indexes = indexLookup[t.ObjectId].ToArray();
-                foreach (var x in t.Indexes) x.Parent = t;
+				t.Indexes = indexLookup[t.ObjectId].ToArray();
+				foreach (var x in t.Indexes) x.Parent = t;
 
-                t.CheckConstraints = checkLookup[t.ObjectId].ToArray();
-                foreach (var c in t.CheckConstraints) c.Parent = t;
-            }
+				t.CheckConstraints = checkLookup[t.ObjectId].ToArray();
+				foreach (var c in t.CheckConstraints) c.Parent = t;
+			}
 
-            return tables;
-        }
+			return tables;
+		}
 
-        protected static async Task<IEnumerable<ForeignKey>> GetForeignKeysAsync(IDbConnection connection, IEnumerable<Table> tables)
-        {
-            var tableDictionary = tables.ToDictionary(item => item.Name);
+		protected static async Task<IEnumerable<ForeignKey>> GetForeignKeysAsync(IDbConnection connection, IEnumerable<Table> tables)
+		{
+			var tableDictionary = tables.ToDictionary(item => item.Name);
 
-            var foreignKeys = await connection.QueryAsync<ForeignKeysResult>(
-                @"SELECT
+			var foreignKeys = await connection.QueryAsync<ForeignKeysResult>(
+				@"SELECT
 					[fk].[object_id] AS [ObjectId],
 					[fk].[name] AS [ConstraintName],
 					SCHEMA_NAME([ref_t].[schema_id]) AS [ReferencedSchema],
@@ -196,8 +196,8 @@ namespace ModelSync.Services
 					INNER JOIN [sys].[tables] [ref_t] ON [fk].[referenced_object_id]=[ref_t].[object_id]
 					INNER JOIN [sys].[tables] [child_t] ON [fk].[parent_object_id]=[child_t].[object_id]");
 
-            var columns = await connection.QueryAsync<ForeignKeyColumnsResult>(
-                @"SELECT
+			var columns = await connection.QueryAsync<ForeignKeyColumnsResult>(
+				@"SELECT
 					[fkcol].[constraint_object_id] AS [ObjectId],
 					[child_col].[name] AS [ReferencingName],
 					[ref_col].[name] AS [ReferencedName]
@@ -212,30 +212,30 @@ namespace ModelSync.Services
 						[ref_t].[object_id]=[ref_col].[object_id] AND
 						[fkcol].[referenced_column_id]=[ref_col].[column_id]");
 
-            var colLookup = columns.ToLookup(row => row.ObjectId);
+			var colLookup = columns.ToLookup(row => row.ObjectId);
 
-            return foreignKeys.Select(fk => new ForeignKey()
-            {
-                Name = fk.ConstraintName,
-                ReferencedTable = tableDictionary[$"{fk.ReferencedSchema}.{fk.ReferencedTable}"],
-                Parent = tableDictionary[$"{fk.ReferencingSchema}.{fk.ReferencingTable}"],
-                CascadeDelete = fk.CascadeDelete,
-                CascadeUpdate = fk.CascadeUpdate,
-                Columns = colLookup[fk.ObjectId].Select(fkcol => new ForeignKey.Column()
-                {
-                    ReferencedName = fkcol.ReferencedName,
-                    ReferencingName = fkcol.ReferencingName
-                })
-            });
-        }
+			return foreignKeys.Select(fk => new ForeignKey()
+			{
+				Name = fk.ConstraintName,
+				ReferencedTable = tableDictionary[$"{fk.ReferencedSchema}.{fk.ReferencedTable}"],
+				Parent = tableDictionary[$"{fk.ReferencingSchema}.{fk.ReferencingTable}"],
+				CascadeDelete = fk.CascadeDelete,
+				CascadeUpdate = fk.CascadeUpdate,
+				Columns = colLookup[fk.ObjectId].Select(fkcol => new ForeignKey.Column()
+				{
+					ReferencedName = fkcol.ReferencedName,
+					ReferencingName = fkcol.ReferencingName
+				})
+			});
+		}
 
-        public async Task<DataModel> GetDataModelAsync(IDbConnection connection)
-        {
-            var result = new DataModel();
-            result.Schemas = await GetSchemasAsync(connection);
-            result.Tables = await GetTablesAsync(connection);
-            result.ForeignKeys = await GetForeignKeysAsync(connection, result.Tables);
-            return result;
-        }
-    }
+		public async Task<DataModel> GetDataModelAsync(IDbConnection connection)
+		{
+			var result = new DataModel();
+			result.Schemas = await GetSchemasAsync(connection);
+			result.Tables = await GetTablesAsync(connection);
+			result.ForeignKeys = await GetForeignKeysAsync(connection, result.Tables);
+			return result;
+		}
+	}
 }
