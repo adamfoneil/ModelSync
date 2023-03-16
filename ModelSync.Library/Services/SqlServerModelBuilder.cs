@@ -21,7 +21,7 @@ namespace ModelSync.Services
         }
 
         protected static async Task<IEnumerable<Table>> GetTablesAsync(IDbConnection connection)
-        {
+		{	
             var tables = await connection.QueryAsync<Table>(
                 @"WITH [clusteredIndexes] AS (
 					SELECT [name], [object_id] FROM [sys].[indexes] WHERE [type_desc]='CLUSTERED'
