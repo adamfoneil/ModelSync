@@ -18,7 +18,7 @@ namespace ModelSync.Interfaces
         void ImportTypes(IEnumerable<Type> types, string defaultSchema = "dbo", string defaultIdentityColumn = "Id");
         void ImportTypes(Assembly assembly, string defaultSchema = "dbo", string defaultIdentityColumn = "Id");
         Task DeployAsync(IDbConnection connection, SqlDialect dialect);
-        
+
         void SaveJson(string fileName);
         string ToJson();
     }

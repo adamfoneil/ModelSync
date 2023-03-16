@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ModelSync.App.Helpers;
 using ModelSync.Services;
 using System;
 using System.Reflection;

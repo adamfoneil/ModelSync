@@ -435,7 +435,7 @@ namespace Testing
             var srcModel = new DataModel() { Tables = new Table[] { srcTable } };
 
             var destTable = ModelBuilder.BuildTable("dbo.Plan", "Id", "Name", "DateAddInterval", "Price", "ItemNumber");
-            destTable.Indexes = new ModelSync.Models.Index[] 
+            destTable.Indexes = new ModelSync.Models.Index[]
             {
                 new ModelSync.Models.Index()
                 {
@@ -446,7 +446,7 @@ namespace Testing
                 }
             };
             var destModel = new DataModel() { Tables = new Table[] { destTable } };
-           
+
             var diff = DataModel.Compare(srcModel, destModel);
 
             var commands = diff.SelectMany(scr => scr.Commands).ToArray();

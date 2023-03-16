@@ -98,7 +98,7 @@ namespace ModelSync.Models
             {
                 yield return $"-- {comment}\r\nALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
                 yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isNullable: false)}";
-            }            
+            }
 
             bool partOfIndex(DataModel dataModel)
             {
@@ -139,7 +139,7 @@ namespace ModelSync.Models
         }
 
         public override bool IsAltered(DbObject @object, out string comment)
-        {            
+        {
             if (@object is Column column)
             {
                 if (IsCalculated && column.IsCalculated)
