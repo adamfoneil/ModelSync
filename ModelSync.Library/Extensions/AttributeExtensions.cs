@@ -16,9 +16,9 @@ namespace ModelSync.Extensions
             }
             catch (Exception)
             {
-                return null;                
+                return null;
             }
-            
+
         }
 
         public static bool HasAttribute<T>(this ICustomAttributeProvider provider, out T attribute) where T : Attribute
@@ -27,7 +27,7 @@ namespace ModelSync.Extensions
             return (attribute != null);
         }
 
-        public static T GetAssemblyAttribute<T>(this System.Reflection.Assembly assembly) where T: Attribute
+        public static T GetAssemblyAttribute<T>(this System.Reflection.Assembly assembly) where T : Attribute
         {
             var attribs = assembly.GetCustomAttributes(typeof(T), false);
             if (attribs == null || attribs.Length == 0)

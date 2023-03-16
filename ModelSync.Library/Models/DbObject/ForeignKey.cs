@@ -36,13 +36,13 @@ namespace ModelSync.Models
         public override IEnumerable<DbObject> GetDropDependencies(DataModel dataModel)
         {
             return Enumerable.Empty<DbObject>();
-        }        
+        }
 
         public override (bool result, string comment) IsAltered(DbObject @object)
         {
             var fk = @object as ForeignKey;
             if (fk == null)
-            {                
+            {
                 return (false, null);
             }
 
@@ -54,7 +54,7 @@ namespace ModelSync.Models
 
             if (CascadeUpdate != fk.CascadeUpdate)
             {
-                var comment  = $"{Name} cascade update: {fk.CascadeUpdate} -> {CascadeUpdate}";
+                var comment = $"{Name} cascade update: {fk.CascadeUpdate} -> {CascadeUpdate}";
                 return (true, comment);
             }
 

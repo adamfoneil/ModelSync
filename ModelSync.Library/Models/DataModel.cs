@@ -74,7 +74,7 @@ namespace ModelSync.Models
         {
             // copy default constraints from one model to another (for #26)
 
-            var defaults = 
+            var defaults =
                 fromModel.Tables
                 .SelectMany(t => t.Columns, (t, col) => new
                 {

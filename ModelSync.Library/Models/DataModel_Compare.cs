@@ -314,7 +314,7 @@ namespace ModelSync.Models
                 .Where(chkPair => chkPair.Source.IsAltered(chkPair.Dest).result)
                 .Select(chkPair =>
                 {
-                    var comment = chkPair.Source.IsAltered(chkPair.Dest).comment;                    
+                    var comment = chkPair.Source.IsAltered(chkPair.Dest).comment;
                     return new ScriptAction()
                     {
                         Type = ActionType.Alter,

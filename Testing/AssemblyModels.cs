@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ModelSync.Models;
 using ModelSync.Services;
 using System;
 using System.Linq;
 using Testing.Models;
-using ModelSync.Models;
 
 namespace Testing
 {

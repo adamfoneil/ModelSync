@@ -2,7 +2,6 @@
 using ModelSync.Interfaces;
 using ModelSync.Models;
 using ModelSync.Models.Internal;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -12,8 +11,8 @@ namespace ModelSync.Services
 {
     public partial class SqlServerModelBuilder : IConnectionModelBuilder
     {
-		private static string GetColumnsQuery(bool tableTypes = false) =>
-			$@"WITH [identityColumns] AS (
+        private static string GetColumnsQuery(bool tableTypes = false) =>
+            $@"WITH [identityColumns] AS (
 				SELECT [object_id], [name] FROM [sys].[columns] WHERE [is_identity]=1
 			), [source] AS (
 				SELECT
@@ -71,7 +70,7 @@ namespace ModelSync.Services
 					ELSE NULL
 				END AS [TypeModifier]
 			FROM
-				[source]";       
+				[source]";
 
         protected static async Task<IEnumerable<Schema>> GetSchemasAsync(IDbConnection connection)
         {
@@ -240,11 +239,11 @@ namespace ModelSync.Services
             result.Schemas = await GetSchemasAsync(connection);
             result.Tables = await GetTablesAsync(connection);
             result.ForeignKeys = await GetForeignKeysAsync(connection, result.Tables);
-			result.Views = await GetViewsAsync(connection);
-			result.Procedures = await GetProceduresAsync(connection);
-			result.Functions = await GetTableFunctionsAsync(connection);
-			result.TableTypes = await GetTableTypesAsync(connection);
-			result.Sequences = await GetSequencesAsync(connection);
+            result.Views = await GetViewsAsync(connection);
+            result.Procedures = await GetProceduresAsync(connection);
+            result.Functions = await GetTableFunctionsAsync(connection);
+            result.TableTypes = await GetTableTypesAsync(connection);
+            result.Sequences = await GetSequencesAsync(connection);
             return result;
         }
     }

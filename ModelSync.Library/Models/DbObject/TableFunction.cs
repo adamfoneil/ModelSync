@@ -13,7 +13,7 @@ namespace ModelSync.Models
     public class TableFunction : DbObject, IDefinable
     {
         public override ObjectType ObjectType => ObjectType.TableFunction;
-        
+
         public string Definition { get; set; }
 
         public override IEnumerable<string> CreateStatements()
@@ -22,7 +22,7 @@ namespace ModelSync.Models
         }
 
         public override string DropStatement() => $"DROP FUNCTION <{Name}>";
-        
+
         public override async Task<bool> ExistsAsync(IDbConnection connection, SqlDialect dialect)
         {
             if (dialect is SqlServerDialect)

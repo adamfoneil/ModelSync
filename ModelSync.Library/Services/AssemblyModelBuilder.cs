@@ -288,7 +288,7 @@ namespace ModelSync.Services
                 }
                 //var aa = modelType.HasAttribute<UniqueConstraintAttribute>(out _);
                 var uniqueConstraints = modelType.GetCustomAttributes<UniqueConstraintAttribute>();
-                
+
                 foreach (var unique in uniqueConstraints)
                 {
                     string columns = string.Join("_", unique.PropertyNames);

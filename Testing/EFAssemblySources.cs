@@ -24,7 +24,7 @@ namespace Testing
 
         [TestMethod]
         public void Core()
-        { 
+        {
         }
     }
 }

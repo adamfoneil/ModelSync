@@ -4,7 +4,6 @@ using ModelSync.Services;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -88,9 +87,9 @@ namespace ModelSync.Models
         }
 
         public IEnumerable<string> AlterStatements(string comment, DataModel destModel)
-        {        
+        {
             if (!string.IsNullOrEmpty(DefaultConstraint))
-            {                
+            {
                 yield return $"ALTER TABLE <{Parent}> DROP CONSTRAINT <{DefaultConstraint}>";
             }
 
@@ -108,7 +107,7 @@ namespace ModelSync.Models
             {
                 yield return $"-- {comment}\r\nALTER TABLE <{Parent}> DROP COLUMN <{Name}>";
                 yield return $"ALTER TABLE <{Parent}> ADD {GetDefinition(isNullable: false)}";
-            }   
+            }
 
             bool partOfIndex(DataModel dataModel)
             {
@@ -146,7 +145,7 @@ namespace ModelSync.Models
         }
 
         public override (bool result, string comment) IsAltered(DbObject @object)
-        {            
+        {
             if (@object is Column column)
             {
                 if (IsCalculated && column.IsCalculated)

@@ -42,7 +42,7 @@ namespace ModelSync.Services
                     INNER JOIN [sys].[sql_modules] [m] ON [o].[object_id]=[m].[object_id]
                 WHERE
                     [o].[type]='TF'");
-        
+
         private static async Task<IEnumerable<TableType>> GetTableTypesAsync(IDbConnection connection)
         {
             var types = await connection.QueryAsync<TableType>(
