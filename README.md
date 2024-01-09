@@ -1,3 +1,7 @@
+**Note** I'm not really updating this anymore. Please see my new iteration of this [Ensync](https://github.com/adamfoneil/Ensync).
+
+---
+
 [![Nuget](https://img.shields.io/nuget/v/AO.ModelSync.Library)](https://www.nuget.org/packages/AO.ModelSync.Library/)
 
 This is a library for generating and executing SQL diff merge scripts. There are two use cases:
